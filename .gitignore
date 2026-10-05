@@ -6,6 +6,9 @@ __pycache__/
 # Kaggle data (~14 GB; the competition rules don't allow redistributing it)
 data/
 
+# Trained model files (regenerate with src/train_xgboost.py)
+models/
+
 # macOS
 .DS_Store
 

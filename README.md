@@ -13,7 +13,7 @@ Every result below is measured **forward in time**: models train only on parts w
 
 | | Result |
 |---|---|
-| **Final-QC triage** | XGBoost on the full measurement record reaches **8.7× PR-AUC lift** over random ranking on average (4.4–16.3× across four test periods). Inspecting the 1% highest-risk parts catches **15% of failures** (8–22%). |
+| **Final-QC triage** | XGBoost on the full measurement record, trained on up to 944k parts, reaches **7.3× PR-AUC lift** over random ranking on average (4.7–12.5× across four test periods). Inspecting the 1% highest-risk parts catches **14% of failures** (11–20%). |
 | **Early warning from measurements** | **None.** Measurements taken before the final line (L3) predict nothing about future parts. The usable signal arrives at L3, in a part's last ~18 minutes on the line. |
 | **Batch-mate alert** | When a part fails final QC, the parts that entered production with it and are still on the line fail more often. Flags raised at least 3 days after entry mark **0.76% of production at 4.6× the average failure rate**, about **4 days** before final QC. This only works while entry line L1 is running. |
 | **Production campaigns** | The factory alternates between two entry lines, L0 and L1. Failure rates on both rise and fall together (r = 0.64), and the model ranks L1-entry parts about twice as well (14× vs 6× lift). |
@@ -32,13 +32,15 @@ Every result below is measured **forward in time**: models train only on parts w
 
 ## Evaluation
 
-Failures come in bursts. If the part that entered just before a given part failed, that part fails about 6% of the time instead of 0.58%, and weekly failure rates range from 0.09% to 2.24%. Measurements also carry a fingerprint of when a part was made: a model can tell alternating 4-week periods apart with ROC-AUC 0.96–0.98. A random split therefore lets a model recognise bad weeks instead of bad parts.
+Failures come in bursts. If the part that entered just before a given part failed, that part fails about 6% of the time instead of 0.58%, and weekly failure rates range from 0.09% to 2.24%. Measurements also carry a fingerprint of when a part was made: a model can tell alternating 4-week periods apart with ROC-AUC 0.96–0.98. A random split therefore lets a model recognise bad weeks instead of bad parts. On the first 500k rows, with the same data for both splits:
 
 | Final-QC model | Random split | Forward in time |
 |---|---|---|
 | PR-AUC lift | 20.0× | 8.7× (mean of 4 test periods) |
 | Failures caught in the top 1% | 26.6% | 15.0% |
 | …using only measurements from before L3 | 12.1% | 0.8% |
+
+The headline numbers above use all 1.18M parts. The first 500k rows turned out to be an easier test set than the rest: the same model scores about 9.9× lift on them versus 5.9× on the other parts, so numbers based on the first 500k rows run somewhat high.
 
 `forward_folds()` in [`src/production_data.py`](src/production_data.py) cuts the timeline into five equal blocks and tests on blocks 2–5, each time training on parts that finished before the block began. PR-AUC lift is PR-AUC divided by the failure rate, which is what random ranking would score. Model outputs are **risk scores for ranking**, not calibrated probabilities.
 
@@ -58,7 +60,7 @@ Run from the project root, for example `.venv/bin/python src/train_xgboost.py`.
 
 | Script | What it does | Runtime |
 |---|---|---|
-| [`train_xgboost.py`](src/train_xgboost.py) | Main model: learning curve, final model, inspection-capacity table, results per test period, SHAP explanations | ~1.5 min |
+| [`train_xgboost.py`](src/train_xgboost.py) | Main model: learning curve, final model, inspection-capacity table, results per test period, SHAP explanations; saves the model to `models/` | ~3 min |
 | [`analyze_dates.py`](src/analyze_dates.py) | Decodes the timestamps: station order, time unit, timing per station, routes, weekly failure rates | ~20 s |
 | [`early_warning.py`](src/early_warning.py) | Trains the model on measurements up to each point in production; compares random split, forward in time and weekly retraining | ~12 min |
 | [`burst_monitoring.py`](src/burst_monitoring.py) | How long failure clustering lasts; a line-level QC monitor; the batch-mate alert | ~30 s |
@@ -66,7 +68,7 @@ Run from the project root, for example `.venv/bin/python src/train_xgboost.py`.
 | [`campaign_analysis.py`](src/campaign_analysis.py) | L0/L1 entry-line campaigns and the model by entry line | ~2 min |
 | [`eda.py`](src/eda.py) | First exploration on a 10k-row sample; reads `train_numeric.csv` from the current directory | — |
 
-Runtimes are from a Mac with 18 CPU cores and 64 GB of RAM. Models use the first 500k rows; analyses that only need timestamps use all 1.18M rows.
+Runtimes are from a Mac with 18 CPU cores and 64 GB of RAM. `train_xgboost.py` uses all 1.18M parts and peaks at about 26 GB of RAM (set `NUM_ROWS = 500_000` in the script to use less). The other model scripts use the first 500k rows; analyses that only need timestamps use all 1.18M.
 
 Shared code: [`production_data.py`](src/production_data.py) (loaders, station helpers, forward-in-time folds) and [`qc_monitor.py`](src/qc_monitor.py) (which QC results were known at a given time).
 

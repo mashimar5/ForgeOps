@@ -1,7 +1,9 @@
+import json
 from pathlib import Path
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import shap
 
@@ -23,13 +25,15 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = PROJECT_ROOT / "data" / "train_numeric.csv"
 PLOTS_DIR = PROJECT_ROOT / "results" / "plots"
 PLOTS_DIR.mkdir(parents=True, exist_ok=True)
+MODELS_DIR = PROJECT_ROOT / "models"
 
 
 # ============================================================
 # CONFIGURATION
 # ============================================================
 
-NUM_ROWS = 500_000
+# None = all 1,183,747 labelled parts (earlier runs used the first 500_000)
+NUM_ROWS = None
 RANDOM_STATE = 42
 
 # Forward-in-time split: cut the production timeline into 5 equal
@@ -71,9 +75,15 @@ def create_model(y):
 
 print("Loading data...")
 
+# float32 halves memory. XGBoost uses float32 internally anyway,
+# so the results are identical.
+header = pd.read_csv(DATA_PATH, nrows=0).columns
+feature_dtypes = {col: np.float32 for col in header if col.startswith("L")}
+
 df = pd.read_csv(
     DATA_PATH,
     nrows=NUM_ROWS,
+    dtype=feature_dtypes,
 )
 
 print("Rows loaded:", len(df))
@@ -154,6 +164,7 @@ requested_sizes = [
     50_000,
     100_000,
     200_000,
+    400_000,  # about what the earlier 500k-row runs trained on
 ]
 
 # Only keep sizes smaller than the entire training set,
@@ -325,6 +336,8 @@ print("==============================")
 
 print("Total test failures:", total_failures)
 
+inspection_recall = {}
+
 for pct in [0.01, 0.02, 0.05, 0.10]:
 
     number_to_inspect = int(
@@ -348,6 +361,8 @@ for pct in [0.01, 0.02, 0.05, 0.10]:
         failures_caught
         / number_to_inspect
     )
+
+    inspection_recall[pct] = recall
 
     print(
         f"Top {pct * 100:.0f}% inspected | "
@@ -615,3 +630,37 @@ learning_curve_df.to_csv(
     PROJECT_ROOT / "results" / "learning_curve.csv",
     index=False
 )
+
+
+# ============================================================
+# 16. SAVE THE MODEL
+#
+# The final model was trained only on parts that finished
+# before the most recent test period, so it can honestly score
+# that period's parts later (e.g. from an API).
+# ============================================================
+
+MODELS_DIR.mkdir(parents=True, exist_ok=True)
+
+final_model.save_model(MODELS_DIR / "xgboost_final.ubj")
+
+metadata = {
+    "training_parts": len(X_train),
+    "test_parts": len(X_test),
+    # Date units; 1 unit = 10 hours (see production_data.py)
+    "test_period_start": float(part_times["start"].iloc[test_rows].min()),
+    "pr_auc": float(pr_auc),
+    "lift": float(pr_auc / baseline_pr_auc),
+    "roc_auc": float(roc_auc),
+    "top_1pct_recall": float(inspection_recall[0.01]),
+    "lift_across_test_periods": {
+        "mean": float(period_df["Lift"].mean()),
+        "min": float(period_df["Lift"].min()),
+        "max": float(period_df["Lift"].max()),
+    },
+}
+
+with open(MODELS_DIR / "xgboost_final_metadata.json", "w") as f:
+    json.dump(metadata, f, indent=2)
+
+print("\nSaved model: models/xgboost_final.ubj (+ xgboost_final_metadata.json)")
