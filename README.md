@@ -15,7 +15,7 @@ Every result below is measured **forward in time**: models train only on parts w
 |---|---|
 | **Final-QC triage** | XGBoost on the full measurement record, trained on up to 944k parts, reaches **7.3× PR-AUC lift** over random ranking on average (4.7–12.5× across four test periods). Inspecting the 1% highest-risk parts catches **14% of failures** (11–20%). |
 | **Early warning from measurements** | **None.** Measurements taken before the final line (L3) predict nothing about future parts. The usable signal arrives at L3, in a part's last ~18 minutes on the line. |
-| **Batch-mate alert** | When a part fails final QC, the parts that entered production with it and are still on the line fail more often. Flags raised at least 3 days after entry mark **0.76% of production at 4.6× the average failure rate**, about **4 days** before final QC. This only works while entry line L1 is running. |
+| **Batch-mate alert** | When a part fails final QC, the parts that entered production with it and are still on the line fail more often. Flagging them marks **1.7% of production at 2.9× the average failure rate** and catches 4.9% of failures about **4 days** before final QC. Late flags are stronger while entry line L1 is running, but a cutoff tuned only on past data raises this to just 3.3× (the 4.6× seen in hindsight doesn't hold up). |
 | **Production campaigns** | The factory alternates between two entry lines, L0 and L1. Failure rates on both rise and fall together (r = 0.64), and the model ranks L1-entry parts about twice as well (14× vs 6× lift). |
 
 ![When does the failure signal become available?](results/plots/early_warning_curve.png)
@@ -65,6 +65,7 @@ Run from the project root, for example `.venv/bin/python src/train_xgboost.py`.
 | [`early_warning.py`](src/early_warning.py) | Trains the model on measurements up to each point in production; compares random split, forward in time and weekly retraining | ~12 min |
 | [`burst_monitoring.py`](src/burst_monitoring.py) | How long failure clustering lasts; a line-level QC monitor; the batch-mate alert | ~30 s |
 | [`monitor_model.py`](src/monitor_model.py) | Whether monitor features improve the model; the batch-mate alert by when its flag fires | ~3 min |
+| [`batch_alert_cutoff.py`](src/batch_alert_cutoff.py) | Honest check of the batch-mate alert's cutoff: chosen on past data only, scored on each later period | ~30 s |
 | [`campaign_analysis.py`](src/campaign_analysis.py) | L0/L1 entry-line campaigns and the model by entry line | ~2 min |
 | [`eda.py`](src/eda.py) | First exploration on a 10k-row sample; reads `train_numeric.csv` from the current directory | — |
 

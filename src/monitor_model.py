@@ -74,7 +74,10 @@ FLAG_TIMING_BUCKETS = [
     ("1-2 weeks", 168, 336),
     ("> 2 weeks", 336, np.inf),
 ]
-LATE_FLAG_HOURS = 72  # refined rule: only flags that fire >= 3 days after entry
+# Refined rule: only flags that fire >= 3 days after entry. This cutoff was
+# chosen after seeing the pooled results; batch_alert_cutoff.py checks it
+# honestly (chosen on past data only, it gives 3.3x instead of 4.6x).
+LATE_FLAG_HOURS = 72
 
 # Chart colors (light theme)
 SURFACE = "#fcfcfb"
