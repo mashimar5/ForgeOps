@@ -1,0 +1,20 @@
+Model,Evaluated On,Test Period,Lift,Top 1% Recall (%)
+"Pooled model, all measurements",L0-entry parts,1,2.587806096521082,7.377049180327869
+"Pooled model, all measurements",L1-entry parts,1,5.930798173317951,16.883116883116884
+"Own-line model, all measurements",L0-entry parts,1,3.0492853721667723,7.172131147540983
+"Own-line model, pre-L3 measurements",L0-entry parts,1,1.1568377706518815,0.819672131147541
+"Pooled model, all measurements",L0-entry parts,2,4.406140188377784,10.65989847715736
+"Pooled model, all measurements",L1-entry parts,2,9.63665114043192,16.876574307304786
+"Own-line model, all measurements",L0-entry parts,2,3.902703253332619,9.644670050761421
+"Own-line model, pre-L3 measurements",L0-entry parts,2,0.9900157819765116,0.25380710659898476
+"Own-line model, all measurements",L1-entry parts,2,3.273705361606289,7.304785894206549
+"Own-line model, pre-L3 measurements",L1-entry parts,2,0.9876794827345552,1.7632241813602016
+"Pooled model, all measurements",L0-entry parts,3,10.494752663575042,20.994475138121548
+"Pooled model, all measurements",L1-entry parts,3,26.765432261719962,23.577235772357724
+"Own-line model, all measurements",L0-entry parts,3,10.7856052704063,20.441988950276244
+"Own-line model, pre-L3 measurements",L0-entry parts,3,0.9772310730548603,0.0
+"Own-line model, all measurements",L1-entry parts,3,29.73920080024296,21.951219512195124
+"Own-line model, pre-L3 measurements",L1-entry parts,3,1.247111406307574,0.8130081300813009
+"Pooled model, all measurements",L0-entry parts,4,7.24702417428296,16.097560975609756
+"Own-line model, all measurements",L0-entry parts,4,6.400745265711889,14.390243902439023
+"Own-line model, pre-L3 measurements",L0-entry parts,4,0.9375515425688248,1.2195121951219512

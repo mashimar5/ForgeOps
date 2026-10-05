@@ -1,0 +1,13 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Kaggle data (~14 GB; the competition rules don't allow redistributing it)
+data/
+
+# macOS
+.DS_Store
+
+# Old plot exports in the project root
+/Figure_*.png
