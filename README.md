@@ -150,13 +150,15 @@ The tests in [`tests/test_mcp_server.py`](tests/test_mcp_server.py) check the to
 
 ### Evaluating the assistant
 
-[`evals/assistant/`](evals/assistant/) holds a 25-question eval for the assistant. Each question goes through the assistant's real entry point, and Claude Sonnet 5.5 grades the answer against facts computed from the serving data with the same code the tools call, so the expected answers come from the data, not from a model. An answer passes if it states every required fact, makes none of the case's forbidden claims (such as calling a risk score a probability, giving a calendar date or using data from the future), contains the exact part Ids and names, and every number in it traces back to a tool result. A third of the questions test limits: unknown or not-yet-entered parts, QC results not reported yet, root-cause and cost questions the data can't answer.
+[`evals/assistant/`](evals/assistant/) holds a 46-question eval for the assistant. Each question goes through the assistant's real entry point, and Claude Sonnet 5.5 grades the answer against facts computed from the serving data with the same code the tools call, so the expected answers come from the data, not from a model. An answer passes if it states every required fact, makes none of the case's forbidden claims (such as calling a risk score a probability, giving a calendar date or using data from the future), contains the exact part Ids and names, and every number in it traces back to a tool result. A third of the first 25 questions test limits: unknown or not-yet-entered parts, QC results not reported yet, root-cause and cost questions the data can't answer. The other 21 (tagged `hard`) need counting, sorting or arithmetic over long tool outputs, such as 100 flagged parts or all 52 stations.
 
-Baseline (Claude Opus 5.5, 25 questions × 2 runs): **46 of 50 answers pass (92%)**. The misses were small errors in details the assistant worked out on its own, such as a count taken from a long list. At this size the eval can't yet show whether a prompt change helps, because the run-to-run noise is larger than the room left to improve, so harder cases come first.
+Baseline (Claude Opus 5.5; the first 25 questions × 2 runs, the hard 21 × 3): **101 of 113 answers pass (89%)**, 88% of the first set and 90% of the hard set. The hard questions weren't harder: every number they asked for was right in all 63 answers. All 10 real errors were numbers the assistant worked out on its own: 7 that nobody asked for (a count, a time gap, a day of the week, the model's 6.3× lift read as "6× better than random") and 3 forecasts of next week's failures that the tools can't support. One more miss came from a batch-mate counting bug in the API, fixed since. Checking every grade that changed between two grading runs against the data showed the judge gets about 3% of grades wrong, mostly by miscounting. With about 10% of answers failing and run-to-run noise of about ±9 points, the pass rate can't show whether a prompt change helps; that needs a more direct measure of the failure, such as how many numbers per answer the assistant works out itself.
 
 ```bash
 .venv/bin/python evals/assistant/build_cases.py                       # after build_serving_data.py
-.venv/bin/python evals/assistant/run_eval.py --check-grader --reps 2   # about $4 per full run
+.venv/bin/python evals/assistant/run_eval.py --check-grader --reps 3   # every question 3 times, about $13
+.venv/bin/python evals/assistant/run_eval.py --tag hard --reps 3       # only the hard questions, about $6
+.venv/bin/python evals/assistant/run_eval.py --regrade                 # re-judge saved answers, about $3
 .venv/bin/python evals/assistant/review.py                            # grades with the judge's reasons
 ```
 
@@ -166,4 +168,4 @@ The runner needs Claude API credentials, writes to `.claude/hillclimb/assistant/
 
 Done: decoding the data, forward-in-time evaluation, the final-QC model with SHAP explanations, the early-warning, burst-monitoring and campaign analyses, first versions of the API and the AI-assistant tools, an eval for the assistant, and a PySpark version of the per-part ETL.
 
-Planned, not built yet: a station-drift monitor and an operations dashboard.
+Planned, not built yet: an operations dashboard, a flow simulation ("digital twin") of the four lines, and a station-drift monitor.

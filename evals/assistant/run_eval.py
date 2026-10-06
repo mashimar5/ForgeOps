@@ -28,6 +28,7 @@ The judge is Claude Sonnet 5.5, a different model from the assistant
     .venv/bin/python evals/assistant/run_eval.py --cases inspect-now,risk-why
     .venv/bin/python evals/assistant/run_eval.py --reps 2           # every case, twice
     .venv/bin/python evals/assistant/run_eval.py --check-grader --reps 2   # check first, then run
+    .venv/bin/python evals/assistant/run_eval.py --tag hard --reps 3        # only the hard cases
 
 Refuses to run until a person has approved the harness (this file,
 requirements.txt and _state.json's harness_paths): review it, then add
@@ -95,20 +96,22 @@ making it.
 (counts, production hours, percentages, scores, log-odds), part Ids, station \
 names and measurement names. A value is grounded if it appears in a tool \
 result, a tool definition, the system prompt or the question, or follows \
-from them by rounding, counting or simple arithmetic. A count, sum or \
-difference the answer works out itself must match the tool results exactly \
-when stated exactly; when marked approximate ("about", "~", "roughly") \
-it must be within 10% of the true value. Where the answer gives a range \
-loosely, count what falls inside it. Reasoning, interpretations and hedged \
-inferences are not values; \
-don't grade them here. In "values", list each value you had any doubt \
+from them by rounding, counting, simple arithmetic or a definition they \
+give. A count, sum or difference the answer works out itself must match the \
+tool results exactly when stated exactly; when marked approximate ("about", \
+"~", "roughly") it must be within 10% of the true value. Where the answer \
+gives a range loosely, count what falls inside it. Reasoning, interpretations \
+and hedged inferences are not values; don't grade them here. In "values", list each value you had any doubt \
 about, with grounded = true or false. Values plainly present in a tool \
 result need not be listed. OPTIONAL statements are fine to make, but their \
 values are checked too.
 
+For every item, give the reason first, then the verdict that follows from it. \
 Don't reward length, tone or formatting. Keep each reason to one sentence.\
 """
 
+# Each reason comes before its verdict: the judge writes fields in schema
+# order, and a verdict written first is decided before the reasoning
 GRADE_SCHEMA = {
     "type": "object",
     "properties": {
@@ -118,10 +121,10 @@ GRADE_SCHEMA = {
                 "type": "object",
                 "properties": {
                     "item": {"type": "integer"},
-                    "met": {"type": "boolean"},
                     "reason": {"type": "string"},
+                    "met": {"type": "boolean"},
                 },
-                "required": ["item", "met", "reason"],
+                "required": ["item", "reason", "met"],
                 "additionalProperties": False,
             },
         },
@@ -131,10 +134,10 @@ GRADE_SCHEMA = {
                 "type": "object",
                 "properties": {
                     "item": {"type": "integer"},
-                    "violated": {"type": "boolean"},
                     "reason": {"type": "string"},
+                    "violated": {"type": "boolean"},
                 },
-                "required": ["item", "violated", "reason"],
+                "required": ["item", "reason", "violated"],
                 "additionalProperties": False,
             },
         },
@@ -144,10 +147,10 @@ GRADE_SCHEMA = {
                 "type": "object",
                 "properties": {
                     "value": {"type": "string"},
-                    "grounded": {"type": "boolean"},
                     "reason": {"type": "string"},
+                    "grounded": {"type": "boolean"},
                 },
-                "required": ["value", "grounded", "reason"],
+                "required": ["value", "reason", "grounded"],
                 "additionalProperties": False,
             },
         },
@@ -521,16 +524,28 @@ def summarize(vdir, prices):
         return
 
     # Per case first (mean over reps), then over cases
-    by_case = {}
+    by_case, hard = {}, set()
     for row in ok:
         by_case.setdefault(row["prompt_id"], []).append(row["grade"])
+        if "hard" in row["tags"]:
+            hard.add(row["prompt_id"])
 
-    for metric in METRICS:
-        values = [sum(g[metric] for g in grades) / len(grades) for grades in by_case.values()]
+    def line(label, metric, ids):
+        values = [sum(g[metric] for g in by_case[i]) / len(by_case[i]) for i in ids]
         mean = sum(values) / len(values)
         sd = math.sqrt(sum((v - mean) ** 2 for v in values) / (len(values) - 1)) if len(values) > 1 else 0.0
         half = 1.96 * sd / math.sqrt(len(values))
-        print(f"  {metric:14} {mean:6.1%}  (95% CI {max(0, mean - half):.0%}-{min(1, mean + half):.0%}, {len(values)} cases)")
+        reps = sorted({len(by_case[i]) for i in ids})
+        reps = f"{reps[0]}" if len(reps) == 1 else f"{reps[0]}-{reps[-1]}"
+        print(f"  {label:14} {mean:6.1%}  (95% CI {max(0, mean - half):.0%}-{min(1, mean + half):.0%}, {len(values)} cases x {reps} reps)")
+
+    for metric in METRICS:
+        line(metric, metric, list(by_case))
+
+    # The hard cases (counting and arithmetic over long tool outputs) apart from the rest
+    if hard and len(hard) < len(by_case):
+        line("pass, original", "pass", [i for i in by_case if i not in hard])
+        line("pass, hard", "pass", [i for i in by_case if i in hard])
 
     app = [cost_usd(r["model"], r["usage"], prices) for r in rows]
     judge = [cost_usd(r["judge_model"], r["judge_usage"], prices) for r in rows]
@@ -650,13 +665,14 @@ async def regrade(client, system, tool_definitions, vdir, cases):
             row.setdefault("meta", {}).update(answer=answer_text, verdict=verdict)
             print(f"  {row['prompt_id']} rep{row['rep']}: pass={scores['pass']}", file=sys.stderr)
 
-    await asyncio.gather(*(one(row) for row in rows))
+    selected = [row for row in rows if row["prompt_id"] in by_id]
+    await asyncio.gather(*(one(row) for row in selected))
 
     temp = results_path.with_suffix(".jsonl.tmp")
     temp.write_text("".join(json.dumps(row) + "\n" for row in rows))
     temp.replace(results_path)
     shown = backup.relative_to(ROOT) if backup.is_relative_to(ROOT) else backup
-    print(f"regraded {len(rows)} rows; previous grades kept in {shown}", file=sys.stderr)
+    print(f"regraded {len(selected)} of {len(rows)} rows; previous grades kept in {shown}", file=sys.stderr)
 
 
 # ============================================================
@@ -673,6 +689,7 @@ async def main():
     parser.add_argument("--concurrency", type=int, default=3)
     parser.add_argument("--timeout-s", type=float, default=DEFAULT_TIMEOUT_S)
     parser.add_argument("--cases", help="comma-separated case ids (default: all)")
+    parser.add_argument("--tag", help="only cases with this tag, e.g. hard")
     parser.add_argument("--check-grader", action="store_true", help="run the grader check on known answers")
     parser.add_argument("--regrade", action="store_true", help="re-judge the variant's saved answers only")
     parser.add_argument("--approve-harness", action="store_true", help="record the reviewed harness sha")
@@ -696,6 +713,10 @@ async def main():
         if unknown:
             sys.exit(f"unknown case ids: {', '.join(sorted(unknown))}")
         cases = [c for c in cases if c["id"] in wanted]
+    if args.tag:
+        cases = [c for c in cases if args.tag in c["tags"]]
+        if not cases:
+            sys.exit(f"no cases tagged {args.tag!r}")
 
     vdir = args.flow / args.variant
     (vdir / "traces").mkdir(parents=True, exist_ok=True)

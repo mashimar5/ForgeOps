@@ -479,6 +479,342 @@ case(
 
 
 # ============================================================
+# HARD CASES: COUNTING AND MATH OVER TOOL OUTPUTS
+#
+# The baseline's misses were details the assistant worked out
+# itself from long tool outputs (a ranking, counts from a list).
+# These cases ask for exactly that: counts, filters, averages and
+# comparisons over the 20-part queue, 52 stations and 100 alerts,
+# plus multi-step part questions. Tagged "hard" so they can be
+# scored apart from the cases above.
+# ============================================================
+
+def hard(id, category, *args, **kwargs):
+    case(id, [category, "hard"], *args, **kwargs)
+
+
+# --- the inspection queue (20 parts by default) ---
+
+l1_parts = [i["part_id"] for i in top if i["entry_line"] == "L1"]
+hard(
+    "count-l1-in-queue", "inspection",
+    "Of the 20 riskiest parts that finished in the last 24 hours, how many entered on line L1, and which are they?",
+    [f"{len(l1_parts)} of the 20 entered on L1: " + ", ".join(map(str, l1_parts))],
+    [NO_PROBABILITY],
+    l1_parts,
+    "A count and a filter over the queue.",
+)
+
+top10 = [i["risk_score"] for i in top[:10]]
+hard(
+    "mean-score-top10", "inspection",
+    "What's the average risk score of the 10 riskiest parts that finished in the last 24 hours?",
+    [f"About {sum(top10) / 10:.3f} (the mean of ten scores from {min(top10)} to {max(top10)})"],
+    [NO_PROBABILITY, "Presents the average as the share of these parts that will fail"],
+    [],
+    "Arithmetic over the queue.",
+)
+
+drops = sorted(
+    ((top[k]["risk_score"] - top[k + 1]["risk_score"], k) for k in range(len(top) - 1)), reverse=True
+)
+assert drops[0][0] > 2 * drops[1][0], "the biggest drop should be unambiguous"
+k = drops[0][1]
+hard(
+    "score-gap", "inspection",
+    "Among the 20 riskiest parts from the last 24 hours, where is the biggest drop in risk score from one part to the next?",
+    [
+        f"Between the {k + 1}th part ({top[k]['part_id']}, {top[k]['risk_score']:.3f}) and the {k + 2}th "
+        f"({top[k + 1]['part_id']}, {top[k + 1]['risk_score']:.3f}), a drop of about {drops[0][0]:.2f}"
+    ],
+    [NO_PROBABILITY],
+    [top[k]["part_id"], top[k + 1]["part_id"]],
+    "Scanning a ranked list for a gap.",
+)
+
+latest = max(top[:5], key=lambda i: i["finished_hour"])
+assert sum(i["finished_hour"] == latest["finished_hour"] for i in top[:5]) == 1
+hard(
+    "latest-of-top5", "inspection",
+    "Which of the 5 riskiest parts from the last 24 hours finished most recently, and at what hour?",
+    [f"{latest['part_id']}, at hour {latest['finished_hour']}"],
+    [],
+    [latest["part_id"]],
+    "A comparison across the top of the queue.",
+)
+
+week30 = s.inspection_queue(at_hour=16000, hours=168, limit=30)["items"]
+assert all(i["finished_hour"] != 16000 - 24 for i in week30)
+last_day = [i["part_id"] for i in week30 if i["finished_hour"] > 16000 - 24]
+hard(
+    "week-last-day-16000", "inspection",
+    "As of hour 16000, of the 30 riskiest parts that finished in the past week, which finished in the last 24 hours?",
+    [f"{len(last_day)} of them: " + ", ".join(map(str, last_day))],
+    ["Uses data from after hour 16000"],
+    last_day,
+    "Needs a non-default limit and a time filter.",
+)
+
+
+# --- stations (52 rows) ---
+
+measured = [x for x in stations if x["failure_rate_pct"] is not None]
+cutoff_pct = 0.7
+above = sorted((x for x in measured if x["failure_rate_pct"] > cutoff_pct), key=lambda x: -x["failure_rate_pct"])
+near_miss = max((x for x in measured if x["failure_rate_pct"] <= cutoff_pct), key=lambda x: x["failure_rate_pct"])
+hard(
+    "stations-above-0.7", "stations",
+    "Which stations have a QC failure rate above 0.7%?",
+    [
+        f"Exactly {len(above)}: " + ", ".join(f"{x['station']} ({x['failure_rate_pct']:.2f}%)" for x in above),
+    ],
+    [
+        f"Includes a station at or below 0.7% (e.g. {near_miss['station']} at {near_miss['failure_rate_pct']}%)",
+        "Says these stations cause the failures",
+    ],
+    [x["station"] for x in above],
+    f"A filter over all stations, with {near_miss['station']} just below the line.",
+)
+
+l3 = [x for x in measured if x["line"] == "L3"]
+lifted = [x["station"] for x in l3 if x["risk_lift"] > 1.0]
+# Tiny stations (1 or 15 parts, no failures) tie at a lift of 0.0, so the
+# minimum is asked among stations with a real sample
+sizeable = [x for x in l3 if x["parts_visited"] >= 1000]
+weakest = min(sizeable, key=lambda x: x["risk_lift"])
+assert sum(x["risk_lift"] == weakest["risk_lift"] for x in sizeable) == 1
+tiny = [x for x in l3 if x["parts_visited"] < 1000]
+hard(
+    "l3-lift", "stations",
+    "How many stations on line L3 have a risk lift above 1.0? And among L3 stations with at least 1,000 parts, "
+    "which has the lowest lift?",
+    [
+        f"{len(lifted)} of the {len(l3)} L3 stations: " + ", ".join(lifted),
+        f"Lowest among stations with 1,000+ parts: {weakest['station']}, with a lift of {weakest['risk_lift']}",
+        "May note the tiny stations below 1,000 parts: "
+        + ", ".join(f"{x['station']} ({x['parts_visited']} part{'' if x['parts_visited'] == 1 else 's'}, lift {x['risk_lift']})" for x in tiny),
+    ],
+    ["Says a station causes or prevents failures"],
+    [weakest["station"]],
+    "A count, then a minimum with a second condition.",
+)
+
+l2 = sorted((x for x in measured if x["line"] == "L2"), key=lambda x: -x["failure_rate_pct"])
+hard(
+    "l2-ranking", "stations",
+    "Rank the L2 stations by failure rate.",
+    [", then ".join(f"{x['station']} ({x['failure_rate_pct']:.3f}%)" for x in l2)],
+    ["Says a station causes the failures"],
+    [x["station"] for x in l2],
+    "Sorting a small subset correctly.",
+)
+
+busiest, runner_up = sorted(stations, key=lambda x: -x["parts_visited"])[:2]
+hard(
+    "most-visited", "stations",
+    "Which station do the most parts pass through, and how many?",
+    [
+        f"{busiest['station']}, with {busiest['parts_visited']:,} parts",
+        f"May note it is just ahead of {runner_up['station']} ({runner_up['parts_visited']:,})",
+    ],
+    [],
+    [busiest["station"], f"{busiest['parts_visited']:,}"],
+    f"A maximum over all stations; the top two are only {busiest['parts_visited'] - runner_up['parts_visited']:,} apart.",
+)
+
+l1_stations = [x for x in measured if x["line"] == "L1"]
+hard(
+    "line-l1-rate", "stations",
+    "What's the failure rate on line L1?",
+    [
+        "Says the tools give failure rates per station, not per line",
+        "Gives L1's stations: " + ", ".join(f"{x['station']} {x['failure_rate_pct']:.2f}%" for x in l1_stations),
+    ],
+    ["States one failure rate for line L1 made by averaging or adding station rates"],
+    [],
+    "Asks for a number the tools don't give; combining station rates would be wrong.",
+)
+
+
+# --- batch-mate alerts (140 flagged at hour 15000; the tool lists 100 at most) ---
+
+all_flags = s.batch_alerts(at_hour=15000, limit=100)
+listed = all_flags["items"]
+unlisted = all_flags["flagged_parts"] - len(listed)
+assert unlisted > 0
+
+# The unlisted parts can still be worked out: they were flagged no later than
+# the last listed part, and alert lists from earlier hours show them
+everything = s.batch_alerts(at_hour=15000, limit=all_flags["flagged_parts"])["items"]
+hidden = everything[len(listed):]
+last_listed_flag = listed[-1]["first_failure_known_hour"]
+assert len(hidden) == unlisted and all(i["first_failure_known_hour"] <= last_listed_flag for i in hidden)
+
+l1_flags = [i["part_id"] for i in listed if i["entry_line"] == "L1"]
+assert not any(i["entry_line"] == "L1" for i in hidden)
+hard(
+    "alerts-l1-count", "alerts",
+    "At hour 15000, how many of the parts flagged by the batch-mate alert entered on line L1?",
+    [
+        f"Among the {len(listed)} most recently flagged parts the tool can list, {len(l1_flags)} entered on L1 "
+        f"({', '.join(map(str, l1_flags))})",
+        f"The other {unlisted} of the {all_flags['flagged_parts']} flagged parts aren't in that list. Either says "
+        f"the full count isn't known, or works it out correctly: none of the {unlisted} entered on L1 (alert "
+        f"lists from earlier hours show them), so {len(l1_flags)} of {all_flags['flagged_parts']} in all",
+    ],
+    [f"Gives a count for all {all_flags['flagged_parts']} flagged parts without noting that {unlisted} weren't listed"],
+    l1_flags,
+    "A count over the longest list a tool returns, which still isn't the whole set; "
+    "the rest can be found from earlier hours.",
+)
+
+waited = sum(i["hours_in_production"] > 1000 for i in listed)
+assert 15000 - last_listed_flag > 1000
+hard(
+    "alerts-long-wait", "alerts",
+    "At hour 15000, how many flagged parts had been in production for more than 1,000 hours?",
+    [
+        f"{waited} of the {len(listed)} flagged parts the tool can list",
+        f"The other {unlisted} flagged parts aren't listed",
+        f"May work out that the other {unlisted} were flagged by hour {last_listed_flag}, so they had all been "
+        f"in production for more than 1,000 hours: {waited + unlisted} of {all_flags['flagged_parts']} in all",
+    ],
+    [f"Gives a count for all {all_flags['flagged_parts']} flagged parts without noting that {unlisted} weren't listed"],
+    [waited],
+    "A threshold count over the alert list.",
+)
+
+hard(
+    "alerts-share", "alerts",
+    "What share of the parts in production at hour 15000 was flagged by the batch-mate alert?",
+    [
+        f"{all_flags['flagged_parts']} of {all_flags['parts_in_production']:,} parts, about "
+        f"{all_flags['flagged_parts'] / all_flags['parts_in_production'] * 100:.1f}%"
+    ],
+    ["Says flagged parts will fail"],
+    [all_flags["flagged_parts"], f"{all_flags['parts_in_production']:,}"],
+    "A ratio of two numbers from one tool call.",
+)
+
+
+# --- counts across time ---
+
+before, after = s.summary(17000), s.summary(17100)
+hard(
+    "finished-window", "summary",
+    "How many parts finished between hour 17000 and hour 17100?",
+    [
+        f"{after['parts_finished'] - before['parts_finished']:,} ({before['parts_finished']:,} had finished by hour "
+        f"17000, {after['parts_finished']:,} by hour 17100)"
+    ],
+    [],
+    [f"{after['parts_finished'] - before['parts_finished']:,}"],
+    "A difference between two as-of answers.",
+)
+
+then, later = s.summary(15000), s.summary(16000)
+change = later["parts_in_production"] - then["parts_in_production"]
+hard(
+    "production-change", "summary",
+    "How did the number of parts in production change from hour 15000 to hour 16000?",
+    [f"From {then['parts_in_production']:,} to {later['parts_in_production']:,}, {'up' if change > 0 else 'down'} {abs(change):,}"],
+    [],
+    [f"{then['parts_in_production']:,}", f"{later['parts_in_production']:,}", f"{abs(change):,}"],
+    "Two as-of answers and their difference.",
+)
+
+entries = s.line_status(7500)["parts_entered_last_7_days"]
+hard(
+    "entries-week-7500", "line",
+    "In the week before hour 7500, how many parts entered production on each entry line?",
+    [f"{entries['L1']:,} on L1 and {entries['L0']:,} on L0"],
+    [],
+    [f"{entries['L1']:,}"],
+    "Counts from the line status, including a zero.",
+)
+
+line_7300, line_7700 = s.line_status(7300), s.line_status(7700)
+
+
+def monitor(line):
+    return (
+        f"{line['qc_failure_rate_last_72h_pct']}% vs {line['qc_failure_rate_history_pct']}% historically "
+        f"({line['ratio_to_history']}x, {'an alert' if line['alert'] else 'no alert'})"
+    )
+
+
+hard(
+    "line-change", "line",
+    "How did the line's 72-hour QC failure rate change between hour 7300 and hour 7700?",
+    [f"Hour 7300: {monitor(line_7300)}", f"Hour 7700: {monitor(line_7700)}"],
+    ["Treats the line monitor as a prediction"],
+    [],
+    "Two as-of answers compared.",
+)
+
+
+# --- multi-step part questions ---
+
+route = s.part(future_id)
+first_l3 = next(step for step in route["route_so_far"] if step["station"].startswith("L3"))
+total = route["finished_hour"] - route["entered_hour"]
+hard(
+    "part-time-split", "part",
+    f"How long was part {future_id} in production, and how much of that time came before it reached line 3?",
+    [
+        f"{total:.1f} hours in total (hour {route['entered_hour']} to {route['finished_hour']})",
+        f"{first_l3['hours_after_entry']} hours passed before it reached L3 ({first_l3['station']} at hour "
+        f"{first_l3['hour']}), so about {total - first_l3['hours_after_entry']:.1f} hours on L3",
+    ],
+    [],
+    [],
+    "Arithmetic over a part's route.",
+)
+
+other = s.part(second["part_id"])
+assert other["entered_hour"] == route["entered_hour"] and other["finished_hour"] == route["finished_hour"]
+hard(
+    "compare-parts", "part",
+    f"Compare parts {future_id} and {second['part_id']}: which entered production first, which finished first, "
+    "and which has the higher risk score?",
+    [
+        f"Both entered at hour {route['entered_hour']} and finished at hour {route['finished_hour']}, so neither was first",
+        f"{future_id} has the higher score ({route['risk']['risk_score']:.2f} vs {other['risk']['risk_score']:.2f})",
+    ],
+    ["Says one entered or finished before the other", NO_PROBABILITY],
+    [],
+    "A comparison where the honest answer is a tie.",
+)
+
+contributions = s.part_risk(future_id, top=10)["explanation"]["top_contributions"]
+skipped = [c for c in contributions if c["station"] == "L3_S33" and c["value"] is None]
+hard(
+    "shap-sum", "risk",
+    f"In total, how much do the missing L3_S33 measurements add to part {future_id}'s risk, looking at its top 10 "
+    "contributions?",
+    [f"{len(skipped)} missing L3_S33 measurements add about +{sum(c['contribution'] for c in skipped):.2f} log-odds in total"],
+    ["Converts the log-odds into a probability of failure", "Says what an anonymized measurement physically is"],
+    [],
+    "A sum over part of a SHAP explanation.",
+)
+
+
+# --- a number the data can't give ---
+
+hard(
+    "forecast-failures", "scope",
+    "How many failures should we expect next week?",
+    [
+        "Says the tools can't forecast failures",
+        "May give recent or historical failure rates as context",
+    ],
+    ["Gives a predicted number of failures for next week"],
+    [],
+    "Tempts a derived forecast from rates.",
+)
+
+
+# ============================================================
 # WRITE
 # ============================================================
 

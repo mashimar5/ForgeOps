@@ -1,6 +1,6 @@
 # Assistant eval review: baseline
 
-50 graded answers, 46 pass. Assistant claude-opus-5-5, judge claude-sonnet-5-5. Cost $2.96 assistant + $1.00 judge.
+113 graded answers, 101 pass. Assistant claude-opus-5-5, judge claude-sonnet-5-5. Cost $7.62 assistant + $2.70 judge.
 
 | case | rep | pass | facts | no bad claims | exact values | grounded |
 |---|---|---|---|---|---|---|
@@ -15,7 +15,7 @@
 | part-status | 0 | PASS | 1 | 1 | 1 | 1 |
 | part-status | 1 | PASS | 1 | 1 | 1 | 1 |
 | part-midway | 0 | PASS | 1 | 1 | 1 | 1 |
-| part-midway | 1 | PASS | 1 | 1 | 1 | 1 |
+| part-midway | 1 | FAIL | 0.75 | 1 | 1 | 1 |
 | part-qc-pending | 0 | PASS | 1 | 1 | 1 | 1 |
 | part-qc-pending | 1 | PASS | 1 | 1 | 1 | 1 |
 | part-unknown | 0 | PASS | 1 | 1 | 1 | 1 |
@@ -30,7 +30,7 @@
 | risk-trained-part | 1 | PASS | 1 | 1 | 1 | 1 |
 | alerts-now | 0 | PASS | 1 | 1 | 1 | 1 |
 | alerts-now | 1 | PASS | 1 | 1 | 1 | 1 |
-| alerts-15000 | 0 | PASS | 1 | 1 | 1 | 1 |
+| alerts-15000 | 0 | FAIL | 1 | 1 | 1 | 0 |
 | alerts-15000 | 1 | FAIL | 1 | 1 | 1 | 0 |
 | alerts-trust | 0 | PASS | 1 | 1 | 1 | 1 |
 | alerts-trust | 1 | PASS | 1 | 1 | 1 | 1 |
@@ -49,11 +49,74 @@
 | model-quality | 0 | PASS | 1 | 1 | 1 | 1 |
 | model-quality | 1 | PASS | 1 | 1 | 1 | 1 |
 | scope-date | 0 | PASS | 1 | 1 | 1 | 1 |
-| scope-date | 1 | FAIL | 1 | 1 | 1 | 0 |
+| scope-date | 1 | PASS | 1 | 1 | 1 | 1 |
 | scope-fix | 0 | PASS | 1 | 1 | 1 | 1 |
-| scope-fix | 1 | PASS | 1 | 1 | 1 | 1 |
+| scope-fix | 1 | FAIL | 1 | 1 | 1 | 0 |
 | scope-cost | 0 | PASS | 1 | 1 | 1 | 1 |
 | scope-cost | 1 | PASS | 1 | 1 | 1 | 1 |
+| count-l1-in-queue | 0 | PASS | 1 | 1 | 1 | 1 |
+| count-l1-in-queue | 1 | PASS | 1 | 1 | 1 | 1 |
+| count-l1-in-queue | 2 | PASS | 1 | 1 | 1 | 1 |
+| mean-score-top10 | 0 | PASS | 1 | 1 | 1 | 1 |
+| mean-score-top10 | 1 | PASS | 1 | 1 | 1 | 1 |
+| mean-score-top10 | 2 | PASS | 1 | 1 | 1 | 1 |
+| score-gap | 0 | PASS | 1 | 1 | 1 | 1 |
+| score-gap | 1 | PASS | 1 | 1 | 1 | 1 |
+| score-gap | 2 | PASS | 1 | 1 | 1 | 1 |
+| latest-of-top5 | 0 | PASS | 1 | 1 | 1 | 1 |
+| latest-of-top5 | 1 | PASS | 1 | 1 | 1 | 1 |
+| latest-of-top5 | 2 | PASS | 1 | 1 | 1 | 1 |
+| week-last-day-16000 | 0 | PASS | 1 | 1 | 1 | 1 |
+| week-last-day-16000 | 1 | PASS | 1 | 1 | 1 | 1 |
+| week-last-day-16000 | 2 | FAIL | 1 | 1 | 1 | 0 |
+| stations-above-0.7 | 0 | PASS | 1 | 1 | 1 | 1 |
+| stations-above-0.7 | 1 | PASS | 1 | 1 | 1 | 1 |
+| stations-above-0.7 | 2 | PASS | 1 | 1 | 1 | 1 |
+| l3-lift | 0 | PASS | 1 | 1 | 1 | 1 |
+| l3-lift | 1 | PASS | 1 | 1 | 1 | 1 |
+| l3-lift | 2 | PASS | 1 | 1 | 1 | 1 |
+| l2-ranking | 0 | PASS | 1 | 1 | 1 | 1 |
+| l2-ranking | 1 | PASS | 1 | 1 | 1 | 1 |
+| l2-ranking | 2 | PASS | 1 | 1 | 1 | 1 |
+| most-visited | 0 | PASS | 1 | 1 | 1 | 1 |
+| most-visited | 1 | PASS | 1 | 1 | 1 | 1 |
+| most-visited | 2 | PASS | 1 | 1 | 1 | 1 |
+| line-l1-rate | 0 | PASS | 1 | 1 | 1 | 1 |
+| line-l1-rate | 1 | PASS | 1 | 1 | 1 | 1 |
+| line-l1-rate | 2 | PASS | 1 | 1 | 1 | 1 |
+| alerts-l1-count | 0 | PASS | 1 | 1 | 1 | 1 |
+| alerts-l1-count | 1 | FAIL | 1 | 1 | 1 | 0 |
+| alerts-l1-count | 2 | PASS | 1 | 1 | 1 | 1 |
+| alerts-long-wait | 0 | PASS | 1 | 1 | 1 | 1 |
+| alerts-long-wait | 1 | PASS | 1 | 1 | 1 | 1 |
+| alerts-long-wait | 2 | PASS | 1 | 1 | 1 | 1 |
+| alerts-share | 0 | FAIL | 1 | 1 | 1 | 0 |
+| alerts-share | 1 | PASS | 1 | 1 | 1 | 1 |
+| alerts-share | 2 | PASS | 1 | 1 | 1 | 1 |
+| finished-window | 0 | PASS | 1 | 1 | 1 | 1 |
+| finished-window | 1 | PASS | 1 | 1 | 1 | 1 |
+| finished-window | 2 | PASS | 1 | 1 | 1 | 1 |
+| production-change | 0 | PASS | 1 | 1 | 1 | 1 |
+| production-change | 1 | PASS | 1 | 1 | 1 | 1 |
+| production-change | 2 | PASS | 1 | 1 | 1 | 1 |
+| entries-week-7500 | 0 | PASS | 1 | 1 | 1 | 1 |
+| entries-week-7500 | 1 | PASS | 1 | 1 | 1 | 1 |
+| entries-week-7500 | 2 | PASS | 1 | 1 | 1 | 1 |
+| line-change | 0 | PASS | 1 | 1 | 1 | 1 |
+| line-change | 1 | PASS | 1 | 1 | 1 | 1 |
+| line-change | 2 | PASS | 1 | 1 | 1 | 1 |
+| part-time-split | 0 | PASS | 1 | 1 | 1 | 1 |
+| part-time-split | 1 | PASS | 1 | 1 | 1 | 1 |
+| part-time-split | 2 | PASS | 1 | 1 | 1 | 1 |
+| compare-parts | 0 | PASS | 1 | 1 | 1 | 1 |
+| compare-parts | 1 | PASS | 1 | 1 | 1 | 1 |
+| compare-parts | 2 | PASS | 1 | 1 | 1 | 1 |
+| shap-sum | 0 | PASS | 1 | 1 | 1 | 1 |
+| shap-sum | 1 | PASS | 1 | 1 | 1 | 1 |
+| shap-sum | 2 | PASS | 1 | 1 | 1 | 1 |
+| forecast-failures | 0 | FAIL | 1 | 0 | 1 | 1 |
+| forecast-failures | 1 | FAIL | 1 | 0 | 1 | 1 |
+| forecast-failures | 2 | FAIL | 1 | 0 | 1 | 1 |
 
 ## inspect-now (rep 0): FAIL
 
@@ -61,7 +124,7 @@
 
 **Tools called:** `get_inspection_queue()`
 
-**Cost:** $0.062 assistant, $0.023 judge; transcript: `baseline/traces/inspect-now_rep0.json`
+**Cost:** $0.062 assistant, $0.025 judge; transcript: `baseline/traces/inspect-now_rep0.json`
 
 **Answer:**
 
@@ -102,20 +165,20 @@ I can explain why any of these parts scored high, which measurements drove it. I
 
 **Required statements:**
 
-- ✓ met: Answers as of the end of the data (hour 17184.8) and says that is what "now" means — The answer states it is as of hour 17184.8, the end of the data, and says this is what 'now' means here.
-- ✓ met: Lists the riskiest recently finished parts, led by 272133, 136619 and 133288 — The table lists the riskiest recently finished parts in queue order, starting with 272133, 136619 and 133288.
-- ✓ met: Says risk scores rank parts and are not probabilities — The answer says the scores only rank parts by risk and that 0.97 does not mean a 97% chance of failing.
+- ✓ met: Answers as of the end of the data (hour 17184.8) and says that is what "now" means — The answer says it describes hour 17184.8, the end of the data, and that this is what "now" means here.
+- ✓ met: Lists the riskiest recently finished parts, led by 272133, 136619 and 133288 — The table lists the highest-risk recently finished parts in queue order, starting with 272133, 136619 and 133288.
+- ✓ met: Says risk scores rank parts and are not probabilities — The answer says scores only rank parts and that 0.97 does not mean a 97% chance of failing.
 
 **Forbidden claims:**
 
-- ✓ not made: Calls a risk score a probability or chance of failure — The answer mentions 'a 97% chance' only to deny that a score means it.
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer mentions a probability only to deny it ("does not mean a 97% chance"), so it does not call a score a probability.
 - ✓ not made: Lists the same part twice — All 20 part Ids in the table are distinct.
 
 **Values the judge double-checked:**
 
-- ✗ UNGROUNDED: Five L1 parts finished at hour 17165.2–17165.3 and all rank in the top eight — The five L1 parts are 272133, 136619, 276407, 125306 and 70234, but 70234 is ranked 13th, so only four are in the top eight.
-- ✓ grounded: 1,962 parts finished in the window, so the 20-part list is about the top 1% of recent output — 20 of 1,962 is about 1.02%.
-- ✓ grounded: Scores drop from about 0.90 to 0.73 after #13 — Part 70234 scores 0.896 and part 1011989 scores 0.7302.
+- ✗ UNGROUNDED: Five L1 parts finished at hour 17165.2–17165.3 and all rank in the top eight — Five L1 parts did finish at 17165.2–17165.3 (272133, 136619, 276407, 125306, 70234), but 70234 ranks 13th, so only four are in the top eight.
+- ✓ grounded: 1,962 parts finished in that window; 20 parts is about the top 1% — The 1,962 figure is in the tool result, and 20/1962 is about 1.02%.
+- ✓ grounded: Scores drop from about 0.90 to 0.73 after #13 — Rank 13 is 0.896 and rank 14 is 0.7302, matching the tool result.
 
 **Exact values:** all present
 
@@ -125,7 +188,7 @@ I can explain why any of these parts scored high, which measurements drove it. I
 
 **Tools called:** `get_inspection_queue()`
 
-**Cost:** $0.063 assistant, $0.020 judge; transcript: `baseline/traces/inspect-now_rep1.json`
+**Cost:** $0.063 assistant, $0.021 judge; transcript: `baseline/traces/inspect-now_rep1.json`
 
 **Answer:**
 
@@ -168,20 +231,20 @@ I can also pull the measurements that drove any one part's score, or list the ba
 **Required statements:**
 
 - ✓ met: Answers as of the end of the data (hour 17184.8) and says that is what "now" means — The answer states 'Now' means the end of the data, hour 17184.8.
-- ✓ met: Lists the riskiest recently finished parts, led by 272133, 136619 and 133288 — The table lists the riskiest parts in tool order, starting with 272133, 136619 and 133288.
+- ✓ met: Lists the riskiest recently finished parts, led by 272133, 136619 and 133288 — The table lists the highest-risk parts in order starting with 272133, 136619, 133288.
 - ✓ met: Says risk scores rank parts and are not probabilities — The answer says scores are a ranking, not a chance of failure.
 
 **Forbidden claims:**
 
-- ✓ not made: Calls a risk score a probability or chance of failure — The answer explicitly denies that a 0.97 score means a 97% chance of failure, so it does not call scores probabilities.
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer mentions chance of failure only to deny that the score is a probability.
 - ✓ not made: Lists the same part twice — All 20 part IDs in the table are distinct.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: about 0.90 to about 0.73 drop after #13 — Scores 0.896 for #13 and 0.7302 for #14 match the tool result.
-- ✓ grounded: 1,962 parts finished in last 24 hours — Matches parts_finished_in_window.
-- ✓ grounded: inspecting top 1% caught about 13% of failures — Stated in the system prompt.
-- ✓ grounded: batch-mate alerts give warning about 4 days before own QC — Stated in the system prompt.
+- ✓ grounded: about 0.90 to about 0.73 drop after #13 — Scores are 0.896 for #13 and 0.7302 for #14, matching the approximate figures.
+- ✓ grounded: about 4 days before their own QC; top 1% caught about 13% of failures — Both figures appear in the system prompt and tool definitions.
+- ✓ grounded: 1,962 parts finished in last 24 hours — Matches parts_finished_in_window in the tool result.
+- ✓ grounded: Several L0 parts finished at 17177.0 and 17180.4; several L1 parts at 17165.2 — Parts 133288, 1954974 and 706451 finished at 17177.0, 280944 and 1505878 at 17180.4, and 272133, 136619, 125306 and 70234 at 17165.2, matching the table.
 
 **Exact values:** all present
 
@@ -191,7 +254,7 @@ I can also pull the measurements that drove any one part's score, or list the ba
 
 **Tools called:** `get_inspection_queue(hours=24, limit=5)`
 
-**Cost:** $0.044 assistant, $0.014 judge; transcript: `baseline/traces/inspect-top5_rep0.json`
+**Cost:** $0.044 assistant, $0.015 judge; transcript: `baseline/traces/inspect-top5_rep0.json`
 
 **Answer:**
 
@@ -218,8 +281,8 @@ I can break down why the model scored any of these parts high.
 
 **Required statements:**
 
-- ✓ met: Lists, in order: 272133 (0.97), 136619 (0.95), 133288 (0.95), 245691 (0.94), 1954974 (0.93) — The table lists all five parts in the correct order with scores 0.9738, 0.9463, 0.9459, 0.9352 and 0.9330, which round to the required values.
-- ✓ met: Says 1,962 parts finished in that window — The answer says 1,962 parts finished in that window.
+- ✓ met: Lists, in order: 272133 (0.97), 136619 (0.95), 133288 (0.95), 245691 (0.94), 1954974 (0.93) — The table lists the five parts in the given order with scores 0.9738, 0.9463, 0.9459, 0.9352 and 0.9330, which match the required roundings.
+- ✓ met: Says 1,962 parts finished in that window — The answer states that 1,962 parts finished in that window.
 
 **Forbidden claims:**
 
@@ -227,8 +290,9 @@ I can break down why the model scored any of these parts high.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: window runs from about hour 17160.8 — 17184.8 minus 24 equals 17160.8.
-- ✓ grounded: top 1% caught about 13% of failures — This figure is stated in the system prompt.
+- ✓ grounded: window runs from about hour 17160.8 — It follows from 17184.8 minus 24 hours.
+- ✓ grounded: top 1% caught about 13% of failures — The system prompt states this figure.
+- ✓ grounded: hour 17184.8 as 'now' — The tool result gives at_hour 17184.8 as the end of the data.
 
 **Exact values:** all present
 
@@ -260,17 +324,17 @@ I can pull up the measurements behind any of these scores if you want to see why
 
 **Required statements:**
 
-- ✓ met: Lists, in order: 272133 (0.97), 136619 (0.95), 133288 (0.95), 245691 (0.94), 1954974 (0.93) — The table lists the five parts in the given order with scores 0.9738, 0.9463, 0.9459, 0.9352 and 0.9330, which round to the required values.
+- ✓ met: Lists, in order: 272133 (0.97), 136619 (0.95), 133288 (0.95), 245691 (0.94), 1954974 (0.93) — The table lists all five parts in the correct order with scores 0.9738, 0.9463, 0.9459, 0.9352 and 0.9330, matching the tool result and rounding.
 - ✓ met: Says 1,962 parts finished in that window — The answer states that 1,962 parts finished in that window.
 
 **Forbidden claims:**
 
-- ✓ not made: Calls a risk score a probability or chance of failure — The answer explicitly says the score is not the chance of failure, so it denies the claim rather than making it.
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer explicitly says scores are not the chance of failing, which denies the claim rather than making it.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: about 13% of failures caught by inspecting top 1% — This figure comes from the system prompt's forward-test description.
-- ✓ grounded: hour 17184.8 as end of data — The tool result gives at_hour 17184.8.
+- ✓ grounded: about 13% of failures caught by inspecting top 1% — This comes from the system prompt's forward-test description.
+- ✓ grounded: hour 17184.8 as end of data — This is the at_hour returned by the tool result.
 
 **Exact values:** all present
 
@@ -280,7 +344,7 @@ I can pull up the measurements behind any of these scores if you want to see why
 
 **Tools called:** `get_inspection_queue(at_hour=16000, hours=168, limit=10)`, `get_factory_summary(at_hour=16000)`
 
-**Cost:** $0.058 assistant, $0.022 judge; transcript: `baseline/traces/inspect-week-16000_rep0.json`
+**Cost:** $0.058 assistant, $0.025 judge; transcript: `baseline/traces/inspect-week-16000_rep0.json`
 
 **Answer:**
 
@@ -312,20 +376,21 @@ I can also explain what pushed any of these parts' scores up, or check batch-mat
 
 **Required statements:**
 
-- ✓ met: Answers as of hour 16000, for parts that finished in the 168 hours before it — The answer states it is as of hour 16000 and covers parts finished in the past week (hours 15832–16000), which is the 168-hour window.
-- ✓ met: Leads with 1931121, 638125, 478955 — The answer leads with 1931121, then 638125 and 478955, in that order.
-- ✓ met: Says 10,728 parts finished in that week — The answer says 10,728 parts finished in the past week.
+- ✓ met: Answers as of hour 16000, for parts that finished in the 168 hours before it — The answer says 'As of hour 16000' and describes parts that finished in the past week (hours 15832–16000), which matches the 168-hour window.
+- ✓ met: Leads with 1931121, 638125, 478955 — The answer opens with 1931121, then 638125 and 478955, in the order the queue gave them.
+- ✓ met: Says 10,728 parts finished in that week — The answer states that 10,728 parts finished in the past week, matching parts_finished_in_window.
 
 **Forbidden claims:**
 
-- ✓ not made: Calls a risk score a probability or chance of failure — The answer says scores are not failure probabilities and explicitly denies that 0.965 means a 96.5% chance of failing.
-- ✓ not made: Uses data from after hour 16000 — All figures come from the hour-16000 tool calls, and nothing later is used.
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer explicitly says scores are not failure probabilities, so it denies the claim rather than making it.
+- ✓ not made: Uses data from after hour 16000 — All figures come from the as-of-16000 tool calls, and nothing from later hours appears.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: top 1% failed about 6.3× as often as average (range 4.3–10.5×) — The numbers match forward_lift_mean 6.3 and its range 4.28–10.46 in the model card, although the card does not say the lift is for the top 1% specifically.
-- ✓ grounded: top 1% of 10,728 parts is roughly 107 — 1% of 10,728 is about 107.
-- ✓ grounded: hours 15832–16000 — This is 16000 minus 168, which is simple arithmetic from the window.
+- ✓ grounded: hours 15832–16000 — This is 16000 minus the 168-hour window, so it follows by simple arithmetic.
+- ✓ grounded: top 1% is roughly 107 parts — 1% of 10,728 is about 107, so it follows by simple arithmetic.
+- ✓ grounded: about 6.3× (range 4.3–10.5×) and 12.6% recall (range 10.2–17.1%) — The numbers match forward_lift_mean, forward_lift_range and the top-1% recall figures in the factory summary, though attaching the lift to the top 1% specifically is a mild interpretation.
+- ✓ grounded: 0.59% overall QC failure rate — This matches qc_failure_rate_pct in the factory summary at hour 16000.
 
 **Exact values:** all present
 
@@ -335,7 +400,7 @@ I can also explain what pushed any of these parts' scores up, or check batch-mat
 
 **Tools called:** `get_inspection_queue(at_hour=16000, hours=168, limit=15)`, `get_factory_summary(at_hour=16000)`
 
-**Cost:** $0.065 assistant, $0.020 judge; transcript: `baseline/traces/inspect-week-16000_rep1.json`
+**Cost:** $0.065 assistant, $0.021 judge; transcript: `baseline/traces/inspect-week-16000_rep1.json`
 
 **Answer:**
 
@@ -371,20 +436,22 @@ I can also show which measurements drove a given part's score, or list the parts
 
 **Required statements:**
 
-- ✓ met: Answers as of hour 16000, for parts that finished in the 168 hours before it — The answer states it is as of hour 16000 and covers parts that finished in the past week (hours 15832–16000).
-- ✓ met: Leads with 1931121, 638125, 478955 — The table ranks 1931121, 638125, 478955 as the first three, in that order.
-- ✓ met: Says 10,728 parts finished in that week — It states that 10,728 parts finished in the past week.
+- ✓ met: Answers as of hour 16000, for parts that finished in the 168 hours before it — The answer states it is as of hour 16000 and covers parts finished in the past week (hours 15832–16000), i.e. the 168-hour window.
+- ✓ met: Leads with 1931121, 638125, 478955 — The table ranks 1931121, 638125, 478955 as the first three, in that order, matching the tool output.
+- ✓ met: Says 10,728 parts finished in that week — The answer explicitly states 10,728 parts finished in the past week.
 
 **Forbidden claims:**
 
-- ✓ not made: Calls a risk score a probability or chance of failure — The answer explicitly says scores are not chances of failure and that 0.96 does not mean 96%.
-- ✓ not made: Uses data from after hour 16000 — All figures come from tool calls made with at_hour 16000, and no data after that hour is used.
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer explicitly says scores are not chances of failure and that 0.96 does not mean a 96% chance, so it denies the claim rather than making it.
+- ✓ not made: Uses data from after hour 16000 — All data used comes from the as-of-16000 tool calls; no later-hour data is used.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: 1% of 10,728 is roughly 107 — This follows from simple arithmetic (10,728 × 0.01 ≈ 107).
-- ✓ grounded: top 1% failed at about 6.3× the average rate (range 4.3–10.5×) — This matches forward_lift_mean 6.3 and range 4.28–10.46 in the model card, though lift is not strictly specified as top-1% lift.
-- ✓ grounded: hours 15832–16000 — This is 16000 minus 168 = 15832.
+- ✓ grounded: hours 15832–16000 — Follows from 16000 minus 168 = 15832.
+- ✓ grounded: top 1% failed at about 6.3× the average rate (range 4.3–10.5×) — Matches forward_lift_mean 6.3 and range 4.28–10.46 in the factory summary.
+- ✓ grounded: 1% of 10,728 is roughly 107 — Simple arithmetic: 10,728 × 0.01 = 107.28.
+- ✓ grounded: 1488699, 1498125 and 1554315 all finished at hour 15915.2 — All three show finished_hour 15915.2 in the queue results.
+- ✓ grounded: overall QC failure rate 0.59% — Matches qc_failure_rate_pct 0.59 in the factory summary at hour 16000.
 
 **Exact values:** all present
 
@@ -424,17 +491,19 @@ To rank finished parts by risk score, ask about an hour after 13565.6.
 
 **Required statements:**
 
-- ✓ met: Says no parts can be ranked at hour 12000: the model only scores parts that finished after hour 13565.6, because it trained on the earlier ones — The answer says the model only scores parts that finished after hour 13565.6 because it trained on earlier ones, so no ranked inspection queue can be given for hour 12000.
+- ✓ met: Says no parts can be ranked at hour 12000: the model only scores parts that finished after hour 13565.6, because it trained on the earlier ones — The answer says the model only scores parts finished after hour 13565.6 because it trained on earlier ones, and that no ranked queue can be given for hour 12000.
 
 **Forbidden claims:**
 
-- ✓ not made: Lists parts as high-risk or gives risk scores for hour 12000 — No risk scores or model-ranked high-risk parts are given; the 8 parts listed come from batch-mate alerts, which the answer frames as an early-warning signal rather than risk-model output.
-- ✓ not made: Calls a risk score a probability or chance of failure — The answer explicitly says the signal is not a probability of failure.
+- ✓ not made: Lists parts as high-risk or gives risk scores for hour 12000 — The answer gives no risk scores and says it can't rank finished parts; the parts it lists are batch-mate alerts from a separate tool, framed as an early-warning signal rather than model-ranked high-risk parts.
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer explicitly says the alert is not a probability and never calls a risk score a probability.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: 417 hours in production and 174 hours since flag for part 2315849 — These round the tool values 417.2 and 174.4.
-- ✓ grounded: 7,375 parts in production — This matches parts_in_production in the batch-mate alert result.
+- ✓ grounded: 2,913 parts finished in the last 24 hours — Matches parts_finished_in_window in the queue result.
+- ✓ grounded: 7,375 parts in production — Matches parts_in_production in the alerts result.
+- ✓ grounded: 417 hours in production and 174 hours since flag for 2315849 — Rounded from 417.2 and 174.4 in the alerts result.
+- ✓ grounded: about 4.4% of failures caught, 2.6x average rate, about 4 days — All three figures appear in the alerts note.
 
 **Exact values:** all present
 
@@ -444,7 +513,7 @@ To rank finished parts by risk score, ask about an hour after 13565.6.
 
 **Tools called:** `get_inspection_queue(at_hour=12000)`, `get_batch_mate_alerts(at_hour=12000)`
 
-**Cost:** $0.058 assistant, $0.022 judge; transcript: `baseline/traces/inspect-before-model_rep1.json`
+**Cost:** $0.058 assistant, $0.018 judge; transcript: `baseline/traces/inspect-before-model_rep1.json`
 
 **Answer:**
 
@@ -474,17 +543,17 @@ If you'd like a scored inspection list for finished parts, I can run the queue f
 
 **Required statements:**
 
-- ✓ met: Says no parts can be ranked at hour 12000: the model only scores parts that finished after hour 13565.6, because it trained on the earlier ones — The answer says the model can't score finished parts at hour 12000 because it only scores parts finished after hour 13565.6, since it trained on the earlier ones, so the queue is empty.
+- ✓ met: Says no parts can be ranked at hour 12000: the model only scores parts that finished after hour 13565.6, because it trained on the earlier ones — The answer says the model can't rank finished parts at hour 12000 because it only scores parts finished after hour 13565.6, having trained on earlier ones.
 
 **Forbidden claims:**
 
-- ✓ not made: Lists parts as high-risk or gives risk scores for hour 12000 — No risk scores are given and no parts are called high-risk; the listed parts are batch-mate alerts, which the answer presents as worth checking, not as model-ranked risk.
-- ✓ not made: Calls a risk score a probability or chance of failure — The answer says risk scores can't be produced and never calls any score a probability; it also says a flag doesn't mean the part will fail.
+- ✓ not made: Lists parts as high-risk or gives risk scores for hour 12000 — It lists 8 batch-mate-flagged parts as worth checking but gives no risk scores and does not call them high-risk model-ranked parts, explicitly noting the model gives no scores.
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer never describes a risk score as a probability or chance of failure.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: 2,913 parts finished in the 24 hours before hour 12000 — This matches parts_finished_in_window in the inspection queue result.
-- ✓ grounded: 417 hours in production and flagged 174 hours ago for part 2315849 — These round the tool values 417.2 and 174.4.
+- ✓ grounded: 2,913 parts finished in the 24 hours before hour 12000 — Matches parts_finished_in_window in the tool result.
+- ✓ grounded: Part 2315849 in production 417 hours, flagged 174 hours ago — Rounds 417.2 and 174.4 from the tool result.
 - ✓ grounded: 1.7% of production flagged, 4.4% of failures caught — Both figures appear in the batch-mate alerts note.
 
 **Exact values:** all present
@@ -526,18 +595,19 @@ As of hour 17184.8 (the end of the data, which I'm treating as "now"), part 2809
 
 - ✓ met: Finished at hour 17180.4 (entered at 17109.5, on L0) — The answer states it entered on L0 at hour 17109.5 and finished at hour 17180.4.
 - ✓ met: Passed final QC — The answer says the part finished and passed final QC.
-- ✓ met: Has a risk score of 0.93, in the top 1% — The answer gives a score of 0.9324, the 99.82nd percentile and the top 1%.
-- ✓ met: Has a twin record, 280945 (identical measurements and timestamps, most likely a repeat test) — The answer names twin record 280945 with identical measurements and timestamps, most likely a repeat test.
+- ✓ met: Has a risk score of 0.93, in the top 1% — The answer gives score 0.9324, 99.82nd percentile and top 1%.
+- ✓ met: Has a twin record, 280945 (identical measurements and timestamps, most likely a repeat test) — The answer names twin 280945 with identical measurements and timestamps, most likely a repeat test.
 
 **Forbidden claims:**
 
-- ✓ not made: Calls a risk score a probability or chance of failure — The answer says the score is not a 93% chance of failure, which denies the claim rather than making it.
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer explicitly says the score is not a 93% chance of failure, which denies the claim rather than making it.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: waited about 69.5 hours between S11 and L3_S29 — The gap from 17109.9 to 17179.4 is 69.5 hours.
-- ✓ grounded: top 1% caught about 13% of failures — The system prompt gives this forward-test figure.
-- ✓ grounded: most parts flagged in the top 1% pass — This follows from the 13% catch rate and the 0.58% base failure rate, and it is an interpretation rather than a stated value.
+- ✓ grounded: waited about 69.5 hours between S11 and L3_S29 — S11 at 17109.9 to L3_S29 at 17179.4 is 69.5 hours, which follows from the route.
+- ✓ grounded: in forward tests the top 1% caught only about 13% of failures — This figure appears in the system prompt.
+- ✓ grounded: it is a false positive and most parts flagged there pass — The false-positive label follows from the pass result; the claim that most flagged parts pass is an interpretation, not a graded value.
+- ✓ grounded: 280944 is the first test because it has the lower Id — The get_part tool definition says the lowest Id is the first test.
 
 **Exact values:** all present
 
@@ -547,7 +617,7 @@ As of hour 17184.8 (the end of the data, which I'm treating as "now"), part 2809
 
 **Tools called:** `get_part(part_id=280944)`, `explain_part_risk(part_id=280944, top=5)`
 
-**Cost:** $0.070 assistant, $0.018 judge; transcript: `baseline/traces/part-status_rep1.json`
+**Cost:** $0.070 assistant, $0.019 judge; transcript: `baseline/traces/part-status_rep1.json`
 
 **Answer:**
 
@@ -578,19 +648,20 @@ Most of the score comes from one measurement at station L3_S32. Skipping station
 
 - ✓ met: Finished at hour 17180.4 (entered at 17109.5, on L0) — The answer states it entered on L0 at hour 17109.5 and finished at hour 17180.4.
 - ✓ met: Passed final QC — The answer says the part passed final QC.
-- ✓ met: Has a risk score of 0.93, in the top 1% — The answer gives a risk score of 0.9324 at the 99.82nd percentile, in the top 1%.
-- ✓ met: Has a twin record, 280945 (identical measurements and timestamps, most likely a repeat test) — The answer names twin 280945 with identical measurements and timestamps, most likely a repeat test.
+- ✓ met: Has a risk score of 0.93, in the top 1% — The answer gives risk score 0.9324 at the 99.82nd percentile, in the top 1%.
+- ✓ met: Has a twin record, 280945 (identical measurements and timestamps, most likely a repeat test) — The answer names twin part 280945 with identical measurements and timestamps, most likely a repeat test.
 
 **Forbidden claims:**
 
-- ✓ not made: Calls a risk score a probability or chance of failure — The answer explicitly says the score ranks parts and is not a probability.
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer explicitly says the score ranks parts and is not a probability, so it does not call it a probability.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: went through L0 stations S0–S11 in about 0.4 hours — L0_S11 is at 0.4 hours after entry.
-- ✓ grounded: waited about 70 hours before L3 stations — The first L3 station, S29, is at 69.9 hours after entry, which is about 70.
-- ✓ grounded: Skipping station L3_S33 adds a little more (0.34 and 0.27) — The two L3_S33 features have null values with contributions of 0.3423 and 0.2736, which round to 0.34 and 0.27.
-- ✓ grounded: inspecting the top 1% caught only about 13% of failures — The system prompt states this forward-test figure.
+- ✓ grounded: about 0.4 hours through L0 S0–S11 — The last L0 station S11 is at 0.4 hours after entry, so this is correct.
+- ✓ grounded: waited about 70 hours before L3 stations — L3_S29 is reached at 69.9 hours after entry, so about 70 hours holds.
+- ✓ grounded: inspecting top 1% caught about 13% of failures — This matches the system prompt's forward-test figure.
+- ✓ grounded: contributions +1.89, +0.34, +0.27, −0.32, −0.18 — These are correct roundings of 1.8856, 0.3423, 0.2736, -0.3238 and -0.1793.
+- ✓ grounded: hour 17184.8 as end of data — The get_part result gives at_hour 17184.8 with no hour specified, so it stands as the end of the data.
 
 **Exact values:** all present
 
@@ -626,32 +697,32 @@ So it went through 7 stations on L0 within about 20 minutes of entering. About 3
 
 **Required statements:**
 
-- ✓ met: Still in production at hour 15912.5 (entered at 15575.4, about 337 hours on the line) — States still in production at 15912.5, entered at 15575.4, 337.1 hours in production.
-- ✓ met: Has visited 13 stations so far, the latest L3_S37 — Lists 7 L0 stations and 6 L3 stations (13 total) with latest L3_S37, though it doesn't state the total of 13 explicitly, the counts 7 and 6 are given.
-- ✓ met: Is not flagged by the batch-mate alert — Says there is no batch-mate alert.
-- ✓ met: Has no risk score yet because it hasn't reached its last station — Says it hasn't had final QC yet and has no risk score; the reason is part not finished, which is consistent with not reaching its last station.
+- ✓ met: Still in production at hour 15912.5 (entered at 15575.4, about 337 hours on the line) — Answer states still in production at 15912.5, entered at 15575.4, 337.1 hours in production.
+- ✓ met: Has visited 13 stations so far, the latest L3_S37 — Answer lists 7 L0 stations and 6 L3 stations (13 total) with latest L3_S37, though it doesn't state '13' explicitly, the counts 7 and 6 together convey it.
+- ✓ met: Is not flagged by the batch-mate alert — Answer says there is no batch-mate alert.
+- ✓ met: Has no risk score yet because it hasn't reached its last station — Answer says no risk score because it hasn't had final QC/finished yet.
 
 **Forbidden claims:**
 
-- ✓ not made: States when it finished, or its QC result — Answer explicitly says it has no QC result and hasn't finished.
-- ✓ not made: Lists stations it visited after the asked hour — Only stations from route_so_far up to L3_S37 are listed.
+- ✓ not made: States when it finished, or its QC result — Answer says it has not finished and has no QC result; it does not state a finish time or result.
+- ✓ not made: Lists stations it visited after the asked hour — Answer only lists stations from the tool result up to L3_S37 at hour 15613.8, all before the asked hour.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: 26 other parts entered in the same 6-minute tick — Batch size 27 minus the part itself equals 26.
-- ✓ grounded: 25 of them already have QC results, all passed — batch_mates_passed_known is 25 and failed known is 0.
-- ✓ grounded: roughly 299 hours since L3_S37 — 15912.5 minus 15613.8 equals 298.7.
-- ✓ grounded: 7 stations on L0 within about 20 minutes — Seven L0 stations span hours 0.0 to 0.3 after entry, which is about 18 minutes.
+- ✓ grounded: 26 other parts entered in the same 6-minute tick, 25 already have QC results — Batch size 27 gives 26 others; 25 passed known matches, and 0 failed; consistent with tool result.
+- ✓ grounded: roughly 299 hours since L3_S37 — 15912.5 - 15613.8 = 298.7, about 299.
+- ✓ grounded: about 20 minutes for 7 L0 stations — 0.3 hours after entry is about 18 minutes, roughly 20.
+- ✓ grounded: about 38 hours later — 38.1 hours after entry, consistent.
 
 **Exact values:** all present
 
-## part-midway (rep 1): PASS
+## part-midway (rep 1): FAIL
 
 **Question:** As of hour 15912.5, where is part 264 and what has it gone through?
 
 **Tools called:** `get_part(part_id=264, at_hour=15912.5)`
 
-**Cost:** $0.045 assistant, $0.022 judge; transcript: `baseline/traces/part-midway_rep1.json`
+**Cost:** $0.045 assistant, $0.018 judge; transcript: `baseline/traces/part-midway_rep1.json`
 
 **Answer:**
 
@@ -677,21 +748,21 @@ I can't tell from this whether the ~299-hour gap is normal. If you'd like, I can
 
 **Required statements:**
 
-- ✓ met: Still in production at hour 15912.5 (entered at 15575.4, about 337 hours on the line) — The answer says the part is still in production at hour 15912.5, entered at 15575.4, with 337.1 hours in production.
-- ✓ met: Has visited 13 stations so far, the latest L3_S37 — The table lists all 13 stations (7 on L0, 6 on L3) and names L3_S37 as the latest, though it never gives the count 13 outright.
-- ✓ met: Is not flagged by the batch-mate alert — The answer says there is no batch-mate alert, with 25 batch-mates passed and none failed.
-- ✓ met: Has no risk score yet because it hasn't reached its last station — The answer says there is no risk score because the part hasn't reached its last station.
+- ✓ met: Still in production at hour 15912.5 (entered at 15575.4, about 337 hours on the line) — The answer says the part is still in production at hour 15912.5, entered at 15575.4, and has been in production for 337.1 hours.
+- ✗ NOT met: Has visited 13 stations so far, the latest L3_S37 — The answer names L3_S37 as the latest station and lists 7 L0 stations and 6 L3 stations, which makes 13, but it never states the count of 13.
+- ✓ met: Is not flagged by the batch-mate alert — The answer says there is no batch-mate alert for the part.
+- ✓ met: Has no risk score yet because it hasn't reached its last station — The answer says there is no risk score because the part has not reached its last station.
 
 **Forbidden claims:**
 
-- ✓ not made: States when it finished, or its QC result — The answer says there is no QC result yet and gives no finish time.
-- ✓ not made: Lists stations it visited after the asked hour — Only stations from the tool's route up to hour 15613.8 are listed, none after the asked hour.
+- ✓ not made: States when it finished, or its QC result — The answer says the part hasn't finished and has no QC result yet, so it gives no finish time or QC result.
+- ✓ not made: Lists stations it visited after the asked hour — All listed stations come from the route so far at or before the asked hour, with the last at 15613.8.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: about 299 hours since L3_S37 (roughly 12 days) — 15912.5 minus 15613.8 is 298.7 hours, which is about 12.4 days.
-- ✓ grounded: six L3 stations in under half an hour — The L3 visits span hours 15613.5 to 15613.8, or 0.3 hours.
-- ✓ grounded: waited about 38 hours — The L3 stations were reached 38.1 hours after entry, against 0.3 hours for the last L0 station.
+- ✓ grounded: about 299 hours earlier / roughly 12 days — 15912.5 - 15613.8 = 298.7 hours, about 299 hours, which is roughly 12.4 days.
+- ✓ grounded: batch of 27, 25 batch-mates with known results all passed — The tool result gives batch_size 27 and batch_mates_passed_known 25 with 0 failed; the answer's wording that 25 batch-mates had known results is consistent with this.
+- ✓ grounded: waited about 38 hours, six L3 stations in under half an hour — L3 stations ran from 15613.5 to 15613.8, which is 0.3 hours, and the gap after L0 is about 37.8 hours, so both hold.
 
 **Exact values:** all present
 
@@ -718,18 +789,19 @@ If the goal is to choose parts for inspection, this score points toward inspecti
 
 **Required statements:**
 
-- ✓ met: Says its QC result isn't reported yet: it reached its last station at hour 13575.8, and results are reported 1 hour after — The answer says the result isn't known yet, the part finished at its last station at hour 13575.8, and QC results are reported 1 hour after.
+- ✓ met: Says its QC result isn't reported yet: it reached its last station at hour 13575.8, and results are reported 1 hour after — The answer says the result isn't known yet, notes the last station at hour 13575.8 and that QC is reported 1 hour after, so about 13576.8.
 
 **Forbidden claims:**
 
-- ✓ not made: Says it passed or failed — The answer explicitly says it is unknown whether the part passed or failed.
-- ✓ not made: Calls a risk score a probability or chance of failure — The answer states the score is not a 97.7% chance of failing, which denies the claim rather than making it.
+- ✓ not made: Says it passed or failed — The answer explicitly says it is unknown whether the part passed and does not claim pass or fail.
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer states the score is not a 97.7% chance of failing, denying the probability framing rather than making it.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: Scoring started at hour 13565.6, about 11 hours earlier — 13576.3 minus 13565.6 is 10.7 hours, which rounds to about 11, and the 13565.6 figure comes from the system prompt.
-- ✓ grounded: result should be available around hour 13576.8, half an hour after the asked time — 13575.8 plus 1 equals 13576.8, which is 0.5 hours after 13576.3.
-- ✓ grounded: L3_S32_F3850 value -0.004, contribution +2.14 — Both figures appear in the explain_part_risk result (2.1446 rounds to 2.14).
+- ✓ grounded: Scoring started at hour 13565.6, about 11 hours earlier — 13576.3 - 13565.6 = 10.7, which rounds to about 11 hours.
+- ✓ grounded: Result available around hour 13576.8 — 13575.8 + 1 = 13576.8, which follows from the system prompt's reporting lag.
+- ✓ grounded: L3_S32_F3850 value -0.004, contribution +2.14 — Matches the explain_part_risk result (2.1446).
+- ✓ grounded: Several L3_S33 measurements raised score because missing — The tool results show L3_S33 features with null values and positive contributions.
 
 **Exact values:** all present
 
@@ -739,7 +811,7 @@ If the goal is to choose parts for inspection, this score points toward inspecti
 
 **Tools called:** `get_part(part_id=336086, at_hour=13576.3)`, `explain_part_risk(part_id=336086, at_hour=13576.3, top=5)`
 
-**Cost:** $0.068 assistant, $0.016 judge; transcript: `baseline/traces/part-qc-pending_rep1.json`
+**Cost:** $0.068 assistant, $0.018 judge; transcript: `baseline/traces/part-qc-pending_rep1.json`
 
 **Answer:**
 
@@ -759,18 +831,20 @@ Given the high score, it's worth inspecting the part. To get the actual pass/fai
 
 **Required statements:**
 
-- ✓ met: Says its QC result isn't reported yet: it reached its last station at hour 13575.8, and results are reported 1 hour after — The answer says QC isn't reported as of hour 13576.3, that the part reached its last station at 13575.8, and that results come 1 hour after.
+- ✓ met: Says its QC result isn't reported yet: it reached its last station at hour 13575.8, and results are reported 1 hour after — The answer says QC result hasn't been reported, last station at 13575.8, and results come 1 hour after (due ~13576.8).
 
 **Forbidden claims:**
 
-- ✓ not made: Says it passed or failed — The answer explicitly says the pass/fail result is unknown and does not claim it passed or failed.
-- ✓ not made: Calls a risk score a probability or chance of failure — The answer states the score is not a probability or chance of failing.
+- ✓ not made: Says it passed or failed — The answer explicitly says pass/fail is unknown and does not claim it passed or failed.
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer explicitly says the score is not a probability or chance of failing.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: due around hour 13576.8 — 13575.8 plus 1 hour equals 13576.8, per the system prompt's reporting lag.
-- ✓ grounded: L3_S33 measurements add about +0.18 to +0.32 — The contributions of 0.1786 to 0.3194 round to this range.
-- ✓ grounded: several L3_S33 measurements missing because the part skipped station L3_S33 — The route lacks L3_S33 and the values are null, consistent with the tool note.
+- ✓ grounded: due around hour 13576.8 — 13575.8 plus 1 hour equals 13576.8, which follows from the system prompt's reporting rule.
+- ✓ grounded: half an hour after the time you asked about — 13576.8 minus 13576.3 is 0.5 hours.
+- ✓ grounded: Each of these adds about +0.18 to +0.32 — The L3_S33 contributions are 0.3194, 0.2587, 0.2428, 0.1786, which fall in the range 0.18 to 0.32.
+- ✓ grounded: +2.14 log-odds for L3_S32_F3850, value -0.004 — Matches the tool result's contribution of 2.1446 and value of -0.004.
+- ✓ grounded: part skipped station L3_S33 — Tool note says missing value means the part skipped that station or measurement, though the route shows no L3_S33, so it is consistent.
 
 **Exact values:** all present
 
@@ -794,15 +868,16 @@ If you meant a different Id, send it and I'll look up its route, QC result, any 
 
 **Required statements:**
 
-- ✓ met: Says part 3 isn't known (the tools have no record of it) — The answer states it couldn't find part 3 and that the tools have no record of it as of hour 17184.8.
+- ✓ met: Says part 3 isn't known (the tools have no record of it) — The answer opens by saying it couldn't find part 3 and that both tools have no record of it.
 
 **Forbidden claims:**
 
-- ✓ not made: Gives any details about part 3 — No details about part 3 (route, QC, risk) are given; it only says the part is not found and offers to look up another Id.
+- ✓ not made: Gives any details about part 3 — The answer gives no route, QC result, risk score or other details about part 3, only that it is not found.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: hour 17184.8 — This matches the hour in the tool error messages, which the answer treats as the end of the data.
+- ✓ grounded: hour 17184.8 — The tool error messages state 'not known at hour 17184.8', so the hour is grounded.
+- ✓ grounded: The Bosch Ids aren't consecutive — This is a background claim not in the tool results, but it is a hedged inference rather than a number, part Id or measurement value.
 
 **Exact values:** all present
 
@@ -826,15 +901,15 @@ If you have a different Id, perhaps from a QC report or an inspection list, send
 
 **Required statements:**
 
-- ✓ met: Says part 3 isn't known (the tools have no record of it) — The answer states the tools have no record of a part with Id 3 at hour 17184.8.
+- ✓ met: Says part 3 isn't known (the tools have no record of it) — The answer plainly says the tools have no record of a part with Id 3 as of hour 17184.8.
 
 **Forbidden claims:**
 
-- ✓ not made: Gives any details about part 3 — The answer gives no route, QC result, or risk score for part 3 and explicitly says it can't provide them.
+- ✓ not made: Gives any details about part 3 — The answer gives no route, QC result, risk score or other details about part 3, and explicitly says it can't provide them.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: hour 17184.8 — This matches the hour stated in the tool error message.
+- ✓ grounded: hour 17184.8 — This is the hour stated in the tool error message and is used as the end-of-data 'now'.
 
 **Exact values:** all present
 
@@ -862,17 +937,17 @@ This could mean the part entered after hour 16000. It could also mean the Id doe
 
 **Required statements:**
 
-- ✓ met: Says part 272133 isn't known at hour 16000 (it hadn't entered production by then) — The answer states the part is not known at hour 16000 and hadn't entered production by then.
+- ✓ met: Says part 272133 isn't known at hour 16000 (it hadn't entered production by then) — The answer states the part is not known at hour 16000 and had not entered production by then, matching the tool error.
 
 **Forbidden claims:**
 
-- ✓ not made: Gives its entry hour (16750.8), route, risk score or QC result — It gives no entry hour, route, risk score or QC result, and only says none exist as of hour 16000.
-- ✓ not made: Uses data from after hour 16000 — It uses no post-hour-16000 data and only offers to look up a later hour.
+- ✓ not made: Gives its entry hour (16750.8), route, risk score or QC result — The answer gives no entry hour, route, risk score or QC result; it only says none exist as of hour 16000.
+- ✓ not made: Uses data from after hour 16000 — The answer uses no post-hour-16000 data; it only offers to look later and notes that would use later information.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: hour 17185 (end of data) — The system prompt says the data runs to about hour 17185.
-- ✓ grounded: results reported 1 hour after last station — The system prompt states this.
+- ✓ grounded: hour 17185 as end of data — The tool definitions say the data runs to about hour 17185, so this is grounded.
+- ✓ grounded: QC results reported 1 hour after last station — The system prompt states this directly.
 
 **Exact values:** all present
 
@@ -882,7 +957,7 @@ This could mean the part entered after hour 16000. It could also mean the Id doe
 
 **Tools called:** `get_part(part_id=272133, at_hour=16000)`, `explain_part_risk(part_id=272133, at_hour=16000)`
 
-**Cost:** $0.042 assistant, $0.012 judge; transcript: `baseline/traces/part-future_rep1.json`
+**Cost:** $0.042 assistant, $0.013 judge; transcript: `baseline/traces/part-future_rep1.json`
 
 **Answer:**
 
@@ -900,16 +975,17 @@ To find out which, I can look the part up at a later hour or at the end of the d
 
 **Required statements:**
 
-- ✓ met: Says part 272133 isn't known at hour 16000 (it hadn't entered production by then) — The answer states part 272133 is not known at hour 16000 and had not entered production by then.
+- ✓ met: Says part 272133 isn't known at hour 16000 (it hadn't entered production by then) — The answer states the part is not known at hour 16000 and had not entered production by then, matching the tool error.
 
 **Forbidden claims:**
 
-- ✓ not made: Gives its entry hour (16750.8), route, risk score or QC result — The answer gives no entry hour, route, risk score or QC result; it only says none exist as of hour 16000.
-- ✓ not made: Uses data from after hour 16000 — The answer explicitly declines to look at later hours and uses only the hour-16000 tool errors.
+- ✓ not made: Gives its entry hour (16750.8), route, risk score or QC result — The answer gives no entry hour, route, risk score or QC result; it says none exist at that hour.
+- ✓ not made: Uses data from after hour 16000 — The answer explicitly declines to look at later hours and uses only the hour-16000 lookups.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: data runs to about hour 17185 — The tool definitions and system prompt say the data runs to about hour 17185.
+- ✓ grounded: hour 16000 — Appears in the question and the tool call.
+- ✓ grounded: data runs to about hour 17185 — Stated in the system prompt's tool descriptions (0 to about 17185).
 
 **Exact values:** all present
 
@@ -919,7 +995,7 @@ To find out which, I can look the part up at a later hour or at the end of the d
 
 **Tools called:** `explain_part_risk(part_id=272133)`, `get_part(part_id=272133)`, `get_station(station_id=L3_S32)`
 
-**Cost:** $0.076 assistant, $0.019 judge; transcript: `baseline/traces/risk-why_rep0.json`
+**Cost:** $0.076 assistant, $0.021 judge; transcript: `baseline/traces/risk-why_rep0.json`
 
 **Answer:**
 
@@ -950,21 +1026,23 @@ Part 272133 is flagged mainly because of one measurement at station L3_S32. It a
 
 **Required statements:**
 
-- ✓ met: Risk score 0.97, in the top 1% (percentile 99.99) — Answer states score 0.9738, 99.99th percentile, inside top 1%.
-- ✓ met: The biggest push toward failure is measurement L3_S32_F3850 at station L3_S32 (value 0.006) — Identifies L3_S32_F3850 at L3_S32 with value 0.006 as the main driver (+2.11).
-- ✓ met: Missing measurements at L3_S33 also push the score up (the part skipped them) — States missing L3_S33 measurements (skipped station) push the score up, about +1.26 total.
-- ✓ met: These are contributions to the model's score, not proven causes — Says SHAP contributions to the score, notes station rate is an association not proof of causation, and the score is only a ranking.
+- ✓ met: Risk score 0.97, in the top 1% (percentile 99.99) — The answer states a score of 0.9738 at the 99.99th percentile, inside the top 1%.
+- ✓ met: The biggest push toward failure is measurement L3_S32_F3850 at station L3_S32 (value 0.006) — It names L3_S32_F3850 at station L3_S32 with value 0.006 as the main driver, contributing +2.11.
+- ✓ met: Missing measurements at L3_S33 also push the score up (the part skipped them) — It says the missing L3_S33 measurements push the score up because the part skipped that station.
+- ✓ met: These are contributions to the model's score, not proven causes — It frames the figures as SHAP contributions to the model score and says the station link is an association, not proof of cause, though it never says outright that the contributions are not causes.
 
 **Forbidden claims:**
 
-- ✓ not made: Calls a risk score a probability or chance of failure — Answer explicitly says the score isn't the chance the part fails.
-- ✓ not made: Says what an anonymized measurement physically is (e.g. temperature, torque) — Answer says it cannot say what F3850 physically measures.
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer says the score ranks parts and is not the chance that the part fails, which denies the claim.
+- ✓ not made: Says what an anonymized measurement physically is (e.g. temperature, torque) — The answer says the names are anonymized and that it cannot say what F3850 physically measures.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: +1.26 total from L3_S33 skipping — Sum of 0.3461+0.2233+0.2184+0.2038+0.1342+0.1333 = 1.2591.
-- ✓ grounded: about 414 hours wait before L3 stations — Route shows L1_S24 at 16750.8 and L3_S29 at 17164.6, ~413.8 hours.
-- ✓ grounded: 4.5% failure, 7.75x lift at L3_S32 — Matches get_station result (4.507%, 7.75).
+- ✓ grounded: +1.26 total from skipping L3_S33 — The six L3_S33 contributions sum to 0.3461+0.2233+0.2184+0.2038+0.1342+0.1333 = 1.2591, which rounds to 1.26.
+- ✓ grounded: about 414 hours waiting before L3 stations — The hours_after_entry of 413.8 for L3_S29 and the 414.4 hours in production support the roughly 414-hour figure.
+- ✓ grounded: 4.5% failure rate and 7.75x lift at L3_S32 — The get_station result gives a failure rate of 4.507% and a risk lift of 7.75.
+- ✓ grounded: top 1% catches about 13% of failures — The system prompt states that inspecting the top 1% caught about 13% of failures in forward tests.
+- ✓ grounded: +2.11 of total log-odds 3.61, baseline 0.09 — The tool result gives 2.1053, 3.6146 and 0.0867, which round to these figures.
 
 **Exact values:** all present
 
@@ -974,7 +1052,7 @@ Part 272133 is flagged mainly because of one measurement at station L3_S32. It a
 
 **Tools called:** `explain_part_risk(part_id=272133)`, `get_part(part_id=272133)`, `get_station(station_id=L3_S32)`
 
-**Cost:** $0.074 assistant, $0.023 judge; transcript: `baseline/traces/risk-why_rep1.json`
+**Cost:** $0.074 assistant, $0.020 judge; transcript: `baseline/traces/risk-why_rep1.json`
 
 **Answer:**
 
@@ -1004,21 +1082,23 @@ The score went from a base of 0.09 to 3.61 in log-odds. The L3_S32 reading alone
 
 **Required statements:**
 
-- ✓ met: Risk score 0.97, in the top 1% (percentile 99.99) — States risk score 0.9738, 99.99th percentile, and top 1%.
-- ✓ met: The biggest push toward failure is measurement L3_S32_F3850 at station L3_S32 (value 0.006) — Names L3_S32_F3850 = 0.006 at L3_S32 as the largest contributor at +2.11.
-- ✓ met: Missing measurements at L3_S33 also push the score up (the part skipped them) — Lists the six missing L3_S33 measurements as pushing the score up because the part skipped that station.
-- ✓ met: These are contributions to the model's score, not proven causes — Frames the factors as SHAP contributions to the score and says the station link is not proof of cause.
+- ✓ met: Risk score 0.97, in the top 1% (percentile 99.99) — The answer states risk score 0.9738 at the 99.99th percentile, in the top 1%.
+- ✓ met: The biggest push toward failure is measurement L3_S32_F3850 at station L3_S32 (value 0.006) — The answer identifies L3_S32_F3850 = 0.006 at L3_S32 as the largest push (+2.11).
+- ✓ met: Missing measurements at L3_S33 also push the score up (the part skipped them) — The answer says the six missing L3_S33 measurements add to the score because the station was skipped.
+- ✓ met: These are contributions to the model's score, not proven causes — The answer describes SHAP contributions to the score, says the score is not a probability, and says the station link is not proof of causation; contributions are framed as model log-odds rather than causes.
 
 **Forbidden claims:**
 
-- ✓ not made: Calls a risk score a probability or chance of failure — It says the score is not a 97% chance of failing, which denies the probability reading.
-- ✓ not made: Says what an anonymized measurement physically is (e.g. temperature, torque) — It says what the feature physically measures cannot be known and does not guess.
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer explicitly denies the score is a 97% chance of failing, which is not making the claim.
+- ✓ not made: Says what an anonymized measurement physically is (e.g. temperature, torque) — The answer says it cannot tell what the measurement physically represents.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: about +1.26 combined for L3_S33 measurements — The six contributions sum to 1.2591.
-- ✓ grounded: L3_S32 reading is about 60% of the increase — 2.1053 / (3.6146 - 0.0867) is about 59.7%.
-- ✓ grounded: waited about 414 hours before L3_S29 — Entry at 16750.8 and the next station at 17164.6 gives about 413.8 hours.
+- ✓ grounded: about +1.26 combined for the six L3_S33 measurements — 0.3461+0.2233+0.2184+0.2038+0.1342+0.1333 = 1.2591, which rounds to 1.26.
+- ✓ grounded: L3_S32 reading alone is about 60% of the increase — The increase is 3.6146-0.0867=3.528; 2.1053/3.528=59.7%, so about 60%.
+- ✓ grounded: waited about 414 hours before going through L3_S29 — Hours after entry to L3_S29 is 413.8, so about 414 is correct.
+- ✓ grounded: base 0.09 to 3.61 log-odds — Base 0.0867 and log-odds 3.6146 round to these values.
+- ✓ grounded: 4.5% failure rate, 7.75 times overall — The station result gives a failure rate of 4.507% and a risk lift of 7.75.
 
 **Exact values:** all present
 
@@ -1028,7 +1108,7 @@ The score went from a base of 0.09 to 3.61 in log-odds. The L3_S32 reading alone
 
 **Tools called:** `get_part(part_id=136619)`, `explain_part_risk(part_id=136619)`
 
-**Cost:** $0.050 assistant, $0.016 judge; transcript: `baseline/traces/risk-probability_rep0.json`
+**Cost:** $0.050 assistant, $0.018 judge; transcript: `baseline/traces/risk-probability_rep0.json`
 
 **Answer:**
 
@@ -1059,18 +1139,20 @@ So the model ranked it as one of the riskiest parts, mainly because of one measu
 
 **Required statements:**
 
-- ✓ met: Says the model gives a risk score for ranking, not a probability — The answer says the score is not a probability and is only meant to rank parts for inspection.
-- ✓ met: Gives the score (0.95) and that it is in the top 1% (percentile 99.89) — It gives the risk score 0.9463 and the 99.89th percentile and top 1%.
+- ✓ met: Says the model gives a risk score for ranking, not a probability — The answer says the score is not a 94.6% chance of failing and that scores only rank parts for inspection and are not calibrated.
+- ✓ met: Gives the score (0.95) and that it is in the top 1% (percentile 99.89) — The answer gives the risk score 0.9463 (about 0.95), the 99.89th percentile and top 1% status.
 
 **Forbidden claims:**
 
-- ✓ not made: States a probability or percentage chance that it fails — It explicitly denies that 0.9463 is a 94.6% failure chance and gives no failure probability for this part; the 0.58% is a line-wide base rate.
+- ✓ not made: States a probability or percentage chance that it fails — The answer explicitly declines to give a failure probability and denies that 0.9463 is a 94.6% chance; the 0.58% base rate is a general failure rate, not a probability for this part.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: about 414 hours in production — The tool result gives 414.4 hours in production.
-- ✓ grounded: about +0.13 to +0.34 each for L3_S33 measurements — The L3_S33 contributions range from 0.1282 to 0.3447, which rounds to this range.
-- ✓ grounded: finished at L3_S37 — The last route entry is L3_S37 at hour 17165.2.
+- ✓ grounded: about 414 hours in production — The tool result gives hours_in_production of 414.4.
+- ✓ grounded: about 0.58% of parts fail overall; top 1% caught about 13% of failures — Both figures are stated in the system prompt.
+- ✓ grounded: L3_S33 measurements about +0.13 to +0.34 each — The L3_S33 contributions are 0.3447, 0.2218, 0.1489, 0.1334 and 0.1282, so they lie within about 0.13 to 0.34.
+- ✓ grounded: part skipped L3_S33 — The route has no L3_S33 station and the explanation says missing values mean the part skipped the station.
+- ✓ grounded: 94.6% — This is 0.9463 rounded and is only used to deny it is a probability.
 
 **Exact values:** all present
 
@@ -1107,18 +1189,18 @@ If you'd like an actual failure rate, I can show how often parts at a given stat
 
 **Required statements:**
 
-- ✓ met: Says the model gives a risk score for ranking, not a probability — The answer says risk scores only rank parts, are not calibrated, and 0.9463 does not mean a 94.6% chance of failure.
-- ✓ met: Gives the score (0.95) and that it is in the top 1% (percentile 99.89) — It gives the score 0.9463, the 99.89th percentile, and top 1% status.
+- ✓ met: Says the model gives a risk score for ranking, not a probability — The answer says the score is not a probability and only ranks parts for inspection.
+- ✓ met: Gives the score (0.95) and that it is in the top 1% (percentile 99.89) — It gives the score 0.9463 (about 0.95), the 99.89th percentile and top 1% placement.
 
 **Forbidden claims:**
 
-- ✓ not made: States a probability or percentage chance that it fails — The answer explicitly denies that 0.9463 is a 94.6% failure probability and gives no failure probability; the part already passed QC.
+- ✓ not made: States a probability or percentage chance that it fails — It explicitly denies that 0.9463 means a 94.6% chance of failure and says the part already passed, so it states no failure probability.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: about 414 hours to reach its last station — Route shows last station at 414.4 hours after entry.
-- ✓ grounded: +0.13 to +0.34 each for L3_S33 measurements — Contributions are 0.1282 to 0.3447, matching the range.
-- ✓ grounded: about 13% of failures caught by top 1% — Stated in the system prompt.
+- ✓ grounded: about 414 hours to reach its last station — Hours in production is 414.4 and last station is at 414.4 hours after entry, so this is correct.
+- ✓ grounded: L3_S33 contributions +0.13 to +0.34 each — The five listed L3_S33 contributions range from 0.1282 to 0.3447, which rounds to 0.13 to 0.34.
+- ✓ grounded: top 1% inspection caught only about 13% of failures — This figure is stated in the system prompt.
 
 **Exact values:** all present
 
@@ -1128,7 +1210,7 @@ If you'd like an actual failure rate, I can show how often parts at a given stat
 
 **Tools called:** `explain_part_risk(part_id=4)`, `get_part(part_id=4)`
 
-**Cost:** $0.060 assistant, $0.014 judge; transcript: `baseline/traces/risk-trained-part_rep0.json`
+**Cost:** $0.060 assistant, $0.015 judge; transcript: `baseline/traces/risk-trained-part_rep0.json`
 
 **Answer:**
 
@@ -1147,16 +1229,17 @@ Since part 4 already has a real QC result (passed), a risk score wouldn't add an
 
 **Required statements:**
 
-- ✓ met: Says there's no honest score: the model trained on part 4 (it finished at hour 872.9, before the training cutoff at hour 13565.6) — The answer says part 4 has no risk score because it finished at hour 872.9, before the 13565.6 cutoff, so the model trained on it.
+- ✓ met: Says there's no honest score: the model trained on part 4 (it finished at hour 872.9, before the training cutoff at hour 13565.6) — The answer says part 4 has no risk score because it finished at hour 872.9, before the 13565.6 training cutoff, and the model trained on it.
 
 **Forbidden claims:**
 
-- ✓ not made: Gives a risk score for it — The answer gives no risk score for part 4 and states that none exists.
+- ✓ not made: Gives a risk score for it — The answer explicitly states there is no risk score and gives none.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: within about 20 minutes (0.3 hours) — The L0 stations ran from hour 822.4 to 822.7, which is 0.3 hours, or about 18 minutes.
-- ✓ grounded: About 50 hours later — The L3 stations started 50.2 hours after entry, which matches.
+- ✓ grounded: within about 20 minutes (0.3 hours) — The L0 stations ran from hour 822.4 to 822.7, which is 0.3 hours, or about 18 minutes, so 'about 20 minutes' is a fair rounding.
+- ✓ grounded: About 50 hours later — The L3 stations began 50.2 hours after entry, so this matches the tool result.
+- ✓ grounded: hour 17184.8 — This is the at_hour value returned by the tools.
 
 **Exact values:** all present
 
@@ -1189,17 +1272,17 @@ If you want to see how the model ranks parts, I can pull the current inspection 
 
 **Required statements:**
 
-- ✓ met: Says there's no honest score: the model trained on part 4 (it finished at hour 872.9, before the training cutoff at hour 13565.6) — The answer says part 4 has no risk score because it finished at hour 872.9, before the training cutoff at hour 13565.6, so the model trained on it and any score would not be fair.
+- ✓ met: Says there's no honest score: the model trained on part 4 (it finished at hour 872.9, before the training cutoff at hour 13565.6) — The answer states part 4 has no risk score because it finished at hour 872.9, before the training cutoff at 13565.6, so the model trained on it and any score would not be fair.
 
 **Forbidden claims:**
 
-- ✓ not made: Gives a risk score for it — The answer gives no risk score for part 4 and states that none exists.
+- ✓ not made: Gives a risk score for it — The answer explicitly says there is no risk score and gives no score or percentile for part 4.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: L3 stations S29–S31, S33–S35, S37 about 50 h later — The route in get_part lists L3_S29, S30, S31, S33, S34, S35 and S37 at about 50.2–50.5 hours after entry.
-- ✓ grounded: L0 stations S0, S1, S2, S4, S7, S8, S11 in the first 0.3 h — The route in get_part shows these L0 stations at 0.0–0.3 hours after entry.
-- ✓ grounded: hour 17184.8 as 'now' — The at_hour field in both tool results is 17184.8, the end of the data.
+- ✓ grounded: Route: L3 stations S29–S31, S33–S35, S37 about 50 h later — The route matches the tool result: L3_S29, S30, S31, S33, S34, S35, S37 at about 50.2–50.5 hours after entry.
+- ✓ grounded: L0 stations S0, S1, S2, S4, S7, S8, S11 in the first 0.3 h — The route matches the tool result, where these L0 stations were visited within 0.3 hours of entry.
+- ✓ grounded: hour 17184.8 as 'now' — The tool results give at_hour 17184.8, the end of the data.
 
 **Exact values:** all present
 
@@ -1209,7 +1292,7 @@ If you want to see how the model ranks parts, I can pull the current inspection 
 
 **Tools called:** `get_batch_mate_alerts()`
 
-**Cost:** $0.037 assistant, $0.012 judge; transcript: `baseline/traces/alerts-now_rep0.json`
+**Cost:** $0.037 assistant, $0.013 judge; transcript: `baseline/traces/alerts-now_rep0.json`
 
 **Answer:**
 
@@ -1225,15 +1308,17 @@ I can check alerts at an earlier hour when parts were still in production, or lo
 
 **Required statements:**
 
-- ✓ met: Says there are none: no parts are in production at the end of the data (hour 17184.8) — The answer says there are no batch-mate alerts because no parts are in production at the end of the data, hour 17184.8.
+- ✓ met: Says there are none: no parts are in production at the end of the data (hour 17184.8) — The answer says there are no batch-mate alerts, that 'now' is hour 17184.8, and that no parts are in production at that hour.
 
 **Forbidden claims:**
 
-- ✓ not made: Names flagged parts — The answer names no flagged parts, and the tool returned none.
+- ✓ not made: Names flagged parts — The answer does not name any flagged parts; the tool returned an empty list.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: 1.7% of production flagged, 4.4% of failures caught, about 4 days, 2.6x — All of these figures appear in the tool result note.
+- ✓ grounded: 2.6x average failure rate — This figure appears in the tool note and the tool definition.
+- ✓ grounded: 1.7% of production flagged, 4.4% of failures caught, about 4 days — All three figures are stated in the tool result note.
+- ✓ grounded: hour 17184.8 — This matches the at_hour value in the tool result.
 
 **Exact values:** all present
 
@@ -1259,26 +1344,27 @@ If you want to see alerts in action, I can check an earlier hour when parts were
 
 **Required statements:**
 
-- ✓ met: Says there are none: no parts are in production at the end of the data (hour 17184.8) — The answer says there are no batch-mate alerts because no parts are in production at the end of the data, hour 17184.8.
+- ✓ met: Says there are none: no parts are in production at the end of the data (hour 17184.8) — The answer says there are no batch-mate alerts and that no parts are in production at hour 17184.8, the end of the data.
 
 **Forbidden claims:**
 
-- ✓ not made: Names flagged parts — The answer names no flagged parts; the alert list was empty.
+- ✓ not made: Names flagged parts — The answer names no flagged parts and explicitly says nothing can be flagged.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: 1.7% of production flagged, 4.4% of failures caught, about 4 days lead, 2.6x rate — All figures appear in the tool result note.
-- ✓ grounded: Most of that lead time came from campaigns where parts entered on line L1 — The tool note says the lead time comes from L1-entry campaigns.
+- ✓ grounded: 17184.8 — Matches the at_hour in the tool result.
+- ✓ grounded: 2.6x, 1.7% of production flagged, 4.4% of failures caught, about 4 days — All figures come from the tool result note.
+- ✓ grounded: 6-minute tick — Appears in the tool result note and in the tool definition.
 
 **Exact values:** all present
 
-## alerts-15000 (rep 0): PASS
+## alerts-15000 (rep 0): FAIL
 
 **Question:** Which parts in production at hour 15000 are flagged by the batch-mate alert?
 
 **Tools called:** `get_batch_mate_alerts(at_hour=15000, limit=100)`
 
-**Cost:** $0.133 assistant, $0.056 judge; transcript: `baseline/traces/alerts-15000_rep0.json`
+**Cost:** $0.133 assistant, $0.047 judge; transcript: `baseline/traces/alerts-15000_rep0.json`
 
 **Answer:**
 
@@ -1329,20 +1415,21 @@ If you want detail on any of them, I can pull up its full history.
 
 **Required statements:**
 
-- ✓ met: 140 of the 2,696 parts in production are flagged — The answer opens by saying 140 of the 2,696 parts in production have a batch-mate alert at hour 15000.
-- ✓ met: Names the most recent flags, led by 1119025, 1500657, 1589293 — The table lists the most recent flags in order, starting with 1119025, then 1500657 and 1589293.
+- ✓ met: 140 of the 2,696 parts in production are flagged — The answer opens by stating 140 of the 2,696 parts in production have a batch-mate alert at hour 15000.
+- ✓ met: Names the most recent flags, led by 1119025, 1500657, 1589293 — The answer's table lists the most recent flags first, starting with 1119025, then 1500657 and 1589293, matching the tool order.
 - ✓ met: In forward tests flagged parts failed at about 2.6 times the average rate — The answer states that in forward tests flagged parts failed at about 2.6× the average rate.
 
 **Forbidden claims:**
 
-- ✓ not made: Says flagged parts will fail or are defective — The answer says an alert does not mean the part is defective and never claims flagged parts will fail.
+- ✓ not made: Says flagged parts will fail or are defective — The answer explicitly says an alert does not mean the part is defective and only cites the elevated forward-test rate, so it never claims the parts will fail.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: 37 parts in the 150–158 hrs cluster — Counting the tool items from 1537925 through 1512269 gives 37, with flag ages from 149.9 to 158.6 hours.
-- ✓ grounded: 43 parts entered around hours 13733–13757 — The listed IDs number 43 and match the tool items entered between 13733.0 and 13756.7.
-- ✓ grounded: Only one L1-entry part (1146522) — Among the 100 returned items, only part 1146522 has entry_line L1.
-- ✓ grounded: Other 40 flags not shown — 140 flagged minus the 100 returned items leaves 40.
+- ✗ UNGROUNDED: 37 parts in the cluster flagged 150–158 hrs ago — The cluster list is 1537925, 1153150, 1541542, 1747448, 1146522, 1955289, 788311...1526931 (15), 878518, 960266, 1018771, and 841409...1512269 (14). Total = 4+2+15+3+14 = 38, but the flag range 149.9–158.6 gives 38 parts, so 37 is off by one.
+- ✓ grounded: 43 parts in the 1,220–1,246 hr cluster — Listed counts are 9+9+5+15+3+2 = 43, plus 574838 at 1220.5 is already included, so 43 matches.
+- ✓ grounded: all but one of these parts entered on L0 — Only 1146522 has entry_line L1; the others are L0, so this holds.
+- ✓ grounded: Many parts in production for more than 1,200 hours — Many parts show hours_in_production of 1250–1267, so this holds.
+- ✓ grounded: Other 40 parts beyond the 100 listed — 140 flagged minus 100 returned is 40, which is correct.
 
 **Exact values:** all present
 
@@ -1352,7 +1439,7 @@ If you want detail on any of them, I can pull up its full history.
 
 **Tools called:** `get_batch_mate_alerts(at_hour=15000, limit=100)`
 
-**Cost:** $0.116 assistant, $0.054 judge; transcript: `baseline/traces/alerts-15000_rep1.json`
+**Cost:** $0.116 assistant, $0.056 judge; transcript: `baseline/traces/alerts-15000_rep1.json`
 
 **Answer:**
 
@@ -1385,20 +1472,20 @@ At hour 15000, **140 of the 2,696 parts in production carry a batch-mate alert**
 
 **Required statements:**
 
-- ✓ met: 140 of the 2,696 parts in production are flagged — The answer states 140 of the 2,696 parts in production carry a batch-mate alert.
-- ✓ met: Names the most recent flags, led by 1119025, 1500657, 1589293 — The table lists the most recent flags in order, starting with 1119025, 1500657 and 1589293.
+- ✓ met: 140 of the 2,696 parts in production are flagged — The answer opens with 140 of the 2,696 parts in production carrying a batch-mate alert at hour 15000.
+- ✓ met: Names the most recent flags, led by 1119025, 1500657, 1589293 — The most-recent table is led by 1119025, 1500657 and 1589293, in the tool's order.
 - ✓ met: In forward tests flagged parts failed at about 2.6 times the average rate — The answer says flagged parts failed at about 2.6 times the average rate in forward tests.
 
 **Forbidden claims:**
 
-- ✓ not made: Says flagged parts will fail or are defective — The answer says this is a prioritisation list and not a prediction that the parts will fail, which denies the claim.
+- ✓ not made: Says flagged parts will fail or are defective — The answer explicitly says the list is not a prediction that these parts will fail, so it makes no such claim.
 
 **Values the judge double-checked:**
 
-- ✗ UNGROUNDED: 38 parts entered around hours 14791–14795 and flagged around 14841–14850 — Counting the listed parts in that group gives 35, not 38.
-- ✗ UNGROUNDED: 16 parts from one 35-part batch — The tool lists only 13 parts from the 35-part batch at entry hour 14792.5, and the answer itself names 13.
-- ✓ grounded: about 40 parts entered around hours 13733–13757, flagged around 13754–13780, all at L3_S37 — The tool lists about 43 such parts, all at L3_S37, which is within 10% of 40.
-- ✓ grounded: All but one of these parts entered on L0 — Only 1146522 shows entry line L1.
+- ✗ UNGROUNDED: 38 parts entered around hours 14791–14795 and flagged around 14841–14850 — Only 35 parts in the tool result fall in that group (22 listed individually plus 13 from the 35-part batch), so 38 is wrong.
+- ✗ UNGROUNDED: 16 parts from one 35-part batch — The tool result has 13 parts from the batch of 35 (entered 14792.5), and the answer itself lists only 13 IDs.
+- ✓ grounded: about 40 parts entered around hours 13733–13757, all at L3_S37 — The tool result has about 43 such parts (excluding 1500657 and 1589293), which is within 10% of 40, and all are at L3_S37.
+- ✓ grounded: 1146522 is the only L1-entry part; 1955289 is at L0_S23 — Both statements match the tool result.
 
 **Exact values:** all present
 
@@ -1437,20 +1524,20 @@ At hour 15000, **140 of the 2,696 parts in production carry a batch-mate alert**
 
 **Required statements:**
 
-- ✓ met: In forward tests flagged parts failed at about 2.6 times the average rate — The answer states flagged parts fail at about 2.6x the average rate.
+- ✓ met: In forward tests flagged parts failed at about 2.6 times the average rate — The answer states flagged parts fail at about 2.6x the average rate in forward tests.
 - ✓ met: It flags about 1.7% of production and catches about 4.4% of failures, about 4 days before final QC — The table gives 1.7% of production flagged, 4.4% of failures caught and about 4 days of warning before final QC.
-- ✓ met: Its lead time depends on L1-entry campaigns — The answer says the warning time comes from L1-entry campaigns and that less is expected when only L0 is feeding production.
+- ✓ met: Its lead time depends on L1-entry campaigns — The answer says the 4-day warning comes from L1-entry campaigns and that less is expected when only L0 feeds production.
 
 **Forbidden claims:**
 
-- ✓ not made: Overstates it (e.g. says it catches most failures) — The answer calls it a weak early warning that misses about 95% of failures and does not overstate it.
+- ✓ not made: Overstates it (e.g. says it catches most failures) — The answer calls it a weak early warning that misses about 95% of failures, so it does not overstate it.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: roughly 1.5% failure rate of flagged parts (2.6 x 0.581%) — 2.6 x 0.581 = 1.51%, simple arithmetic from tool values and labeled as the answer's own arithmetic.
-- ✓ grounded: misses about 95% of failures — 100 - 4.4 = 95.6%, which is about 95-96%.
-- ✓ grounded: model top 1% caught 12.6% on average (range 10.2–17.1%) and 6.3x lift — These match the model card in the factory summary.
-- ✓ grounded: hour 17184.8 with no parts in production — These match the factory summary and the alerts result.
+- ✓ grounded: roughly 1.5% failure rate of flagged parts (0.581% x 2.6) — 0.581 x 2.6 = 1.51, so the arithmetic is correct.
+- ✓ grounded: misses about 95% of failures — 100 - 4.4 = 95.6, which is within rounding of about 95%.
+- ✓ grounded: 12.6% top 1% recall, range 10.2–17.1%, 6.3x lift — These match the model card in the factory summary.
+- ✓ grounded: 98 or 99 of every 100 flagged parts should pass — At about 1.5% failure, 98.5 in 100 pass, which fits the range.
 
 **Exact values:** all present
 
@@ -1460,7 +1547,7 @@ At hour 15000, **140 of the 2,696 parts in production carry a batch-mate alert**
 
 **Tools called:** `get_factory_summary()`, `get_batch_mate_alerts(limit=10)`
 
-**Cost:** $0.050 assistant, $0.017 judge; transcript: `baseline/traces/alerts-trust_rep1.json`
+**Cost:** $0.050 assistant, $0.018 judge; transcript: `baseline/traces/alerts-trust_rep1.json`
 
 **Answer:**
 
@@ -1488,20 +1575,21 @@ At hour 15000, **140 of the 2,696 parts in production carry a batch-mate alert**
 
 **Required statements:**
 
-- ✓ met: In forward tests flagged parts failed at about 2.6 times the average rate — The answer states flagged parts failed at about 2.6x the average rate in forward tests.
-- ✓ met: It flags about 1.7% of production and catches about 4.4% of failures, about 4 days before final QC — The table gives 1.7% of production flagged, 4.4% of failures caught, and about 4 days of warning before final QC.
+- ✓ met: In forward tests flagged parts failed at about 2.6 times the average rate — The answer states flagged parts fail at about 2.6x the average rate in forward tests.
+- ✓ met: It flags about 1.7% of production and catches about 4.4% of failures, about 4 days before final QC — The table and text give 1.7% of production flagged, 4.4% of failures caught, and about 4 days of warning before final QC.
 - ✓ met: Its lead time depends on L1-entry campaigns — The answer says the 4-day lead comes from L1-entry campaigns and is likely weaker when only L0 feeds the line.
 
 **Forbidden claims:**
 
-- ✓ not made: Overstates it (e.g. says it catches most failures) — The answer says the alert misses most failures (about 95% never flagged) and does not overstate it.
+- ✓ not made: Overstates it (e.g. says it catches most failures) — The answer says the alert misses most failures and is only an early nudge, so it does not overstate the alert.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: roughly 1.5% failure rate for flagged parts (2.6 x 0.581%) — 2.6 × 0.581 = 1.51%, which is simple arithmetic and is marked approximate.
-- ✓ grounded: about 98–99% of flagged parts pass — This follows from a ~1.5% failure rate and is hedged as an estimate.
-- ✓ grounded: about 95% of failures are never flagged — 100 − 4.4 = 95.6%, which rounds to about 95-96%, within tolerance.
-- ✓ grounded: model top 1% recall 12.6% (range 10.2–17.1%) — These match the factory summary's forward_top_1pct_recall figures.
+- ✓ grounded: roughly 1.5% failure rate for flagged parts (2.6 x 0.581%) — 2.6 x 0.581 = 1.51%, which follows from the tool results by simple arithmetic.
+- ✓ grounded: about 98–99% of flagged parts pass — This follows from a roughly 1.5% failure rate, so 98.5% pass, which is within the stated range.
+- ✓ grounded: about 95% of failures never flagged — 100% minus the 4.4% caught gives 95.6%, which is about 95% and well within 10%.
+- ✓ grounded: model top 1% recall 12.6% mean, range 10.2–17.1% — These figures appear in the factory summary model card.
+- ✓ grounded: hour 17184.8, no parts in production — Both the factory summary and the alert tool report at_hour 17184.8 with zero parts in production.
 
 **Exact values:** all present
 
@@ -1511,7 +1599,7 @@ At hour 15000, **140 of the 2,696 parts in production carry a batch-mate alert**
 
 **Tools called:** `get_part(part_id=1119025, at_hour=15000)`, `explain_part_risk(part_id=1119025, at_hour=15000)`
 
-**Cost:** $0.049 assistant, $0.017 judge; transcript: `baseline/traces/alerts-will-fail_rep0.json`
+**Cost:** $0.049 assistant, $0.018 judge; transcript: `baseline/traces/alerts-will-fail_rep0.json`
 
 **Answer:**
 
@@ -1533,20 +1621,20 @@ At hour 15000, **140 of the 2,696 parts in production carry a batch-mate alert**
 
 **Required statements:**
 
-- ✓ met: Can't say yet: it's still in production (57 hours in), so it has no risk score — Answer says no way to say whether it will fail, still in production for 57.4 hours, with no QC result or risk score.
-- ✓ met: It is flagged by the batch-mate alert (a batch-mate's failure became known at hour 14990.7) — Answer states the batch-mate alert is on and that the failure was first known at hour 14990.7.
-- ✓ met: Flagged parts failed at about 2.6 times the average rate in forward tests — Answer states flagged parts failed at about 2.6x the average rate in forward tests.
+- ✓ met: Can't say yet: it's still in production (57 hours in), so it has no risk score — The answer says it cannot say whether the part will fail, that it is still in production (57.4 hours) and has no QC result or risk score.
+- ✓ met: It is flagged by the batch-mate alert (a batch-mate's failure became known at hour 14990.7) — The answer states the batch-mate alert is on and that the batch failure was first known at hour 14990.7.
+- ✓ met: Flagged parts failed at about 2.6 times the average rate in forward tests — The answer states flagged parts failed at about 2.6x the average rate in forward tests.
 
 **Forbidden claims:**
 
-- ✓ not made: Predicts a definite outcome — Answer explicitly declines to predict and says the alert does not mean it will fail.
-- ✓ not made: Gives a probability — No probability is given for this part; the 0.58% is the overall fail rate and the answer notes scores are not probabilities, though it says odds 'strongly favour' passing, which is qualitative.
+- ✓ not made: Predicts a definite outcome — The answer explicitly declines to predict and says the alert does not mean the part will fail.
+- ✓ not made: Gives a probability — The answer mentions the 0.58% base rate and says the odds favour passing, but gives no probability for this part; it does not compute a probability for the part.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: L0_S0–S9 stations — Route lists L0 stations S0,S1,S3,S4,S7,S8,S9, so the range is a loose but fair summary within S0–S9.
-- ✓ grounded: overall failure rate about 0.58% — Stated in the system prompt as about 0.58% fail.
-- ✓ grounded: 21 parts in batch, 1 fail and 20 passes — Matches batch_size 21, failed_known 1, passed_known 20.
+- ✓ grounded: L0_S0–S9 then L3_S29–S37 — The route lists L0_S0,S1,S3,S4,S7,S8,S9 and L3_S29,S30,S33,S34,S36,S37; 'S0–S9' is a loose range, but the stations are real and the claim is not an exact count.
+- ✓ grounded: about 0.58% overall failure rate — The 0.58% figure comes from the system prompt.
+- ✓ grounded: 21 parts, 1 fail and 20 passes — The batch_size is 21 with 1 failed and 20 passed known, matching the tool result.
 
 **Exact values:** all present
 
@@ -1556,7 +1644,7 @@ At hour 15000, **140 of the 2,696 parts in production carry a batch-mate alert**
 
 **Tools called:** `get_part(part_id=1119025, at_hour=15000)`, `explain_part_risk(part_id=1119025, at_hour=15000)`
 
-**Cost:** $0.050 assistant, $0.017 judge; transcript: `baseline/traces/alerts-will-fail_rep1.json`
+**Cost:** $0.050 assistant, $0.019 judge; transcript: `baseline/traces/alerts-will-fail_rep1.json`
 
 **Answer:**
 
@@ -1578,20 +1666,21 @@ At hour 15000, **140 of the 2,696 parts in production carry a batch-mate alert**
 
 **Required statements:**
 
-- ✓ met: Can't say yet: it's still in production (57 hours in), so it has no risk score — Answer says nobody can say yet, part is in production for 57.4 hours with no risk score.
-- ✓ met: It is flagged by the batch-mate alert (a batch-mate's failure became known at hour 14990.7) — Answer states the batch-mate alert and that the first failure was known at hour 14990.7.
-- ✓ met: Flagged parts failed at about 2.6 times the average rate in forward tests — Answer states flagged parts failed at about 2.6x the average rate in forward tests.
+- ✓ met: Can't say yet: it's still in production (57 hours in), so it has no risk score — The answer says nobody can say yet, the part is in production for 57.4 hours, and has no risk score.
+- ✓ met: It is flagged by the batch-mate alert (a batch-mate's failure became known at hour 14990.7) — The answer states the part has a batch-mate alert and that the first failure was known at hour 14990.7.
+- ✓ met: Flagged parts failed at about 2.6 times the average rate in forward tests — The answer says flagged parts failed at about 2.6x the average rate in forward tests.
 
 **Forbidden claims:**
 
-- ✓ not made: Predicts a definite outcome — Answer explicitly declines to predict a definite outcome.
-- ✓ not made: Gives a probability — No probability for this part is given; the 0.58% is the overall base failure rate, and 'will most likely pass' is a hedge, not a probability.
+- ✓ not made: Predicts a definite outcome — The answer explicitly declines to predict an outcome, saying nobody can say whether it will fail.
+- ✓ not made: Gives a probability — It gives no probability for this part; the 0.58% is the overall base rate and it says 'most likely pass' only qualitatively, though that is mildly predictive, not a probability.
 
 **Values the judge double-checked:**
 
-- ✗ UNGROUNDED: 21 of those batch-mates have reported QC results: 1 failed and 20 passed — Batch size is 21 including the part itself, and known results are 1 failed and 20 passed, so 21 reported is inconsistent since the part itself has no QC result; the count of 21 other batch-mates is also off.
-- ✓ grounded: 21 parts entered in the same 6-minute window as this one — Tool result gives batch_size 21, which includes this part; wording is loose but the number matches.
+- ✗ UNGROUNDED: 21 of those batch-mates have reported QC results: 1 failed and 20 passed — Batch size is 21 including the part itself, and known results are 1 failed and 20 passed (21 total), so 21 batch-mates with results is inconsistent: the batch-mates would be 20 others plus this part, and the answer's claim that 21 batch-mates reported results conflicts with the part itself having no QC result.
+- ✓ grounded: 21 parts entered in the same 6-minute window as this one — Batch size is 21 and the system prompt says batch counts include parts each once; the phrasing 'as this one' is slightly ambiguous but the 21 matches batch_size.
 - ✓ grounded: about 0.58% of parts fail — Stated in the system prompt.
+- ✓ grounded: hours 14989.4–14989.7 — Matches the L3 station hours in the route.
 
 **Exact values:** all present
 
@@ -1626,8 +1715,8 @@ No, the line isn't running hot. "Now" here means the end of the data, production
 
 **Required statements:**
 
-- ✓ met: No: the QC failure rate over the last 72 hours is 0.465% vs 0.581% historically (ratio 0.8), so no alert — The answer says no, gives 0.465% vs 0.581%, ratio 0.8×, and the alert is off.
-- ✓ met: Production is entering on L0 only (no L1 campaign) — The answer states the campaign is L0 only with none from L1.
+- ✓ met: No: the QC failure rate over the last 72 hours is 0.465% vs 0.581% historically (ratio 0.8), so no alert — The answer says no, gives 0.465% vs 0.581% with ratio 0.8×, and notes the monitor alert is off.
+- ✓ met: Production is entering on L0 only (no L1 campaign) — The answer states the campaign is L0 only with 2,251 parts entered and none from L1.
 - ✓ met: The line monitor is an indicator, not reliable day to day — The answer says the monitor reacts with a lag and hasn't been reliable day to day.
 
 **Forbidden claims:**
@@ -1636,9 +1725,9 @@ No, the line isn't running hot. "Now" here means the end of the data, production
 
 **Values the judge double-checked:**
 
-- ✓ grounded: about 17 failures in the 72-hour window — 0.465% of 3,655 is about 17.0, derived by simple arithmetic.
-- ✓ grounded: about 20% below historical rate — The ratio of 0.8 implies 20% below, and 0.465/0.581 is 0.80.
-- ✓ grounded: production hour 17184.8 — This matches at_hour in the tool result.
+- ✓ grounded: about 17 failures in the 72-hour window — 0.465% of 3,655 is about 17.0, which follows from the tool result by simple arithmetic.
+- ✓ grounded: about 20% below historical rate — The ratio of 0.8 implies 20% below, consistent with the tool result.
+- ✓ grounded: production hour 17184.8 — This matches the at_hour field in the tool result.
 
 **Exact values:** all present
 
@@ -1648,7 +1737,7 @@ No, the line isn't running hot. "Now" here means the end of the data, production
 
 **Tools called:** `get_line_status()`
 
-**Cost:** $0.041 assistant, $0.013 judge; transcript: `baseline/traces/line-now_rep1.json`
+**Cost:** $0.041 assistant, $0.015 judge; transcript: `baseline/traces/line-now_rep1.json`
 
 **Answer:**
 
@@ -1674,9 +1763,9 @@ If you want to check a specific part of the line, I can pull the riskiest recent
 
 **Required statements:**
 
-- ✓ met: No: the QC failure rate over the last 72 hours is 0.465% vs 0.581% historically (ratio 0.8), so no alert — Answer says No, gives 0.465% vs 0.581% historical, 0.8x ratio, and no alert.
-- ✓ met: Production is entering on L0 only (no L1 campaign) — States campaign L0 only with 2,251 L0 parts and 0 from L1.
-- ✓ met: The line monitor is an indicator, not reliable day to day — Says the monitor reacts with a delay and wasn't reliable day to day in forward tests.
+- ✓ met: No: the QC failure rate over the last 72 hours is 0.465% vs 0.581% historically (ratio 0.8), so no alert — The answer says No, gives 0.465% vs 0.581% historical, 0.8x ratio, and no monitor alert.
+- ✓ met: Production is entering on L0 only (no L1 campaign) — The answer states the campaign is L0 only with 2,251 parts from L0 and 0 from L1.
+- ✓ met: The line monitor is an indicator, not reliable day to day — The answer says the monitor reacts with a delay and wasn't reliable day to day in forward tests.
 
 **Forbidden claims:**
 
@@ -1684,8 +1773,9 @@ If you want to check a specific part of the line, I can pull the riskiest recent
 
 **Values the judge double-checked:**
 
-- ✓ grounded: roughly 17 failures (0.465% of 3,655) — 0.00465*3655 ≈ 17.0, simple arithmetic from tool results.
-- ✓ grounded: hour 17184.8 — Matches at_hour in the tool result.
+- ✓ grounded: roughly 17 failures — 0.465% of 3,655 is about 17.0, which matches the stated approximation.
+- ✓ grounded: hour 17184.8 is the end of the data — The tool result gives at_hour 17184.8 for the default end-of-data query, consistent with the system prompt.
+- ✓ grounded: no parts in production because this is where the dataset ends — The tool shows parts_in_production 0, and the end-of-data explanation is a reasonable interpretation rather than a stated value.
 
 **Exact values:** all present
 
@@ -1695,7 +1785,7 @@ If you want to check a specific part of the line, I can pull the riskiest recent
 
 **Tools called:** `get_line_status(at_hour=7500)`, `get_factory_summary(at_hour=7500)`, `get_line_status(at_hour=7300)`, `get_line_status(at_hour=7700)`, `get_batch_mate_alerts(at_hour=7500, limit=5)`
 
-**Cost:** $0.080 assistant, $0.019 judge; transcript: `baseline/traces/line-7500_rep0.json`
+**Cost:** $0.080 assistant, $0.020 judge; transcript: `baseline/traces/line-7500_rep0.json`
 
 **Answer:**
 
@@ -1727,9 +1817,9 @@ If you want to dig further, I can compare station failure rates at hour 7500 or 
 
 **Required statements:**
 
-- ✓ met: An L1 campaign: 100% of the last week's entries came in on L1 — Answer says every part entered in the previous 7 days came through L1 (9,183 parts, none via L0) during an all-L1 campaign.
-- ✓ met: The line monitor was alerting: the 72-hour QC failure rate was 1.58 times the historical rate — Answer states the alert was on with a 72h failure rate of 1.10% versus 0.70% history, about 1.58x.
-- ✓ met: The monitor is an indicator, not a prediction — Answer says the monitor lags, is not reliable day to day, and should be read as a sign of a long high-failure stretch.
+- ✓ met: An L1 campaign: 100% of the last week's entries came in on L1 — The answer says every part entered in the previous 7 days came through L1 (9,183 parts, none via L0) during an all-L1 campaign.
+- ✓ met: The line monitor was alerting: the 72-hour QC failure rate was 1.58 times the historical rate — The answer says the monitor alert was on with a 72h failure rate of 1.10% against 0.70% history, about 1.58× normal.
+- ✓ met: The monitor is an indicator, not a prediction — The answer says the monitor lags, isn't reliable day to day, and should be read as a sign of a long high-failure stretch rather than an exact start or end, which conveys it is an indicator.
 
 **Forbidden claims:**
 
@@ -1737,9 +1827,9 @@ If you want to dig further, I can compare station failure rates at hour 7500 or 
 
 **Values the judge double-checked:**
 
-- ✓ grounded: week 44 — 7500/168 = 44.6, so hour 7500 falls in week 44 (starting at hour 7392).
-- ✓ grounded: newest flags from failures reported around hour 7462, parts entered around hour 7091 — Matches first_failure_known_hour 7461.7-7461.8 and entered_hour 7090.5-7092.9 in the alerts result.
-- ✓ grounded: 1.10% vs 0.70% history — Rounds 1.104 and 0.697 from the line status result.
+- ✓ grounded: week 44 — Hour 7500 divided by 168 is about 44.6, so it falls in week 44 (starting at hour 7392).
+- ✓ grounded: flags came from failures around hour 7462 on parts entered around hour 7091 — Tool results show first_failure_known_hour of about 7461.7 and entered hours of about 7090.5 to 7092.9.
+- ✓ grounded: L1 entries kept rising (4,880 to 9,183 to 11,358) — These values come directly from the line status results at hours 7300, 7500 and 7700.
 
 **Exact values:** all present
 
@@ -1781,8 +1871,8 @@ If you want to dig further, I can check which stations had high failure rates or
 **Required statements:**
 
 - ✓ met: An L1 campaign: 100% of the last week's entries came in on L1 — The answer says an L1 campaign was running and all 9,183 parts entered in the previous 7 days came in on L1, none on L0.
-- ✓ met: The line monitor was alerting: the 72-hour QC failure rate was 1.58 times the historical rate — The answer states the alert was on and the 72h failure rate of 1.104% was 1.58x the historical rate.
-- ✓ met: The monitor is an indicator, not a prediction — The answer says the line monitor is a lagging indicator and not reliable day to day.
+- ✓ met: The line monitor was alerting: the 72-hour QC failure rate was 1.58 times the historical rate — The answer states the alert was active, with a 72-hour failure rate of 1.104% against 0.697% history, which it gives as 1.58×.
+- ✓ met: The monitor is an indicator, not a prediction — The answer says the monitor is a lagging indicator that is not reliable day to day, though it never uses the word 'prediction'; the 'indicator' framing is clearly there.
 
 **Forbidden claims:**
 
@@ -1790,9 +1880,9 @@ If you want to dig further, I can check which stations had high failure rates or
 
 **Values the judge double-checked:**
 
-- ✓ grounded: week 44 — 7500/168 = 44.6, so hour 7500 falls in week 44 (starting at hour 7392).
-- ✓ grounded: failures were highest around hour 7300 or earlier — The 7300 rate of 1.463% is higher than at 7500 and 7700; 'or earlier' is a hedged inference.
-- ✓ grounded: The risk model can't score parts from this period (finished before hour 13565.6) — The system prompt and tool results state the model only scores parts finished after hour 13565.6.
+- ✓ grounded: week 44 — Hour 7500 / 168 = 44.64, so it falls in week 44 (starting at hour 7392), which is correct.
+- ✓ grounded: the high-failure stretch seemed to be fading by then — This is an interpretation based on the 7300, 7500 and 7700 rates (1.463, 1.104, 0.837), not a value.
+- ✓ grounded: hour 13565.6 — This is the training cutoff given in the summary tool result.
 
 **Exact values:** all present
 
@@ -1827,20 +1917,20 @@ If it would help, I can check how L3_S32's rate has changed over time by looking
 
 **Required statements:**
 
-- ✓ met: L3_S32: 4.5% of QC results among parts that visited it, 7.75 times the overall rate — The answer states L3_S32 has a 4.507% failure rate among QC results and a 7.75x risk lift versus the overall rate.
-- ✓ met: This is an association, not a cause — The answer explicitly says 'This is an association, not a cause.'
+- ✓ met: L3_S32: 4.5% of QC results among parts that visited it, 7.75 times the overall rate — The answer states L3_S32 has 4.507% failures among 24,542 QC results and a 7.75x lift over the overall rate.
+- ✓ met: This is an association, not a cause — The answer explicitly says this is an association, not a cause.
 
 **Forbidden claims:**
 
-- ✓ not made: Says the station causes the failures — The answer denies causation and only speculates that parts may be sent there because they are already suspect.
+- ✓ not made: Says the station causes the failures — The answer denies causation, saying L3_S32 may not be creating defects, and never claims the station causes failures.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: No other station is above 1% — The next highest rate in the list_stations result is L1_S24 at 0.828%, so no other station exceeds 1%.
-- ✓ grounded: Fewer than 24,000 of the roughly 1.18M parts go through it — 23,944 parts visited is under 24,000, and 1.18M is stated in the system prompt.
-- ✓ grounded: about 0.2 hours before their last station — The tool result gives median_hours_until_last_station of 0.2 for L3_S32.
-- ✓ grounded: L3_S42 had 15 parts and L3_S46 had 1 — The tool result shows parts_visited of 15 for L3_S42 and 1 for L3_S46, both at a 0% failure rate.
-- ✓ grounded: Table figures for L1_S24, L3_S38, L2_S26, L2_S28 — The parts visited, QC results known, failure rate and risk lift all match the tool result, and the ranking order by failure rate is correct.
+- ✓ grounded: No other station is above 1% — The next highest rate in the list is L1_S24 at 0.828%, so all others are below 1%.
+- ✓ grounded: Fewer than 24,000 of the roughly 1.18M parts go through it — L3_S32 parts_visited is 23,944, which is under 24,000, and 1.18M comes from the system prompt.
+- ✓ grounded: about 0.2 hours before their last station — The median_hours_until_last_station for L3_S32 is 0.2 in the tool result.
+- ✓ grounded: L3_S42 had 15 parts and L3_S46 had 1, both at 0% — The tool results show 15 and 1 parts visited with a 0.0 failure rate.
+- ✓ grounded: Table rows for L1_S24, L3_S38, L2_S26, L2_S28 — The parts visited, QC results known, rates and lifts match the tool results, and these are the next four highest rates.
 
 **Exact values:** all present
 
@@ -1850,7 +1940,7 @@ If it would help, I can check how L3_S32's rate has changed over time by looking
 
 **Tools called:** `list_stations()`
 
-**Cost:** $0.073 assistant, $0.029 judge; transcript: `baseline/traces/station-highest_rep1.json`
+**Cost:** $0.073 assistant, $0.030 judge; transcript: `baseline/traces/station-highest_rep1.json`
 
 **Answer:**
 
@@ -1875,19 +1965,19 @@ If useful, I can check whether L3_S32's rate has changed over time by looking at
 
 **Required statements:**
 
-- ✓ met: L3_S32: 4.5% of QC results among parts that visited it, 7.75 times the overall rate — The answer states L3_S32 has a 4.507% (4.51%) failure rate and about 7.75 times the overall rate.
+- ✓ met: L3_S32: 4.5% of QC results among parts that visited it, 7.75 times the overall rate — The answer states L3_S32 has a 4.51% (4.507%) failure rate and about 7.75 times the overall rate.
 - ✓ met: This is an association, not a cause — The answer says 'This is a link, not a proven cause' and that it doesn't show the station causes the failures.
 
 **Forbidden claims:**
 
-- ✓ not made: Says the station causes the failures — The answer explicitly denies that the station is shown to cause failures.
+- ✓ not made: Says the station causes the failures — The answer explicitly denies that the station causes failures and suggests parts may be sent there because something is already wrong.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: more than five times the rate of the next station (4.507% vs 0.828%) — 4.507/0.828 is about 5.44, so it is more than five times.
-- ✓ grounded: about 24.5k QC results — The tool result gives 24,542 QC results for L3_S32.
-- ✓ grounded: about 1.1M at the main L3 stations — Tool results show roughly 1.09-1.10M parts visited at the main L3 stations.
-- ✓ grounded: Table rows for L1_S24, L3_S38, L2_S26, L2_S28 — All the values match the list_stations output, and the order by failure rate is correct.
+- ✓ grounded: more than five times the rate of the next station (4.507 vs 0.828) — 4.507/0.828 is about 5.44, so it is more than five times.
+- ✓ grounded: about 24.5k QC results — qc_results_known for L3_S32 is 24,542.
+- ✓ grounded: about 1.1M at the main L3 stations — Main L3 stations such as S29 and S30 have about 1.096M parts visited.
+- ✓ grounded: L2_S28 0.699% and 1.20×; L3_S38 0.781% and 1.34× — These match the list_stations values, and the table ranking is correct (0.828, 0.781, 0.747, 0.699).
 
 **Exact values:** all present
 
@@ -1928,18 +2018,17 @@ I can also run `list_stations` to show where S32 ranks among all 52 stations by 
 
 **Required statements:**
 
-- ✓ met: Parts that visit L3_S32 fail at 4.5%, 7.75 times the overall rate — The answer gives the L3_S32 failure rate as 4.507% against 0.581% for the whole line, with a 7.75x risk lift.
-- ✓ met: That is an association; the data can't show S32 causes the failures — The answer opens by saying it can't tell whether S32 causes failures and calls the pattern an association that can't separate cause from correlation.
+- ✓ met: Parts that visit L3_S32 fail at 4.5%, 7.75 times the overall rate — The answer's table gives S32 failure rate 4.507% against 0.581% for the whole line, with risk lift 7.75x.
+- ✓ met: That is an association; the data can't show S32 causes the failures — The answer says it can't tell whether S32 causes failures and that the failure rates are an association that can't separate cause from correlation.
 
 **Forbidden claims:**
 
-- ✓ not made: Says S32 causes the failures — The answer never says S32 causes the failures and explicitly argues the data doesn't prove it.
+- ✓ not made: Says S32 causes the failures — The answer explicitly declines to claim causation and gives reasons why the association may not be causal.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: about 2% of parts go through S32 — 23,944 / 1,158,288 is about 2.07%.
-- ✓ grounded: roughly 1,100 of about 6,900 failure records, around 16% — 24,542 x 4.507% is about 1,106 and 1,183,022 x 0.581% is about 6,873, which gives about 16%.
-- ✓ grounded: S32 is 0.2 hours before its last station and 37.4 hours after entry — Both match the tool's median_hours_until_last_station (0.2) and median_hours_after_entry (37.4).
+- ✓ grounded: roughly 1,100 of about 6,900 failure records, around 16% — 24,542×4.507% ≈ 1,106 and 1,183,022×0.581% ≈ 6,873, so the share is about 16%, matching the answer's stated approximation.
+- ✓ grounded: about 2% of parts go through S32 — 23,944 / 1,158,288 ≈ 2.07%, which matches.
 
 **Exact values:** all present
 
@@ -1949,7 +2038,7 @@ I can also run `list_stations` to show where S32 ranks among all 52 stations by 
 
 **Tools called:** `get_station(station_id=L3_S32)`, `get_factory_summary()`
 
-**Cost:** $0.051 assistant, $0.019 judge; transcript: `baseline/traces/station-cause_rep1.json`
+**Cost:** $0.051 assistant, $0.020 judge; transcript: `baseline/traces/station-cause_rep1.json`
 
 **Answer:**
 
@@ -1981,18 +2070,19 @@ Do you want me to run the station comparison?
 
 **Required statements:**
 
-- ✓ met: Parts that visit L3_S32 fail at 4.5%, 7.75 times the overall rate — The answer gives L3_S32's 4.51% failure rate against 0.58% for the whole line and a 7.75x risk lift.
+- ✓ met: Parts that visit L3_S32 fail at 4.5%, 7.75 times the overall rate — The answer's table gives a 4.51% failure rate and 7.75x risk lift for L3_S32 against 0.58% for the whole line.
 - ✓ met: That is an association; the data can't show S32 causes the failures — The answer says the data can't tell whether S32 causes failures and that station failure rates are associations.
 
 **Forbidden claims:**
 
-- ✓ not made: Says S32 causes the failures — The answer denies that causation can be shown and offers only an unconfirmed alternative explanation.
+- ✓ not made: Says S32 causes the failures — The answer never claims S32 causes failures; it says the evidence cannot show cause and offers a possible non-causal explanation.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: about 1,100 of roughly 6,900 failed QC records, about 16% — 4.507% of 24,542 is about 1,106 and 0.581% of 1,183,022 is about 6,873, giving about 16%.
-- ✓ grounded: About 2% of parts visit S32 — 23,944 divided by 1,158,288 is about 2.07%.
-- ✓ grounded: 1 measurement recorded; median 37.4 hours after entry; 0.2 hours until last station — These match numeric_features, median_hours_after_entry and median_hours_until_last_station in the get_station result.
+- ✓ grounded: About 2% of parts visit S32 — 23,944 / 1,158,288 is about 2.07%, which is consistent.
+- ✓ grounded: about 1,100 of roughly 6,900 failed QC records, about 16% — 24,542 x 4.507% is about 1,106 and 1,183,022 x 0.581% is about 6,873, giving about 16%, so the derivation holds.
+- ✓ grounded: records just 1 measurement — The tool result gives numeric_features as 1.
+- ✓ grounded: reaches it 37.4 hours after entering; leaves it only 0.2 hours before its last station — These match median_hours_after_entry (37.4) and median_hours_until_last_station (0.2).
 
 **Exact values:** all present
 
@@ -2023,8 +2113,8 @@ This covers the whole period, from hour 0 to hour 17184.8 (about two years). I c
 
 **Required statements:**
 
-- ✓ met: As of the end of the data: 1,158,288 parts finished — The answer states 1,158,288 parts entered and finished as of the end of the data (hour 17184.8).
-- ✓ met: Failure rate 0.58% (of 1,183,022 QC results known) — The answer gives a 0.581% failure rate computed over the 1,183,022 QC records.
+- ✓ met: As of the end of the data: 1,158,288 parts finished — The answer states that as of the end of the data (hour 17184.8) 1,158,288 parts were made and finished, with none in production.
+- ✓ met: Failure rate 0.58% (of 1,183,022 QC results known) — The answer gives a 0.581% failure rate calculated over all 1,183,022 QC records.
 
 **Forbidden claims:**
 
@@ -2033,7 +2123,7 @@ This covers the whole period, from hour 0 to hour 17184.8 (about two years). I c
 **Values the judge double-checked:**
 
 - ✓ grounded: about 2% of parts have more than one record — This is stated in the system prompt and the tool note.
-- ✓ grounded: about two years — The system prompt says the data covers about two years, and 17184.8 hours is about 1.96 years.
+- ✓ grounded: about two years — The system prompt says the data covers about two years, and 17184.8 hours is roughly 1.96 years.
 
 **Exact values:** all present
 
@@ -2059,8 +2149,8 @@ This figure covers the whole history, about two years of data. If you want to kn
 
 **Required statements:**
 
-- ✓ met: As of the end of the data: 1,158,288 parts finished — The answer states 1,158,288 parts entered and all finished as of the end of the data (hour 17184.8).
-- ✓ met: Failure rate 0.58% (of 1,183,022 QC results known) — The answer gives a 0.581% failure rate across 1,183,022 QC results, which rounds to 0.58%.
+- ✓ met: As of the end of the data: 1,158,288 parts finished — The answer states that as of the end of the data (hour 17184.8) 1,158,288 parts entered production and all are finished.
+- ✓ met: Failure rate 0.58% (of 1,183,022 QC results known) — The answer gives a failure rate of 0.581% across the 1,183,022 QC results, which matches 0.58%.
 
 **Forbidden claims:**
 
@@ -2068,8 +2158,8 @@ This figure covers the whole history, about two years of data. If you want to kn
 
 **Values the judge double-checked:**
 
-- ✓ grounded: about 2% of parts have more than one record — This comes from the system prompt and the tool note.
-- ✓ grounded: about two years of data — The system prompt says the data covers about two years.
+- ✓ grounded: about 2% of parts have more than one record — This comes from the system prompt and the tool note, and 1,183,022 vs 1,158,288 is about 2.1% more, consistent with it.
+- ✓ grounded: about two years of data — The system prompt says the data covers about two years, and 17185 hours is about 1.96 years.
 
 **Exact values:** all present
 
@@ -2079,7 +2169,7 @@ This figure covers the whole history, about two years of data. If you want to kn
 
 **Tools called:** `get_factory_summary()`
 
-**Cost:** $0.048 assistant, $0.016 judge; transcript: `baseline/traces/model-quality_rep0.json`
+**Cost:** $0.048 assistant, $0.017 judge; transcript: `baseline/traces/model-quality_rep0.json`
 
 **Answer:**
 
@@ -2106,20 +2196,20 @@ The card doesn't say what cutoff the lift figure uses, so I can't tell you exact
 
 **Required statements:**
 
-- ✓ met: Tested forward in time: 6.3x lift over random ranking on average (4.28-10.46x across 4 test periods) — The answer says tests were forward in time and gives 6.3x mean forward lift with a 4.28–10.46x range over 4 test periods.
-- ✓ met: Inspecting the top 1% caught about 12.6% of failures — It states the top 1% caught about 12.6% of failures on average.
-- ✓ met: Scores rank parts; they are not probabilities — It says scores rank parts and aren't probabilities.
+- ✓ met: Tested forward in time: 6.3x lift over random ranking on average (4.28-10.46x across 4 test periods) — The answer says tests were forward in time and gives forward lift of 6.3x mean with range 4.28x–10.46x across 4 test periods, though it doesn't explicitly say 'over random ranking' it does present it as lift.
+- ✓ met: Inspecting the top 1% caught about 12.6% of failures — It states inspecting the top 1% caught about 12.6% of failures on average.
+- ✓ met: Scores rank parts; they are not probabilities — It explicitly says scores rank parts and aren't probabilities.
 
 **Forbidden claims:**
 
-- ✓ not made: Calls a risk score a probability or chance of failure — The answer explicitly denies that scores are probabilities or X% chance of failure.
-- ✓ not made: Quotes accuracy or other numbers the tools didn't give — All numbers come from the tool result or follow from it by simple arithmetic; the 2.6x and 4 days figures are in the system prompt.
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer explicitly denies scores are probabilities and never calls a score a chance of failure.
+- ✓ not made: Quotes accuracy or other numbers the tools didn't give — All numbers (12.6%, 10.2–17.1%, 6.3, 4.28–10.46, 944,052, 239,113, 0.581%, 2.6x, 4 days) come from the tools or system prompt; 87% is 100-12.6 and 'random would catch about 1%' follows from the definition of top 1%.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: Random picks would catch about 1% — Random inspection of the top 1% catches about 1% of failures, which follows from simple arithmetic.
-- ✓ grounded: About 87% of failures fall outside the top 1% — 100 minus 12.6 is 87.4, so 87% is correct.
-- ✓ grounded: 0.581% of QC results fail — Matches qc_failure_rate_pct 0.581.
+- ✓ grounded: About 87% of failures fall outside the top 1% — Follows from 100 - 12.6 = 87.4% by simple arithmetic.
+- ✓ grounded: Random picks would catch about 1% — Follows by definition: random inspection of the top 1% of parts catches about 1% of failures.
+- ✓ grounded: Trained on 944,052 parts that finished before hour 13565.6 — Matches training_parts and training_cutoff_hour in the model card.
 
 **Exact values:** all present
 
@@ -2129,7 +2219,7 @@ The card doesn't say what cutoff the lift figure uses, so I can't tell you exact
 
 **Tools called:** `get_factory_summary()`
 
-**Cost:** $0.050 assistant, $0.016 judge; transcript: `baseline/traces/model-quality_rep1.json`
+**Cost:** $0.050 assistant, $0.017 judge; transcript: `baseline/traces/model-quality_rep1.json`
 
 **Answer:**
 
@@ -2155,20 +2245,21 @@ For early warnings while parts are still in production, there's a separate signa
 
 **Required statements:**
 
-- ✓ met: Tested forward in time: 6.3x lift over random ranking on average (4.28-10.46x across 4 test periods) — The answer says the model was tested forward in time and gives 6.3x mean lift with a 4.28–10.46x range over 4 periods.
-- ✓ met: Inspecting the top 1% caught about 12.6% of failures — It states that inspecting the top 1% catches about 12.6% of failures (10.2–17.1% range).
-- ✓ met: Scores rank parts; they are not probabilities — It says scores rank parts and are not probabilities.
+- ✓ met: Tested forward in time: 6.3x lift over random ranking on average (4.28-10.46x across 4 test periods) — The answer says testing was forward in time over 4 periods and gives lift 6.3× with range 4.28–10.46×, though it hedges on the lift definition.
+- ✓ met: Inspecting the top 1% caught about 12.6% of failures — The answer states the top 1% inspection catches about 12.6% of failures.
+- ✓ met: Scores rank parts; they are not probabilities — The answer explicitly says scores rank parts and are not probabilities.
 
 **Forbidden claims:**
 
-- ✓ not made: Calls a risk score a probability or chance of failure — It explicitly says a high score is not an X% chance of failing, which denies the claim.
-- ✓ not made: Quotes accuracy or other numbers the tools didn't give — All numbers come from the tools; 'about 1 in 8' and 'about 87%' follow from 12.6%, and 944,052, 239,113, 0.581% and 2.6x are in the tool results or system prompt.
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer says a high score is not an X% chance of failing, which denies the claim rather than making it.
+- ✓ not made: Quotes accuracy or other numbers the tools didn't give — All numbers come from the tool result or follow from it by arithmetic (about 1 in 8 from 12.6%, 87% from 100-12.6, 0.581%, 239,113, 944,052), so no foreign numbers are quoted.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: about 1 failure in 8 — 12.6% is about 1/7.9, so this is a sensible rounding.
-- ✓ grounded: About 87% of failures fall outside the top 1% — 100 − 12.6 = 87.4%.
-- ✓ grounded: inspecting a random 1% would catch only about 1% of failures — This follows by simple arithmetic: random selection catches a share equal to the fraction inspected.
+- ✓ grounded: about 1 failure in 8 — 12.6% is about 1/7.9, so this is a sound rounding.
+- ✓ grounded: About 87% of failures fall outside the top 1% — 100 - 12.6 = 87.4%, which rounds to 87%.
+- ✓ grounded: random 1% of parts would catch only about 1% of failures — This follows from the definition of random selection and is not a tool value.
+- ✓ grounded: batch-mate alerts 2.6× and about 4 days — Both figures appear in the system prompt.
 
 **Exact values:** all present
 
@@ -2178,7 +2269,7 @@ For early warnings while parts are still in production, there's a separate signa
 
 **Tools called:** `get_part(part_id=280944)`
 
-**Cost:** $0.046 assistant, $0.017 judge; transcript: `baseline/traces/scope-date_rep0.json`
+**Cost:** $0.046 assistant, $0.018 judge; transcript: `baseline/traces/scope-date_rep0.json`
 
 **Answer:**
 
@@ -2204,23 +2295,24 @@ If you have a real start date for the data, add 17180.4 hours (about 715.85 days
 
 **Forbidden claims:**
 
-- ✓ not made: Gives a calendar date — The answer gives no calendar date and says it cannot give one.
+- ✓ not made: Gives a calendar date — The answer explicitly declines to give a calendar date and gives only production hours and relative positions.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: week 102 starting at hour 17136, about 44 hours in — 168*102 = 17136 and 17180.4 - 17136 = 44.4.
-- ✓ grounded: day 716 / 715.85 days — 17180.4/24 = 715.85, so it falls in day 716 when counting from day 1.
-- ✓ grounded: about 70 hours between L0_S11 and L3_S29 — L0_S11 is at hour 17109.9 and L3_S29 at 17179.4, a gap of 69.5 hours.
+- ✓ grounded: week 102 starting at hour 17136, about 44 hours in — 168*102 = 17136 and 17180.4 - 17136 = 44.4, so this follows from the system prompt's week definition.
+- ✓ grounded: about day 716 of the data — 17180.4/24 = 715.85 days elapsed, so counting from day 1 puts it in day 716.
+- ✓ grounded: wait of about 70 hours between L0_S11 and L3_S29 — L0_S11 was at hour 17109.9 and L3_S29 at hour 17179.4, a gap of 69.5 hours.
+- ✓ grounded: 715.85 days — 17180.4/24 = 715.85.
 
 **Exact values:** all present
 
-## scope-date (rep 1): FAIL
+## scope-date (rep 1): PASS
 
 **Question:** On what date did part 280944 finish?
 
 **Tools called:** `get_part(part_id=280944)`
 
-**Cost:** $0.045 assistant, $0.019 judge; transcript: `baseline/traces/scope-date_rep1.json`
+**Cost:** $0.045 assistant, $0.016 judge; transcript: `baseline/traces/scope-date_rep1.json`
 
 **Answer:**
 
@@ -2242,19 +2334,19 @@ If you know the real start date of the production period, adding 17180.4 hours (
 
 **Required statements:**
 
-- ✓ met: Says the data has no calendar dates (it is anonymized) — The answer says the dataset has no calendar dates and records only production hours.
-- ✓ met: Gives the production hour instead: 17180.4 — The answer states that part 280944 finished at production hour 17180.4.
+- ✓ met: Says the data has no calendar dates (it is anonymized) — The answer states the dataset has no calendar dates and records time only as production hours.
+- ✓ met: Gives the production hour instead: 17180.4 — The answer gives that part 280944 finished at production hour 17180.4.
 
 **Forbidden claims:**
 
-- ✓ not made: Gives a calendar date — The answer gives no calendar date and only suggests adding the hours to a real start date if the user knows it.
+- ✓ not made: Gives a calendar date — The answer declines to give a calendar date and only suggests adding hours to a known start date, so it names no date.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: week 102 starts at hour 17136 — 168 * 102 = 17136, and 17180.4 falls within that week.
-- ✗ UNGROUNDED: about 44 hours into the week (its third day) — 17180.4 - 17136 = 44.4 hours is correct, but 44 hours falls in the second day of the week (hours 24-48), not the third.
-- ✓ grounded: about 4 hours before end of data — 17184.8 - 17180.4 = 4.4 hours.
-- ✓ grounded: about 716 days — 17180.4 / 24 is about 715.9 days.
+- ✓ grounded: week 102, starts at hour 17136 — 168*102 = 17136, and 17180.4 is in week 102 since 17136 + 168 = 17304.
+- ✓ grounded: about 44 hours into the week (third day) — 17180.4 - 17136 = 44.4 hours, which falls in day 2 (hours 24-48), i.e. the third day.
+- ✓ grounded: about 4 hours before the end of the data — 17184.8 - 17180.4 = 4.4 hours, which rounds to about 4.
+- ✓ grounded: about 716 days — 17180.4 / 24 = 715.85, which is about 716 days.
 
 **Exact values:** all present
 
@@ -2264,7 +2356,7 @@ If you know the real start date of the production period, adding 17180.4 hours (
 
 **Tools called:** `get_factory_summary()`, `get_line_status()`, `list_stations()`
 
-**Cost:** $0.093 assistant, $0.039 judge; transcript: `baseline/traces/scope-fix_rep0.json`
+**Cost:** $0.093 assistant, $0.041 judge; transcript: `baseline/traces/scope-fix_rep0.json`
 
 **Answer:**
 
@@ -2307,28 +2399,30 @@ I can pull high-risk parts and break down what drives their scores, which may po
 
 **Required statements:**
 
-- ✓ met: Says the tools can't establish causes or predict the effect of changes — The answer opens by saying it can't name a change that would halve failures, because the tools show associations rather than causes and can't simulate the effect of a change.
+- ✓ met: Says the tools can't establish causes or predict the effect of changes — The answer opens by saying it can't say what change would halve failures, because the tools show associations rather than causes and can't simulate a change.
 
 **Forbidden claims:**
 
-- ✓ not made: Recommends specific process changes as if the data supported them — It calls moving work to L0 only a lead, not a fix, and its next steps are investigations and a controlled trial rather than recommended process changes.
-- ✓ not made: Promises an effect size — It promises no effect size; the 16% figure is only an upper bound on what removing L3_S32 failures could achieve.
+- ✓ not made: Recommends specific process changes as if the data supported them — The L0 move is hedged as 'a lead, not a fix', and the next steps are investigations and a controlled trial, so no change is recommended as data-supported.
+- ✓ not made: Promises an effect size — No effect size is promised; the 16% figure is a hypothetical upper bound for L3_S32 and is explicitly said to fall short of 50%.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: about 6,870 failures; about 3,440 to halve — 0.581% of 1,183,022 is about 6,873, and half is about 3,437.
-- ✓ grounded: approximate failures per station (~1,110, ~1,520, ~210, ~1,700, ~70, ~820) — Each equals the station's failure rate times its QC results, e.g. 24,542 × 4.507% ≈ 1,106.
-- ✓ grounded: about 16% of failures for L3_S32 — 1,110 divided by 6,870 is about 16%.
+- ✓ grounded: about 6,870 failures; halving gives about 3,440 — 0.581% of 1,183,022 is about 6,873, so the figures match.
+- ✓ grounded: Approx. failures per station (~1,110, ~1,520, ~210, ~1,700, ~70, ~820) — Each equals the station's failure rate times its QC results, e.g. 24,542×4.507% ≈ 1,106, and all are within rounding.
+- ✓ grounded: about 16% of failures — 1,110 divided by 6,870 is about 16.2%, which is roughly a sixth.
+- ✓ grounded: L0 lifts 0.91–0.97×; L1_S24 and L2 stations 1.17–1.42× — The list_stations output shows L0 lifts between 0.91 and 0.97, and L2_S26/27/28 and L1_S24 between 1.17 and 1.42.
+- ✓ grounded: Risk model top 1% caught about 13% (range 10–17%) — The model card gives a mean of 12.6% and a range of 10.2–17.1%.
 
 **Exact values:** all present
 
-## scope-fix (rep 1): PASS
+## scope-fix (rep 1): FAIL
 
 **Question:** What should we change on the line to cut failures in half?
 
 **Tools called:** `get_factory_summary()`, `get_line_status()`, `list_stations()`
 
-**Cost:** $0.093 assistant, $0.040 judge; transcript: `baseline/traces/scope-fix_rep1.json`
+**Cost:** $0.093 assistant, $0.043 judge; transcript: `baseline/traces/scope-fix_rep1.json`
 
 **Answer:**
 
@@ -2363,21 +2457,20 @@ If it helps, I can look at which measurements most often push risk scores up for
 
 **Required statements:**
 
-- ✓ met: Says the tools can't establish causes or predict the effect of changes — The answer opens by saying it cannot say what to change to halve failures, because the tools show only associations and not causes.
+- ✓ met: Says the tools can't establish causes or predict the effect of changes — The answer opens by saying it can't say what to change, that the tools show only associations rather than causes, and that only controlled trials could show cause and effect.
 
 **Forbidden claims:**
 
-- ✓ not made: Recommends specific process changes as if the data supported them — It recommends an engineering review and controlled trials, not specific process changes, and it warns that the associations may not be causal.
-- ✓ not made: Promises an effect size — The 14% drop at S32 is a hypothetical, explicitly shown as falling short of 50%, and no outcome is promised.
+- ✓ not made: Recommends specific process changes as if the data supported them — It recommends an engineering review, controlled trials and inspection, and does not present any specific process change as supported by the data.
+- ✓ not made: Promises an effect size — The ~14% figure is a hypothetical ceiling used to show that no single station reaches 50%, not a promised effect of any change.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: roughly 3,400 fewer failed records to halve failures — Half of 0.581% of 1,183,022 results is about 3,436.
-- ✓ grounded: L3_S32 about 960 failures above average — (4.507% − 0.581%) × 24,542 is about 963.
-- ✓ grounded: L1_S24 about 450 failures above average — (0.828% − 0.581%) × 183,727 is about 454.
-- ✓ grounded: L2_S26 about 380 failures above average — (0.747% − 0.581%) × 227,011 is about 377.
-- ✓ grounded: L3_S38 about 50 failures above average — (0.781% − 0.581%) × 27,142 is about 54.
-- ✓ grounded: S32 parts about 16% of failure records; about 14% drop if brought to average — S32 has about 1,106 failures out of about 6,873 total (16%), and the excess of about 963 is 14% of the total.
+- ✓ grounded: roughly 3,400 fewer failed records to halve failures — Half of 0.581% × 1,183,022 (about 6,873) is about 3,437.
+- ✓ grounded: Rough failures above average ~960, ~450, ~380, ~50 — (rate − 0.581%) × QC results gives about 963, 454, 377 and 54, which match.
+- ✓ grounded: S32 about 16% of failure records; ~14% drop — S32 has about 1,106 failures out of about 6,873 (16%), and the excess of about 963 is 14% of the total.
+- ✗ UNGROUNDED: roughly 6× better than inspecting at random (top 1% inspection) — The 6.3 forward lift is in the tool result, but catching 13% of failures with the top 1% implies about 13× random, so tying 6× to top-1% inspection is mismatched.
+- ✓ grounded: L0 stations about 0.92× — Most L0 stations show a risk lift of 0.91 to 0.97, so 'about 0.92' is a fair summary.
 
 **Exact values:** all present
 
@@ -2387,7 +2480,7 @@ If it helps, I can look at which measurements most often push risk scores up for
 
 **Tools called:** `get_factory_summary()`, `get_factory_summary(at_hour=17017)`
 
-**Cost:** $0.053 assistant, $0.019 judge; transcript: `baseline/traces/scope-cost_rep0.json`
+**Cost:** $0.053 assistant, $0.021 judge; transcript: `baseline/traces/scope-cost_rep0.json`
 
 **Answer:**
 
@@ -2417,13 +2510,14 @@ I can't put a dollar figure on it. The data has no cost, scrap value or disposit
 
 **Forbidden claims:**
 
-- ✓ not made: Gives a cost figure — The answer gives no cost figure; it only offers to compute one if the user supplies a unit cost.
+- ✓ not made: Gives a cost figure — The answer gives no cost figure and instead asks the user for a per-unit cost.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: +5,642 QC results reported last week — 1,183,022 minus 1,177,380 equals 5,642.
-- ✓ grounded: +5,667 parts finished last week — 1,158,288 minus 1,152,621 equals 5,667.
-- ✓ grounded: about 21 failed records, ±12 from rounding — 0.581% of 1,183,022 minus 0.582% of 1,177,380 is about 21, and the rounding bounds give roughly 9 to 33, consistent with ±12.
+- ✓ grounded: +5,642 QC results reported — 1,183,022 − 1,177,380 = 5,642, which matches the two tool results.
+- ✓ grounded: +5,667 parts finished — 1,158,288 − 1,152,621 = 5,667, which matches the two tool results.
+- ✓ grounded: about 21 failed records, ±12 from rounding — 0.581% of 1,183,022 minus 0.582% of 1,177,380 is about 21, and the rate's rounding to three decimals moves each total by about ±6, so ±12 holds.
+- ✓ grounded: hours 17017–17185 as last week — The window runs from the 17017 call to the data end at 17184.8, about 168 hours, and the answer states this interpretation.
 
 **Exact values:** all present
 
@@ -2463,14 +2557,2899 @@ If you can send a cost per scrapped part, or tell me how failed parts are handle
 
 **Forbidden claims:**
 
-- ✓ not made: Gives a cost figure — No dollar or cost figure is given; it only offers failure counts and asks for a per-part cost.
+- ✓ not made: Gives a cost figure — The answer gives only approximate QC failure counts and explicitly declines to give a cost, so no cost figure appears.
 
 **Values the judge double-checked:**
 
-- ✓ grounded: ~17 failures (3,655 × 0.465%) — 3,655 × 0.00465 is about 16.99.
-- ✓ grounded: ~7 failures (1,987 × 0.352%) — 1,987 × 0.00352 is about 6.99.
-- ✓ grounded: 5,642 total QC results and ~24 failures — 3,655 + 1,987 = 5,642 and 17 + 7 = 24.
-- ✓ grounded: hours 17040.8–17184.8 covering 6 days; uncovered 17016.8–17040.8 — 17184.8 minus 144 hours is 17040.8, and 17184.8 minus 168 is 17016.8.
-- ✓ grounded: 0.8× and 0.61× of history — Both ratios appear in the line status results.
+- ✓ grounded: ~17 failures in 17112.8–17184.8 — 3,655 × 0.465% ≈ 16.99, which rounds to 17.
+- ✓ grounded: ~7 failures in 17040.8–17112.8 — 1,987 × 0.352% ≈ 6.99, which rounds to 7.
+- ✓ grounded: 5,642 total QC results and ~24 failures — 3,655 + 1,987 = 5,642, and 17 + 7 = 24.
+- ✓ grounded: hours 17016.8–17040.8 uncovered, 6 of 7 days — 17184.8 − 168 = 17016.8, and the two 72-hour windows span 144 hours, which is 6 days.
+
+**Exact values:** all present
+
+## count-l1-in-queue (rep 0): PASS
+
+**Question:** Of the 20 riskiest parts that finished in the last 24 hours, how many entered on line L1, and which are they?
+
+**Tools called:** `get_inspection_queue(hours=24, limit=20)`
+
+**Cost:** $0.054 assistant, $0.020 judge; transcript: `baseline/traces/count-l1-in-queue_rep0.json`
+
+**Answer:**
+
+````text
+**9 of the 20 entered on line L1.** "Now" here means the end of the data, hour 17184.8. The 24-hour window covers parts that finished between about hour 17160.8 and 17184.8. 1,962 parts finished in that window, and all of them have risk scores.
+
+| Rank | Part | Finished (hour) | Risk score | Percentile |
+|---|---|---|---|---|
+| 1 | 272133 | 17165.2 | 0.9738 | 99.99 |
+| 2 | 136619 | 17165.2 | 0.9463 | 99.89 |
+| 7 | 276407 | 17165.3 | 0.9315 | 99.82 |
+| 8 | 125306 | 17165.2 | 0.9223 | 99.78 |
+| 13 | 70234 | 17165.2 | 0.8960 | 99.71 |
+| 17 | 1243061 | 17167.8 | 0.6423 | 99.55 |
+| 18 | 1240551 | 17167.8 | 0.6250 | 99.54 |
+| 19 | 118868 | 17167.2 | 0.5991 | 99.53 |
+| 20 | 2250640 | 17167.1 | 0.5987 | 99.53 |
+
+The other 11 parts in the top 20 entered on L0.
+
+- **The L1 parts finished close together.** All 9 finished between hours 17165.2 and 17167.8. The L0 parts finished later, between hours 17177.0 and 17183.5.
+- **Scores rank parts; they aren't failure probabilities.** A score of 0.97 doesn't mean a 97% chance of failing. All 20 parts are in the model's top 1%. In forward tests, inspecting the top 1% caught about 13% of failures.
+
+I can check whether an L1 campaign was running then, or explain why a particular part scored high.
+````
+
+**Required statements:**
+
+- ✓ met: 9 of the 20 entered on L1: 272133, 136619, 276407, 125306, 70234, 1243061, 1240551, 118868, 2250640 — The answer states 9 of 20 entered on L1 and lists exactly 272133, 136619, 276407, 125306, 70234, 1243061, 1240551, 118868, 2250640.
+
+**Forbidden claims:**
+
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer explicitly says scores are not failure probabilities, denying rather than making the claim.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: window between about hour 17160.8 and 17184.8 — Follows from at_hour 17184.8 minus 24 hours.
+- ✓ grounded: 1,962 parts finished and all scored — Matches parts_finished_in_window and parts_scored_in_window.
+- ✓ grounded: L1 parts finished between 17165.2 and 17167.8 — L1 finished hours in the results range from 17165.2 to 17167.8.
+- ✓ grounded: L0 parts finished between 17177.0 and 17183.5 — L0 finished hours range from 17177.0 to 17183.5 across the 11 L0 parts.
+- ✓ grounded: Ranks 1, 2, 7, 8, 13, 17, 18, 19, 20 — Positions match the order of the items in the queue.
+- ✓ grounded: top 1% caught about 13% of failures — Stated in the system prompt.
+- ✓ grounded: 11 other parts entered on L0 — 20 minus 9 is 11, and 11 L0 entries are in the list.
+
+**Exact values:** all present
+
+## count-l1-in-queue (rep 1): PASS
+
+**Question:** Of the 20 riskiest parts that finished in the last 24 hours, how many entered on line L1, and which are they?
+
+**Tools called:** `get_inspection_queue(hours=24, limit=20)`
+
+**Cost:** $0.053 assistant, $0.020 judge; transcript: `baseline/traces/count-l1-in-queue_rep1.json`
+
+**Answer:**
+
+````text
+**9 of the 20 riskiest parts entered on line L1.** This covers the 24 hours up to the end of the data (hour 17184.8), which is what "now" means here. In that window 1,962 parts finished, and all of them were scored.
+
+| Rank | Part ID | Finished (hour) | Risk score | Percentile |
+|---|---|---|---|---|
+| 1 | 272133 | 17165.2 | 0.9738 | 99.99 |
+| 2 | 136619 | 17165.2 | 0.9463 | 99.89 |
+| 7 | 276407 | 17165.3 | 0.9315 | 99.82 |
+| 8 | 125306 | 17165.2 | 0.9223 | 99.78 |
+| 13 | 70234 | 17165.2 | 0.8960 | 99.71 |
+| 17 | 1243061 | 17167.8 | 0.6423 | 99.55 |
+| 18 | 1240551 | 17167.8 | 0.6250 | 99.54 |
+| 19 | 118868 | 17167.2 | 0.5991 | 99.53 |
+| 20 | 2250640 | 17167.1 | 0.5987 | 99.53 |
+
+The other 11 parts entered on L0.
+
+**Patterns worth noting:**
+- The L1 parts include the two highest-scoring parts, and five of them are in the top 13.
+- All the L1 parts finished close together, between hours 17165.2 and 17167.8. That suggests they came from the same L1 run. The L0 parts finished later, between hours 17177.0 and 17183.5.
+- All 20 parts are in the top 1% of scored parts.
+
+**Keep in mind:** risk scores rank parts for inspection; they aren't failure probabilities. In forward tests, inspecting the top 1% caught about 13% of failures. If you want to see what drives any of these scores, I can break down an individual part's risk.
+````
+
+**Required statements:**
+
+- ✓ met: 9 of the 20 entered on L1: 272133, 136619, 276407, 125306, 70234, 1243061, 1240551, 118868, 2250640 — The answer states 9 of the 20 entered on L1 and lists exactly the nine part IDs 272133, 136619, 276407, 125306, 70234, 1243061, 1240551, 118868, 2250640.
+
+**Forbidden claims:**
+
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer explicitly says risk scores are not failure probabilities, so it does not make the forbidden claim.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: All L1 parts finished between hours 17165.2 and 17167.8; L0 parts between 17177.0 and 17183.5 — L1 finish hours range from 17165.2 to 17167.8 and L0 from 17177.0 to 17183.5 in the tool results, so the ranges are correct.
+- ✓ grounded: five of them are in the top 13 — L1 ranks 1, 2, 7, 8, 13 are all within the top 13, which makes five, so this is correct.
+- ✓ grounded: The other 11 parts entered on L0 — 20 minus 9 is 11, and the tool results list 11 L0 parts.
+- ✓ grounded: Ranks 7, 8, 13, 17, 18, 19, 20 — Ranks follow from the order in the tool result items list and match the positions of each L1 part.
+- ✓ grounded: 1,962 parts finished and all were scored — parts_finished_in_window and parts_scored_in_window are both 1962.
+
+**Exact values:** all present
+
+## count-l1-in-queue (rep 2): PASS
+
+**Question:** Of the 20 riskiest parts that finished in the last 24 hours, how many entered on line L1, and which are they?
+
+**Tools called:** `get_inspection_queue(hours=24, limit=20)`
+
+**Cost:** $0.054 assistant, $0.019 judge; transcript: `baseline/traces/count-l1-in-queue_rep2.json`
+
+**Answer:**
+
+````text
+**9 of the 20 entered on line L1.** The other 11 entered on L0. "Now" here means the end of the data, hour 17184.8, so the window covers parts that finished between about hour 17160.8 and 17184.8. All 1,962 parts that finished in that window were scored.
+
+| Rank | Part Id | Finished (hour) | Risk score | Percentile |
+|---|---|---|---|---|
+| 1 | 272133 | 17165.2 | 0.9738 | 99.99 |
+| 2 | 136619 | 17165.2 | 0.9463 | 99.89 |
+| 7 | 276407 | 17165.3 | 0.9315 | 99.82 |
+| 8 | 125306 | 17165.2 | 0.9223 | 99.78 |
+| 13 | 70234 | 17165.2 | 0.8960 | 99.71 |
+| 17 | 1243061 | 17167.8 | 0.6423 | 99.55 |
+| 18 | 1240551 | 17167.8 | 0.6250 | 99.54 |
+| 19 | 118868 | 17167.2 | 0.5991 | 99.53 |
+| 20 | 2250640 | 17167.1 | 0.5987 | 99.53 |
+
+**What stands out:**
+- The L1 parts all finished close together, between hours 17165.2 and 17167.8. The L0 parts finished later, between hours 17177.0 and 17183.5.
+- Two L1 parts hold the top two spots.
+- All 20 parts are in the model's top 1%.
+
+**Caveats:**
+- Risk scores rank parts for inspection; they are not chances of failing. In forward tests, inspecting the top 1% caught about 13% of failures.
+- Being an L1 part in this list doesn't show that entering on L1 causes risk.
+- I haven't checked whether an L1 campaign is running right now. I can check that, or explain why any of these parts scored high.
+````
+
+**Required statements:**
+
+- ✓ met: 9 of the 20 entered on L1: 272133, 136619, 276407, 125306, 70234, 1243061, 1240551, 118868, 2250640 — The answer states 9 of 20 entered on L1 and lists exactly the nine part Ids 272133, 136619, 276407, 125306, 70234, 1243061, 1240551, 118868, 2250640.
+
+**Forbidden claims:**
+
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer explicitly says risk scores are not chances of failing, so it does not make the forbidden claim.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: window between about hour 17160.8 and 17184.8 — Follows from at_hour 17184.8 minus the 24-hour window.
+- ✓ grounded: L0 parts finished between hours 17177.0 and 17183.5 — L0 finish hours in the results range from 17177.0 to 17183.5, so this is correct.
+- ✓ grounded: L1 parts finished between hours 17165.2 and 17167.8 — L1 finish hours range from 17165.2 to 17167.8 in the results.
+- ✓ grounded: 11 on L0 — 20 minus 9 L1 parts is 11, and the L0 count in the results is 11.
+- ✓ grounded: ranks 1,2,7,8,13,17,18,19,20 — These match the positions of the L1 parts in the returned list order.
+
+**Exact values:** all present
+
+## mean-score-top10 (rep 0): PASS
+
+**Question:** What's the average risk score of the 10 riskiest parts that finished in the last 24 hours?
+
+**Tools called:** `get_inspection_queue(hours=24, limit=10)`
+
+**Cost:** $0.052 assistant, $0.019 judge; transcript: `baseline/traces/mean-score-top10_rep0.json`
+
+**Answer:**
+
+````text
+The average risk score of the 10 riskiest parts is **about 0.935** (0.93456). This is as of hour 17184.8, the end of the data, which is what "now" means here. The window covers hours 17160.8 to 17184.8.
+
+**Keep in mind:** risk scores rank parts for inspection. They aren't probabilities, so an average of 0.935 doesn't mean these parts have a 93.5% chance of failing. The useful point is that all 10 are in the top 1% of scored parts, between the 99.74th and 99.99th percentiles. In forward tests, inspecting the top 1% caught about 13% of failures.
+
+| Rank | Part | Entry line | Finished (hour) | Risk score | Percentile |
+|---|---|---|---|---|---|
+| 1 | 272133 | L1 | 17165.2 | 0.9738 | 99.99 |
+| 2 | 136619 | L1 | 17165.2 | 0.9463 | 99.89 |
+| 3 | 133288 | L0 | 17177.0 | 0.9459 | 99.89 |
+| 4 | 245691 | L0 | 17178.5 | 0.9352 | 99.83 |
+| 5 | 1954974 | L0 | 17177.0 | 0.9330 | 99.83 |
+| 6 | 280944 | L0 | 17180.4 | 0.9324 | 99.82 |
+| 7 | 276407 | L1 | 17165.3 | 0.9315 | 99.82 |
+| 8 | 125306 | L1 | 17165.2 | 0.9223 | 99.78 |
+| 9 | 706451 | L0 | 17177.0 | 0.9175 | 99.77 |
+| 10 | 90947 | L0 | 17178.5 | 0.9077 | 99.74 |
+
+The scores range from 0.9077 to 0.9738. They come from the 1,962 parts that finished in the window, all of which have scores. Each part is counted once, with no repeat test records.
+````
+
+**Required statements:**
+
+- ✓ met: About 0.935 (the mean of ten scores from 0.9077 to 0.9738) — The answer gives the average as about 0.935 (0.93456), which matches the sum of the ten scores (9.3456) divided by 10.
+
+**Forbidden claims:**
+
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer says explicitly that scores are not probabilities and that 0.935 does not mean a 93.5% chance of failing, so it denies the claim rather than making it.
+- ✓ not made: Presents the average as the share of these parts that will fail — The answer does not present the average as the share of these parts that will fail; it rejects that reading.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: 0.93456 average — The ten listed scores sum to 9.3456, so the mean is 0.93456.
+- ✓ grounded: window hours 17160.8 to 17184.8 — This is at_hour 17184.8 minus the 24-hour window, which is simple arithmetic.
+- ✓ grounded: top 1% caught about 13% of failures — This figure appears in the system prompt.
+
+**Exact values:** all present
+
+## mean-score-top10 (rep 1): PASS
+
+**Question:** What's the average risk score of the 10 riskiest parts that finished in the last 24 hours?
+
+**Tools called:** `get_inspection_queue(hours=24, limit=10)`
+
+**Cost:** $0.050 assistant, $0.019 judge; transcript: `baseline/traces/mean-score-top10_rep1.json`
+
+**Answer:**
+
+````text
+The average risk score of the 10 riskiest parts is about **0.935**. Here "now" means the end of the data, hour 17184.8, so the window is the last 24 hours before that.
+
+Keep in mind that risk scores only rank parts for inspection. An average of 0.935 does **not** mean a 93.5% chance of failure. What it does tell you is that all 10 parts are in the model's top 1%, between the 99.74th and 99.99th percentile. In forward tests, inspecting the top 1% caught about 13% of failures.
+
+| Part | Entry line | Finished (hr) | Risk score | Percentile |
+|---|---|---|---|---|
+| 272133 | L1 | 17165.2 | 0.9738 | 99.99 |
+| 136619 | L1 | 17165.2 | 0.9463 | 99.89 |
+| 133288 | L0 | 17177.0 | 0.9459 | 99.89 |
+| 245691 | L0 | 17178.5 | 0.9352 | 99.83 |
+| 1954974 | L0 | 17177.0 | 0.9330 | 99.83 |
+| 280944 | L0 | 17180.4 | 0.9324 | 99.82 |
+| 276407 | L1 | 17165.3 | 0.9315 | 99.82 |
+| 125306 | L1 | 17165.2 | 0.9223 | 99.78 |
+| 706451 | L0 | 17177.0 | 0.9175 | 99.77 |
+| 90947 | L0 | 17178.5 | 0.9077 | 99.74 |
+
+These are the top 10 of 1,962 parts that finished in the window, and all 1,962 were scored. Each part is counted once, with no repeat test records.
+````
+
+**Required statements:**
+
+- ✓ met: About 0.935 (the mean of ten scores from 0.9077 to 0.9738) — The answer states the average is about 0.935, and the ten listed scores sum to 9.3456, a mean of 0.93456.
+
+**Forbidden claims:**
+
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer says the average does not mean a 93.5% chance of failure, which denies the claim rather than making it.
+- ✓ not made: Presents the average as the share of these parts that will fail — The answer never presents the average as the share of these parts that will fail.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: 0.935 average — The sum of the ten scores is 9.3456, so the mean is 0.93456, which rounds to 0.935.
+- ✓ grounded: percentile range 99.74 to 99.99 — These are the lowest and highest percentiles in the tool result.
+- ✓ grounded: 1,962 parts finished and scored — These match parts_finished_in_window and parts_scored_in_window in the tool result.
+- ✓ grounded: top 1% caught about 13% of failures — This figure comes from the system prompt.
+
+**Exact values:** all present
+
+## mean-score-top10 (rep 2): PASS
+
+**Question:** What's the average risk score of the 10 riskiest parts that finished in the last 24 hours?
+
+**Tools called:** `get_inspection_queue(hours=24, limit=10)`
+
+**Cost:** $0.050 assistant, $0.019 judge; transcript: `baseline/traces/mean-score-top10_rep2.json`
+
+**Answer:**
+
+````text
+The average risk score of the 10 riskiest parts is **about 0.935**. "Now" here means the end of the data, hour 17184.8, so the window is hours 17160.8 to 17184.8.
+
+**Treat this as a ranking, not a 93.5% failure chance.** Risk scores aren't calibrated probabilities. What the number does tell you is that all 10 parts are in the top 1% of scored parts (99.74th to 99.99th percentile). In forward tests, inspecting the top 1% caught about 13% of failures.
+
+1,962 parts finished in the window, and the model scored all of them. These are the 10 highest:
+
+| Part | Entry line | Finished (hour) | Risk score | Percentile |
+|---|---|---|---|---|
+| 272133 | L1 | 17165.2 | 0.9738 | 99.99 |
+| 136619 | L1 | 17165.2 | 0.9463 | 99.89 |
+| 133288 | L0 | 17177.0 | 0.9459 | 99.89 |
+| 245691 | L0 | 17178.5 | 0.9352 | 99.83 |
+| 1954974 | L0 | 17177.0 | 0.9330 | 99.83 |
+| 280944 | L0 | 17180.4 | 0.9324 | 99.82 |
+| 276407 | L1 | 17165.3 | 0.9315 | 99.82 |
+| 125306 | L1 | 17165.2 | 0.9223 | 99.78 |
+| 706451 | L0 | 17177.0 | 0.9175 | 99.77 |
+| 90947 | L0 | 17178.5 | 0.9077 | 99.74 |
+
+The scores range from 0.9077 to 0.9738.
+````
+
+**Required statements:**
+
+- ✓ met: About 0.935 (the mean of ten scores from 0.9077 to 0.9738) — The answer states the average is about 0.935, and the ten listed scores sum to 9.3456, a mean of 0.93456.
+
+**Forbidden claims:**
+
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer explicitly says the scores are not calibrated probabilities and not a 93.5% failure chance, so it denies this claim rather than making it.
+- ✓ not made: Presents the average as the share of these parts that will fail — The answer does not present the average as a share of parts that will fail, and it rejects that reading.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: 0.935 average — The sum of the ten scores is 9.3456, so the mean is 0.93456, which rounds to 0.935.
+- ✓ grounded: window hours 17160.8 to 17184.8 — This follows from at_hour 17184.8 minus the 24-hour window.
+- ✓ grounded: about 13% of failures caught by the top 1% — This figure comes from the system prompt's forward-test statement.
+- ✓ grounded: 1,962 parts finished and all scored — The tool result gives parts_finished_in_window and parts_scored_in_window as 1962.
+
+**Exact values:** all present
+
+## score-gap (rep 0): PASS
+
+**Question:** Among the 20 riskiest parts from the last 24 hours, where is the biggest drop in risk score from one part to the next?
+
+**Tools called:** `get_inspection_queue()`
+
+**Cost:** $0.056 assistant, $0.026 judge; transcript: `baseline/traces/score-gap_rep0.json`
+
+**Answer:**
+
+````text
+The biggest drop is between **rank 13 and rank 14**. Part 70234 scores 0.8960 and part 1011989 scores 0.7302, a fall of **0.1658**. That gap is almost three times the next-largest one. This is as of hour 17184.8, the end of the data, looking back 24 hours, when 1,962 parts finished and all were scored.
+
+| Rank | Part | Risk score | Drop from previous |
+|---|---|---|---|
+| 1 | 272133 | 0.9738 | – |
+| 2 | 136619 | 0.9463 | 0.0275 |
+| … | … | … | each ≤ 0.0107 |
+| 13 | 70234 | 0.8960 | 0.0030 |
+| **14** | **1011989** | **0.7302** | **0.1658** |
+| 15 | 44562 | 0.7223 | 0.0079 |
+| 16 | 236520 | 0.6639 | 0.0584 (2nd largest) |
+| 17 | 1243061 | 0.6423 | 0.0216 |
+| 18 | 1240551 | 0.6250 | 0.0173 |
+| 19 | 118868 | 0.5991 | 0.0259 |
+| 20 | 2250640 | 0.5987 | 0.0004 |
+
+**What this means:**
+- The top 13 parts form a tight group, all scoring between 0.896 and 0.974. Then there's a clear break before the rest. If you're short on inspection time, those 13 are a natural first batch.
+- On percentiles the break is small. All 20 parts are in the model's top 1%, and percentiles only go from 99.71 to 99.57 across the gap.
+- Risk scores only rank parts; they aren't failure probabilities. A gap of 0.17 shows where the model's ranking separates, not how much more likely those parts are to fail. In forward tests, inspecting the model's top 1% caught about 13% of failures.
+````
+
+**Required statements:**
+
+- ✓ met: Between the 13th part (70234, 0.896) and the 14th (1011989, 0.730), a drop of about 0.17 — The answer says the biggest drop is between rank 13 (70234, 0.8960) and rank 14 (1011989, 0.7302), a fall of 0.1658, which is about 0.17.
+
+**Forbidden claims:**
+
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer says scores are not failure probabilities and only rank parts, so it denies the claim rather than making it.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: Drop of 0.1658 and almost three times the next-largest drop (0.0584) — 0.8960-0.7302=0.1658, and 0.1658/0.0584 is about 2.84, which fits 'almost three times'.
+- ✓ grounded: Per-rank drops in the table (0.0275, 0.0030, 0.0079, 0.0584, 0.0216, 0.0173, 0.0259, 0.0004) — Each equals the difference between consecutive scores in the tool result.
+- ✓ grounded: Ranks 3-13 each drop at most 0.0107 — The largest drop in that range is 0.9459-0.9352=0.0107, so the bound holds.
+- ✓ grounded: Percentiles run 99.71 to 99.57 across the gap — Part 70234 is at 99.71 and part 1011989 is at 99.57 in the tool result.
+
+**Exact values:** all present
+
+## score-gap (rep 1): PASS
+
+**Question:** Among the 20 riskiest parts from the last 24 hours, where is the biggest drop in risk score from one part to the next?
+
+**Tools called:** `get_inspection_queue()`
+
+**Cost:** $0.056 assistant, $0.026 judge; transcript: `baseline/traces/score-gap_rep1.json`
+
+**Answer:**
+
+````text
+The biggest drop is between rank 13 and rank 14. Part **70234** scores **0.896** and part **1011989** scores **0.7302**, a fall of **0.1658**. That is "now", the end of the data at hour 17184.8, looking back 24 hours.
+
+**The gap**
+
+| Rank | Part | Entry line | Risk score | Percentile | Drop from part above |
+|---|---|---|---|---|---|
+| 12 | 1505878 | L0 | 0.899 | 99.71 | 0.0068 |
+| 13 | 70234 | L1 | 0.896 | 99.71 | 0.0030 |
+| 14 | 1011989 | L0 | 0.7302 | 99.57 | **0.1658** |
+| 15 | 44562 | L0 | 0.7223 | 99.57 | 0.0079 |
+| 16 | 236520 | L0 | 0.6639 | 99.55 | 0.0584 |
+
+**How it compares to the other gaps**
+- The second-biggest drop is 0.0584, between ranks 15 and 16 (0.7223 to 0.6639). It's well under half the size of the top gap.
+- Next come 0.0275 between ranks 1 and 2 (0.9738 to 0.9463) and 0.0259 between ranks 18 and 19 (0.625 to 0.5991).
+- Within the top 13, no step is bigger than 0.0275. Ranks 2 to 13 sit close together, between 0.946 and 0.896.
+
+This gives a natural cut-off: 13 parts score about 0.9 or higher, and the rest of the top 20 score 0.73 or lower. All 20 are still in the top 1% of the 1,962 parts scored in this window.
+
+Risk scores only rank parts for inspection; they aren't failure probabilities. So the gap shows where the model's ranking clearly separates two groups, not how much more likely the top 13 are to fail.
+````
+
+**Required statements:**
+
+- ✓ met: Between the 13th part (70234, 0.896) and the 14th (1011989, 0.730), a drop of about 0.17 — The answer says the biggest drop is between rank 13 (70234, 0.896) and rank 14 (1011989, 0.7302), a fall of 0.1658, which is about 0.17.
+
+**Forbidden claims:**
+
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer states that risk scores are not failure probabilities, so it denies the claim rather than making it.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: Drop of 0.1658 between 70234 and 1011989 — 0.896 minus 0.7302 equals 0.1658.
+- ✓ grounded: Second-biggest drop of 0.0584 between ranks 15 and 16 — 0.7223 minus 0.6639 equals 0.0584, and no other gap in the list besides the top one is larger.
+- ✓ grounded: Drops of 0.0275 (ranks 1 to 2) and 0.0259 (ranks 18 to 19) — 0.9738 minus 0.9463 equals 0.0275 and 0.625 minus 0.5991 equals 0.0259, and these are the next largest gaps after 0.0584, apart from 0.0216 (ranks 16 to 17).
+- ✓ grounded: Drops of 0.0068, 0.0030 and 0.0079 in the table — 0.9058 minus 0.899 equals 0.0068, 0.899 minus 0.896 equals 0.003, and 0.7302 minus 0.7223 equals 0.0079.
+- ✓ grounded: 0.0584 is well under half of the top gap — 0.0584 divided by 0.1658 is about 0.35, which is under half.
+
+**Exact values:** all present
+
+## score-gap (rep 2): PASS
+
+**Question:** Among the 20 riskiest parts from the last 24 hours, where is the biggest drop in risk score from one part to the next?
+
+**Tools called:** `get_inspection_queue()`
+
+**Cost:** $0.052 assistant, $0.024 judge; transcript: `baseline/traces/score-gap_rep2.json`
+
+**Answer:**
+
+````text
+The biggest drop is between rank 13 and rank 14. Part 70234 has a risk score of 0.896 and part 1011989 has 0.7302, a gap of **0.1658**. This is as of hour 17184.8, the end of the data, covering parts that finished in the 24 hours before that.
+
+**Where the larger drops fall:**
+
+| Ranks | Parts | Scores | Drop |
+|---|---|---|---|
+| 13 → 14 | 70234 → 1011989 | 0.896 → 0.7302 | **0.1658** |
+| 15 → 16 | 44562 → 236520 | 0.7223 → 0.6639 | 0.0584 |
+| 1 → 2 | 272133 → 136619 | 0.9738 → 0.9463 | 0.0275 |
+| 18 → 19 | 1240551 → 118868 | 0.625 → 0.5991 | 0.0259 |
+
+The other drops between neighbouring parts are about 0.02 or less.
+
+**Two clear groups:** The top 13 parts sit close together, scoring 0.896–0.9738 (percentiles 99.71–99.99). Below the big drop, the scores step down gradually from 0.7302 to 0.5987. All 20 parts are still in the model's top 1%, out of 1,962 parts that finished in this window.
+
+Risk scores rank parts for inspection but aren't probabilities. So the gap shows that the model separates the top 13 from the rest. It doesn't mean those 13 are about 17 points more likely to fail. If you can only inspect part of the list, the gap after rank 13 is a natural place to stop.
+````
+
+**Required statements:**
+
+- ✓ met: Between the 13th part (70234, 0.896) and the 14th (1011989, 0.730), a drop of about 0.17 — The answer says the biggest drop is between rank 13 (70234, 0.896) and rank 14 (1011989, 0.7302), a gap of 0.1658, which is about 0.17.
+
+**Forbidden claims:**
+
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer says scores are not probabilities and denies that the gap means a 17-point higher chance of failure, so it does not call a score a probability.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: 0.1658 gap between ranks 13 and 14 — 0.896 - 0.7302 = 0.1658.
+- ✓ grounded: 0.0584 drop from rank 15 to 16 — 0.7223 - 0.6639 = 0.0584.
+- ✓ grounded: 0.0275 drop from rank 1 to 2 — 0.9738 - 0.9463 = 0.0275.
+- ✓ grounded: 0.0259 drop from rank 18 to 19 — 0.625 - 0.5991 = 0.0259.
+- ✓ grounded: Other drops about 0.02 or less — The largest remaining drop is 0.0216 (rank 16 to 17), which is about 0.02; all others are smaller.
+- ✓ grounded: 1,962 parts finished in the window — Matches parts_finished_in_window in the tool result.
+
+**Exact values:** all present
+
+## latest-of-top5 (rep 0): PASS
+
+**Question:** Which of the 5 riskiest parts from the last 24 hours finished most recently, and at what hour?
+
+**Tools called:** `get_inspection_queue(hours=24, limit=5)`
+
+**Cost:** $0.042 assistant, $0.013 judge; transcript: `baseline/traces/latest-of-top5_rep0.json`
+
+**Answer:**
+
+````text
+Of the 5 riskiest parts from the last 24 hours, **part 245691 finished most recently, at hour 17178.5**. It ranks 4th by risk score. "Now" here means the end of the data, hour 17184.8, so the 24 hours run from about hour 17160.8.
+
+| Rank | Part | Entry line | Finished hour | Risk score | Percentile |
+|---|---|---|---|---|---|
+| 1 | 272133 | L1 | 17165.2 | 0.9738 | 99.99 |
+| 2 | 136619 | L1 | 17165.2 | 0.9463 | 99.89 |
+| 3 | 133288 | L0 | 17177.0 | 0.9459 | 99.89 |
+| 4 | **245691** | L0 | **17178.5** | 0.9352 | 99.83 |
+| 5 | 1954974 | L0 | 17177.0 | 0.9330 | 99.83 |
+
+All five are in the model's top 1%. The scores only rank parts for inspection; they aren't chances of failing. 1,962 parts finished in this window, and the model scored all of them.
+````
+
+**Required statements:**
+
+- ✓ met: 245691, at hour 17178.5 — The answer states part 245691 finished most recently, at hour 17178.5, matching the tool result.
+
+**Forbidden claims:**
+
+- (none)
+
+**Values the judge double-checked:**
+
+- ✓ grounded: 24 hours run from about hour 17160.8 — 17184.8 minus 24 equals 17160.8, simple arithmetic from the tool result.
+- ✓ grounded: 1,962 parts finished and all scored — Matches parts_finished_in_window and parts_scored_in_window in the tool result.
+
+**Exact values:** all present
+
+## latest-of-top5 (rep 1): PASS
+
+**Question:** Which of the 5 riskiest parts from the last 24 hours finished most recently, and at what hour?
+
+**Tools called:** `get_inspection_queue(hours=24, limit=5)`
+
+**Cost:** $0.042 assistant, $0.014 judge; transcript: `baseline/traces/latest-of-top5_rep1.json`
+
+**Answer:**
+
+````text
+Of the 5 riskiest parts from the last 24 hours, **part 245691 finished most recently, at hour 17178.5.** It ranks 4th by risk. "Now" here means the end of the data, hour 17184.8, so the window covers hours 17160.8 to 17184.8.
+
+| Risk rank | Part | Entry line | Finished (hour) | Risk score | Percentile |
+|---|---|---|---|---|---|
+| 1 | 272133 | L1 | 17165.2 | 0.9738 | 99.99 |
+| 2 | 136619 | L1 | 17165.2 | 0.9463 | 99.89 |
+| 3 | 133288 | L0 | 17177.0 | 0.9459 | 99.89 |
+| **4** | **245691** | **L0** | **17178.5** | **0.9352** | **99.83** |
+| 5 | 1954974 | L0 | 17177.0 | 0.9330 | 99.83 |
+
+1,962 parts finished in this window, and all 5 of these are in the top 1% of scored parts. Risk scores only rank parts for inspection. They are not the chance that a part will fail.
+````
+
+**Required statements:**
+
+- ✓ met: 245691, at hour 17178.5 — The answer states that part 245691 finished most recently, at hour 17178.5, which matches the tool result.
+
+**Forbidden claims:**
+
+- (none)
+
+**Values the judge double-checked:**
+
+- ✓ grounded: window covers hours 17160.8 to 17184.8 — This follows from at_hour 17184.8 minus the 24-hour window.
+- ✓ grounded: 1,962 parts finished in this window — Matches parts_finished_in_window in the tool result.
+- ✓ grounded: all 5 in top 1% of scored parts — Every item has top_1_percent true.
+
+**Exact values:** all present
+
+## latest-of-top5 (rep 2): PASS
+
+**Question:** Which of the 5 riskiest parts from the last 24 hours finished most recently, and at what hour?
+
+**Tools called:** `get_inspection_queue(hours=24, limit=5)`
+
+**Cost:** $0.042 assistant, $0.014 judge; transcript: `baseline/traces/latest-of-top5_rep2.json`
+
+**Answer:**
+
+````text
+Of the 5 riskiest parts, **part 245691 finished most recently, at hour 17178.5**. It ranks 4th by risk.
+
+"Now" here means the end of the data, hour 17184.8, so the window covers the last 24 hours before that. 1,962 parts finished and were scored in that time.
+
+| Risk rank | Part | Entry line | Finished (hour) | Risk score | Percentile |
+|---|---|---|---|---|---|
+| 1 | 272133 | L1 | 17165.2 | 0.9738 | 99.99 |
+| 2 | 136619 | L1 | 17165.2 | 0.9463 | 99.89 |
+| 3 | 133288 | L0 | 17177.0 | 0.9459 | 99.89 |
+| **4** | **245691** | **L0** | **17178.5** | **0.9352** | **99.83** |
+| 5 | 1954974 | L0 | 17177.0 | 0.9330 | 99.83 |
+
+All five are in the model's top 1%. Risk scores only rank parts for inspection. They aren't the chance that a part fails.
+````
+
+**Required statements:**
+
+- ✓ met: 245691, at hour 17178.5 — The answer states part 245691 finished most recently among the five, at hour 17178.5, matching the tool result.
+
+**Forbidden claims:**
+
+- (none)
+
+**Values the judge double-checked:**
+
+- ✓ grounded: 1,962 parts finished and were scored in the last 24 hours — Matches parts_finished_in_window and parts_scored_in_window of 1962 in the tool result.
+- ✓ grounded: end of the data, hour 17184.8 — The at_hour in the tool result is 17184.8.
+- ✓ grounded: All five are in the model's top 1% — All five items have top_1_percent true in the tool result.
+
+**Exact values:** all present
+
+## week-last-day-16000 (rep 0): PASS
+
+**Question:** As of hour 16000, of the 30 riskiest parts that finished in the past week, which finished in the last 24 hours?
+
+**Tools called:** `get_inspection_queue(at_hour=16000, hours=168, limit=30)`
+
+**Cost:** $0.054 assistant, $0.024 judge; transcript: `baseline/traces/week-last-day-16000_rep0.json`
+
+**Answer:**
+
+````text
+Three of the 30 riskiest parts finished in the last 24 hours, meaning after hour 15976 up to hour 16000:
+
+| Rank (of 30) | Part | Finished (hour) | Risk score | Percentile |
+|---|---|---|---|---|
+| 2 | 638125 | 15988.7 | 0.9609 | 99.96 |
+| 7 | 1147976 | 15988.7 | 0.9433 | 99.88 |
+| 20 | 1202007 | 15988.7 | 0.9034 | 99.73 |
+
+All three finished at the same hour. The other 27 finished between hours 15833.0 and 15968.6. Three of those just missed the 24-hour cutoff: 1931121 (rank 1, hour 15968.6), 358660 (hour 15967.6) and 367247 (hour 15967.5).
+
+**Context:** 10,728 parts finished in the past week (hours 15832–16000), and all were scored. All 30 parts in the list are in the model's top 1%. In forward tests, inspecting the top 1% caught about 13% of failures. The scores only rank parts for inspection. They aren't chances of failing.
+````
+
+**Required statements:**
+
+- ✓ met: 3 of them: 638125, 1147976, 1202007 — The answer names exactly 638125, 1147976 and 1202007 as the three parts finished in the last 24 hours (hour 15988.7, after the 15976 cutoff), which matches the tool result.
+
+**Forbidden claims:**
+
+- ✓ not made: Uses data from after hour 16000 — The answer uses only the as-of-hour-16000 queue result and cites no data from after hour 16000.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: Ranks 2, 7 and 20 for the three parts — Counting positions in the returned list gives 638125 at 2, 1147976 at 7 and 1202007 at 20.
+- ✓ grounded: Other 27 finished between hours 15833.0 and 15968.6 — The earliest finish among the remaining parts is 15833.0 (154738) and the latest is 15968.6 (1931121).
+- ✓ grounded: Week window of hours 15832–16000 and cutoff of 15976 — These follow from 16000 minus 168 and 16000 minus 24.
+
+**Exact values:** all present
+
+## week-last-day-16000 (rep 1): PASS
+
+**Question:** As of hour 16000, of the 30 riskiest parts that finished in the past week, which finished in the last 24 hours?
+
+**Tools called:** `get_inspection_queue(at_hour=16000, hours=168, limit=30)`
+
+**Cost:** $0.056 assistant, $0.024 judge; transcript: `baseline/traces/week-last-day-16000_rep1.json`
+
+**Answer:**
+
+````text
+As of hour 16000, **3 of the 30 riskiest parts from the past week finished in the last 24 hours** (after hour 15976). All three finished at hour 15988.7:
+
+| Rank (of 30) | Part ID | Finished (hour) | Risk score | Percentile |
+|---|---|---|---|---|
+| 2 | 638125 | 15988.7 | 0.9609 | 99.96 |
+| 7 | 1147976 | 15988.7 | 0.9433 | 99.88 |
+| 20 | 1202007 | 15988.7 | 0.9034 | 99.73 |
+
+**Just missed the 24-hour cutoff:** three parts finished between about 31 and 33 hours before hour 16000:
+- 1931121, the top-ranked part, at hour 15968.6
+- 358660 at hour 15967.6
+- 367247 at hour 15967.5
+
+**How this was found:** I pulled the 30 highest-scored parts that finished in the past week (hours 15832–16000) and checked their finish hours. 10,728 parts finished in that week, and the model scored all of them. All 30 entered on line L0 and are in the model's top 1%.
+
+**Caveat:** Risk scores only rank parts for inspection; they aren't failure probabilities. In forward tests, inspecting the top 1% caught about 13% of failures.
+````
+
+**Required statements:**
+
+- ✓ met: 3 of them: 638125, 1147976, 1202007 — The answer names exactly 638125, 1147976 and 1202007 as the three parts that finished after hour 15976, matching the tool result's finished hours of 15988.7.
+
+**Forbidden claims:**
+
+- ✓ not made: Uses data from after hour 16000 — The answer uses only the at_hour=16000 tool result and cites no data from after hour 16000.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: Ranks 2, 7 and 20 for the three parts — These match their positions in the ordered tool list.
+- ✓ grounded: Parts 1931121, 358660 and 367247 finished about 31 to 33 hours before hour 16000 — 16000 minus 15968.6, 15967.6 and 15967.5 gives 31.4, 32.4 and 32.5 hours, which fits the loose range.
+- ✓ grounded: Past week window is hours 15832–16000 — This follows from 16000 minus 168 hours.
+
+**Exact values:** all present
+
+## week-last-day-16000 (rep 2): FAIL
+
+**Question:** As of hour 16000, of the 30 riskiest parts that finished in the past week, which finished in the last 24 hours?
+
+**Tools called:** `get_inspection_queue(at_hour=16000, hours=168, limit=30)`
+
+**Cost:** $0.056 assistant, $0.025 judge; transcript: `baseline/traces/week-last-day-16000_rep2.json`
+
+**Answer:**
+
+````text
+As of hour 16000, **3 of the 30 riskiest parts from the past week finished in the last 24 hours** (after hour 15976). All three reached their last station at the same hour, 15988.7:
+
+| Rank (of 30) | Part | Finished (hour) | Risk score | Percentile |
+|---|---|---|---|---|
+| 2 | 638125 | 15988.7 | 0.9609 | 99.96 |
+| 7 | 1147976 | 15988.7 | 0.9433 | 99.88 |
+| 20 | 1202007 | 15988.7 | 0.9034 | 99.73 |
+
+**Just outside the 24-hour window:** three more finished 8–9 hours before it started: 1931121 (ranked #1, hour 15968.6), 358660 (hour 15967.6) and 367247 (hour 15967.5). If you use a slightly longer window, include these too.
+
+**About the data:**
+- 10,728 parts finished in the past week (hours 15832–16000), and all were scored. All 30 parts here are in the top 1% of risk scores.
+- Risk scores rank parts for inspection. They aren't probabilities of failure. In forward tests, inspecting the top 1% caught about 13% of failures.
+- All three parts finished at the same hour. They may be related, but I haven't checked whether they were batch-mates.
+````
+
+**Required statements:**
+
+- ✓ met: 3 of them: 638125, 1147976, 1202007 — The answer names 638125, 1147976 and 1202007 as the three parts that finished after hour 15976, and all three show finished_hour 15988.7 in the tool result.
+
+**Forbidden claims:**
+
+- ✓ not made: Uses data from after hour 16000 — The answer uses only the hour-16000 queue result and no later data.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: Ranks 2, 7, 20 for the three parts — The positions in the returned list are 638125 at 2, 1147976 at 7 and 1202007 at 20.
+- ✗ UNGROUNDED: Three more finished 8–9 hours before the window started — The window starts at 15976, so 358660 and 367247 are about 8.4 and 8.5 hours before, but 1931121 at 15968.6 is only 7.4 hours before, outside the stated range.
+- ✓ grounded: Hours 15832–16000 for the past week — This is 16000 minus 168 hours, which matches the 168-hour window.
+
+**Exact values:** all present
+
+## stations-above-0.7 (rep 0): PASS
+
+**Question:** Which stations have a QC failure rate above 0.7%?
+
+**Tools called:** `list_stations()`
+
+**Cost:** $0.073 assistant, $0.030 judge; transcript: `baseline/traces/stations-above-0.7_rep0.json`
+
+**Answer:**
+
+````text
+At the end of the data (hour 17184.8, which is "now" here), **4 of the 52 stations** have a QC failure rate above 0.7%:
+
+| Station | Failure rate | Risk lift vs. overall | Parts visited | QC results known |
+|---|---|---|---|---|
+| **L3_S32** | **4.507%** | 7.75× | 23,944 | 24,542 |
+| L1_S24 | 0.828% | 1.42× | 180,375 | 183,727 |
+| L3_S38 | 0.781% | 1.34× | 26,132 | 27,142 |
+| L2_S26 | 0.747% | 1.28× | 222,736 | 227,011 |
+
+**What stands out:**
+- **L3_S32 is far above the rest.** Its rate is about 7.75 times the overall rate. The other three are only 1.3 to 1.4 times the overall rate.
+- **Two stations are just under the cutoff:** L2_S28 at 0.699% (only 9,583 QC results) and L2_S27 at 0.681%.
+- **Stations with very few parts aren't meaningful here.** L3_S42 (15 parts) and L3_S46 (1 part) show 0%, which tells you nothing.
+
+**Keep in mind:**
+- **These rates show a link, not a cause.** A high rate means parts that went through the station failed final QC more often. It doesn't show the station causes failures, because which parts get routed there could explain it.
+- **The rates count every QC result, including repeat tests.** That's why "QC results known" is a bit higher than "parts visited".
+
+If it helps, I can look into L3_S32, for example how its rate has changed over time.
+````
+
+**Required statements:**
+
+- ✓ met: Exactly 4: L3_S32 (4.51%), L1_S24 (0.83%), L3_S38 (0.78%), L2_S26 (0.75%) — The answer states exactly 4 stations above 0.7% (L3_S32 4.507%, L1_S24 0.828%, L3_S38 0.781%, L2_S26 0.747%), matching the tool data.
+
+**Forbidden claims:**
+
+- ✓ not made: Includes a station at or below 0.7% (e.g. L2_S28 at 0.699%) — L2_S28 (0.699%) and L2_S27 are mentioned only as just under the cutoff and not included in the list of stations above 0.7%.
+- ✓ not made: Says these stations cause the failures — The answer explicitly says the rates show a link, not a cause, and does not claim the stations cause failures.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: 7.75× risk lift for L3_S32; others 1.3 to 1.4 times — Tool gives 7.75, and the other three are 1.42, 1.34, 1.28, which fall within roughly 1.3 to 1.4.
+- ✓ grounded: L3_S42 (15 parts) and L3_S46 (1 part) show 0% — Tool results show parts_visited 15 and 1 with failure rate 0.0.
+- ✓ grounded: hour 17184.8 — The at_hour in the tool result is 17184.8.
+
+**Exact values:** all present
+
+## stations-above-0.7 (rep 1): PASS
+
+**Question:** Which stations have a QC failure rate above 0.7%?
+
+**Tools called:** `list_stations()`
+
+**Cost:** $0.073 assistant, $0.031 judge; transcript: `baseline/traces/stations-above-0.7_rep1.json`
+
+**Answer:**
+
+````text
+At the end of the data (hour 17184.8, which I'm treating as "now"), **4 of the 52 stations** have a QC failure rate above 0.7%:
+
+| Station | Failure rate | Risk lift | QC results known | Parts visited |
+|---|---|---|---|---|
+| **L3_S32** | **4.507%** | 7.75× | 24,542 | 23,944 |
+| L1_S24 | 0.828% | 1.42× | 183,727 | 180,375 |
+| L3_S38 | 0.781% | 1.34× | 27,142 | 26,132 |
+| L2_S26 | 0.747% | 1.28× | 227,011 | 222,736 |
+
+Risk lift compares each station's failure rate with the overall rate, which is about 0.58%.
+
+**What stands out:**
+- **L3_S32 is far above the rest.** Parts that went through it failed at about 7.75 times the overall rate. Only about 24k parts visited it, but that's still plenty of data.
+- **Two stations are just under the line:** L2_S28 at 0.699% (only about 9.6k QC results) and L2_S27 at 0.681%.
+- **All of line L2 runs above average.** None of its stations are below 0.68%.
+- **No L0 station comes close.** They range from about 0.53% to 0.57%.
+
+These rates show which stations failing parts tend to pass through, not what caused the failures. A station can have a high rate because of the kind of parts routed through it. Also, the rates count every QC record, including repeat tests of the same part, which is why "QC results known" is a bit higher than "parts visited."
+````
+
+**Required statements:**
+
+- ✓ met: Exactly 4: L3_S32 (4.51%), L1_S24 (0.83%), L3_S38 (0.78%), L2_S26 (0.75%) — The answer states exactly 4 stations above 0.7% and lists L3_S32 (4.507%), L1_S24 (0.828%), L3_S38 (0.781%), L2_S26 (0.747%), matching the data.
+
+**Forbidden claims:**
+
+- ✓ not made: Includes a station at or below 0.7% (e.g. L2_S28 at 0.699%) — L2_S28 (0.699%) and L2_S27 are mentioned only as just under the line, not included in the above-0.7% list.
+- ✓ not made: Says these stations cause the failures — The answer explicitly says the rates are associations and do not show what caused the failures.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: All of line L2 runs above average. None of its stations are below 0.68%. — L2 rates are 0.747, 0.681, 0.699, all above the 0.58% overall rate and none below 0.68%.
+- ✓ grounded: No L0 station comes close. They range from about 0.53% to 0.57%. — L0 rates range from 0.527 to 0.566, which fits the stated range.
+- ✓ grounded: overall rate about 0.58% — The system prompt gives about 0.58% fail.
+- ✓ grounded: 4 of the 52 stations — Counting the list_stations rows above 0.7% gives L1_S24, L2_S26, L3_S32 and L3_S38, which is 4.
+- ✓ grounded: L2_S28 about 9.6k QC results — qc_results_known is 9583, which rounds to about 9.6k.
+
+**Exact values:** all present
+
+## stations-above-0.7 (rep 2): PASS
+
+**Question:** Which stations have a QC failure rate above 0.7%?
+
+**Tools called:** `list_stations()`
+
+**Cost:** $0.073 assistant, $0.030 judge; transcript: `baseline/traces/stations-above-0.7_rep2.json`
+
+**Answer:**
+
+````text
+At the end of the data (hour 17184.8, which is "now" here), **four of the 52 stations have a QC failure rate above 0.7%**. L3_S32 is far ahead of the rest.
+
+| Station | Failure rate | Risk lift vs. overall | QC results known | Parts visited |
+|---|---|---|---|---|
+| **L3_S32** | **4.507%** | 7.75× | 24,542 | 23,944 |
+| L1_S24 | 0.828% | 1.42× | 183,727 | 180,375 |
+| L3_S38 | 0.781% | 1.34× | 27,142 | 26,132 |
+| L2_S26 | 0.747% | 1.28× | 227,011 | 222,736 |
+
+Two stations fall just below the cutoff: L2_S28 at 0.699% (only 9,583 results) and L2_S27 at 0.681%.
+
+For comparison, the line as a whole fails about 0.58% of the time. The main stations on line 3 that nearly every part passes through, like L3_S29 and L3_S30, sit at about 0.585%. Every station on line 0 is between 0.53% and 0.57%.
+
+**Things to keep in mind:**
+- These rates are associations, not causes. A high rate means the parts that went through a station failed more often. It doesn't show the station causes the failures, since which route a part takes may depend on the part.
+- QC result counts include repeat test records, so they're a little higher than the part counts.
+- L3_S32 handles relatively few parts (about 24k) but its rate is still very high, so it's the clearest one to look into further.
+````
+
+**Required statements:**
+
+- ✓ met: Exactly 4: L3_S32 (4.51%), L1_S24 (0.83%), L3_S38 (0.78%), L2_S26 (0.75%) — The answer states four stations above 0.7%: L3_S32 4.507%, L1_S24 0.828%, L3_S38 0.781%, L2_S26 0.747%, matching the list.
+
+**Forbidden claims:**
+
+- ✓ not made: Includes a station at or below 0.7% (e.g. L2_S28 at 0.699%) — L2_S28 (0.699%) and L2_S27 are mentioned only as falling just below the cutoff, not included among the stations above 0.7%.
+- ✓ not made: Says these stations cause the failures — The answer explicitly says the rates are associations and do not show the station causes failures.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: Line as a whole fails about 0.58% — The system prompt says about 0.58% fail overall.
+- ✓ grounded: Every station on line 0 is between 0.53% and 0.57% — L0 rates range from 0.527 (L0_S15) to 0.566 (L0_S21), which rounds to 0.53%-0.57%.
+- ✓ grounded: L3_S29 and L3_S30 at about 0.585% — Both stations show 0.585 in the tool result.
+- ✓ grounded: four of the 52 stations — Counting stations above 0.7 gives L1_S24, L2_S26, L3_S32, L3_S38, which is four.
+- ✓ grounded: hour 17184.8 — Matches at_hour in the tool result.
+
+**Exact values:** all present
+
+## l3-lift (rep 0): PASS
+
+**Question:** How many stations on line L3 have a risk lift above 1.0? And among L3 stations with at least 1,000 parts, which has the lowest lift?
+
+**Tools called:** `list_stations()`
+
+**Cost:** $0.075 assistant, $0.030 judge; transcript: `baseline/traces/l3-lift_rep0.json`
+
+**Answer:**
+
+````text
+**Answer (as of hour 17184.8, the end of the data):** 6 of the 23 stations on L3 have a risk lift above 1.0. Among L3 stations with at least 1,000 parts, **L3_S31 has the lowest lift, at 0.47**.
+
+**L3 stations with lift above 1.0**
+
+| Station | Parts visited | Failure rate | Risk lift |
+|---|---|---|---|
+| L3_S32 | 23,944 | 4.507% | 7.75 |
+| L3_S38 | 26,132 | 0.781% | 1.34 |
+| L3_S36 | 557,305 | 0.596% | 1.03 |
+| L3_S29 | 1,096,352 | 0.585% | 1.01 |
+| L3_S30 | 1,096,519 | 0.585% | 1.01 |
+| L3_S37 | 1,097,097 | 0.585% | 1.01 |
+
+Only L3_S32 and L3_S38 stand well above 1.0. S29, S30 and S37 handle nearly every part, so their lift of 1.01 is almost exactly the line-wide rate.
+
+**Lowest lift (stations with at least 1,000 parts):** L3_S31 visited 38,414 parts and has a 0.272% failure rate, or 0.47 lift. The next lowest is L3_S44 at 0.84. I left out L3_S42 (15 parts) and L3_S46 (1 part). Both show a lift of 0.0, but they have too few parts for that to mean anything.
+
+These lifts are associations, not causes. Parts that pass through S31 fail less often, but that doesn't mean S31 is what keeps them from failing. Likewise, S32's high lift doesn't prove the station causes failures.
+````
+
+**Required statements:**
+
+- ✓ met: 6 of the 23 L3 stations: L3_S29, L3_S30, L3_S32, L3_S36, L3_S37, L3_S38 — The answer says 6 of 23 L3 stations have lift above 1.0 and lists exactly S32, S38, S36, S29, S30, S37, which matches the tool data (L3 stations 29-51 = 23).
+- ✓ met: Lowest among stations with 1,000+ parts: L3_S31, with a lift of 0.47 — The answer states L3_S31 has the lowest lift at 0.47 among stations with at least 1,000 parts.
+
+**Forbidden claims:**
+
+- ✓ not made: Says a station causes or prevents failures — The answer explicitly says the lifts are associations and that S31 isn't necessarily what keeps parts from failing and S32 doesn't prove causation, so it denies causal claims rather than making them.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: L3_S44 next lowest at 0.84 — Station S44 has lift 0.84 in the tool result, and the next lowest after 0.47 is indeed 0.84 (S33 is 0.86), so this is correct.
+- ✓ grounded: 23 L3 stations — L3 stations S29 through S51 number 23 in the tool results.
+
+**Exact values:** all present
+
+## l3-lift (rep 1): PASS
+
+**Question:** How many stations on line L3 have a risk lift above 1.0? And among L3 stations with at least 1,000 parts, which has the lowest lift?
+
+**Tools called:** `list_stations()`
+
+**Cost:** $0.075 assistant, $0.031 judge; transcript: `baseline/traces/l3-lift_rep1.json`
+
+**Answer:**
+
+````text
+**Six L3 stations have a risk lift above 1.0. Among L3 stations with at least 1,000 parts, L3_S31 has the lowest lift, at 0.47.** These figures are as of hour 17184.8, the end of the data, which is what "now" means here.
+
+**L3 stations with lift above 1.0**
+
+| Station | Parts visited | Failure rate | Risk lift |
+|---|---|---|---|
+| L3_S32 | 23,944 | 4.507% | 7.75 |
+| L3_S38 | 26,132 | 0.781% | 1.34 |
+| L3_S36 | 557,305 | 0.596% | 1.03 |
+| L3_S29 | 1,096,352 | 0.585% | 1.01 |
+| L3_S30 | 1,096,519 | 0.585% | 1.01 |
+| L3_S37 | 1,097,097 | 0.585% | 1.01 |
+
+S29, S30 and S37 are only just above 1.0, and almost every part passes through them, so their failure rates are close to the line average. L3_S35 just misses, at 0.99.
+
+**Lowest lift among L3 stations with at least 1,000 parts:** L3_S31 had 38,414 parts and a 0.272% failure rate, for a lift of 0.47. The next lowest are L3_S44 at 0.84 and L3_S33 at 0.86.
+
+L3_S42 and L3_S46 both show a lift of 0.0, but they only had 15 parts and 1 part, so they fall below the 1,000-part cutoff.
+
+These lifts are associations with final-QC failure. They don't show that a station causes or prevents failures. For example, S32's high lift may reflect which parts are sent there rather than anything the station does.
+````
+
+**Required statements:**
+
+- ✓ met: 6 of the 23 L3 stations: L3_S29, L3_S30, L3_S32, L3_S36, L3_S37, L3_S38 — The answer says six L3 stations exceed 1.0 and lists S29, S30, S32, S36, S37 and S38, matching the required set (the '23 L3 stations' denominator isn't stated but the six-station count and list are all there).
+- ✓ met: Lowest among stations with 1,000+ parts: L3_S31, with a lift of 0.47 — The answer states L3_S31 has the lowest lift at 0.47 among L3 stations with at least 1,000 parts.
+
+**Forbidden claims:**
+
+- ✓ not made: Says a station causes or prevents failures — The answer explicitly says lifts are associations and do not show that a station causes or prevents failures, which denies the claim rather than making it.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: Next lowest are L3_S44 at 0.84 and L3_S33 at 0.86 — L3_S44 has lift 0.84 and L3_S33 has 0.86 in the tool result, and both are the next lowest after S31 among stations with 1,000+ parts.
+- ✓ grounded: L3_S35 just misses at 0.99 — The tool result shows L3_S35 with risk lift 0.99.
+- ✓ grounded: Six stations above 1.0 — Counting L3 stations with lift >1.0: S29, S30, S32, S36, S37, S38 gives six, which matches.
+- ✓ grounded: L3_S42 15 parts and L3_S46 1 part with lift 0.0 — The tool result shows 15 parts and 1 part respectively, both with lift 0.0.
+
+**Exact values:** all present
+
+## l3-lift (rep 2): PASS
+
+**Question:** How many stations on line L3 have a risk lift above 1.0? And among L3 stations with at least 1,000 parts, which has the lowest lift?
+
+**Tools called:** `list_stations()`
+
+**Cost:** $0.074 assistant, $0.030 judge; transcript: `baseline/traces/l3-lift_rep2.json`
+
+**Answer:**
+
+````text
+As of hour 17184.8 (the end of the data, which is "now" here):
+
+**1. Six L3 stations have a risk lift above 1.0.**
+
+| Station | Parts visited | Failure rate | Risk lift |
+|---|---|---|---|
+| L3_S32 | 23,944 | 4.507% | 7.75 |
+| L3_S38 | 26,132 | 0.781% | 1.34 |
+| L3_S36 | 557,305 | 0.596% | 1.03 |
+| L3_S29 | 1,096,352 | 0.585% | 1.01 |
+| L3_S30 | 1,096,519 | 0.585% | 1.01 |
+| L3_S37 | 1,097,097 | 0.585% | 1.01 |
+
+Only S32 and S38 are clearly above 1.0. S29, S30, S36 and S37 are just barely above it. S29, S30 and S37 are visited by about 1.1M parts, close to every part, so their failure rates are almost the same as the overall rate.
+
+**2. Among L3 stations with at least 1,000 parts, L3_S31 has the lowest lift: 0.47.** It saw 38,414 parts with a 0.272% failure rate, about half the overall rate. The next lowest is L3_S44 at 0.84.
+
+Two L3 stations were left out because they have fewer than 1,000 parts. Both show a lift of 0.0, but with almost no data behind it: L3_S42 has 15 parts and L3_S46 has 1.
+
+These lifts show which stations go along with more or fewer failures. They don't show that a station causes failures or prevents them.
+````
+
+**Required statements:**
+
+- ✓ met: 6 of the 23 L3 stations: L3_S29, L3_S30, L3_S32, L3_S36, L3_S37, L3_S38 — The answer says six L3 stations have lift above 1.0 and lists exactly S32, S38, S36, S29, S30, S37, matching the required set (it does not state the 23 total, but the count and stations are correct).
+- ✓ met: Lowest among stations with 1,000+ parts: L3_S31, with a lift of 0.47 — The answer names L3_S31 as the lowest lift among stations with at least 1,000 parts, at 0.47.
+
+**Forbidden claims:**
+
+- ✓ not made: Says a station causes or prevents failures — The answer explicitly says lifts do not show that a station causes or prevents failures, so it denies the claim rather than making it.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: L3_S44 next lowest at 0.84 — L3_S44 has lift 0.84 in the tool result and is the next lowest after S31 among stations with at least 1,000 parts (S33 is 0.86).
+- ✓ grounded: about 1.1M parts for S29, S30, S37 — The visited counts are 1,096,352, 1,096,519 and 1,097,097, which round to about 1.1M.
+- ✓ grounded: S31 failure rate 0.272% is about half the overall rate — Lift of 0.47 means the rate is roughly 47% of the overall rate, which is about half.
+
+**Exact values:** all present
+
+## l2-ranking (rep 0): PASS
+
+**Question:** Rank the L2 stations by failure rate.
+
+**Tools called:** `list_stations()`
+
+**Cost:** $0.072 assistant, $0.031 judge; transcript: `baseline/traces/l2-ranking_rep0.json`
+
+**Answer:**
+
+````text
+At the end of the data (hour 17184.8, which I'm treating as "now"), Line 2 has three stations. Ranked by final-QC failure rate, highest first, they are S26, S28 and S27. All three are above the line-wide average.
+
+| Rank | Station | Failure rate | Risk lift vs. overall | Parts visited | QC results known |
+|---|---|---|---|---|---|
+| 1 | L2_S26 | 0.747% | 1.28× | 222,736 | 227,011 |
+| 2 | L2_S28 | 0.699% | 1.20× | 9,411 | 9,583 |
+| 3 | L2_S27 | 0.681% | 1.17× | 118,386 | 120,729 |
+
+**Things to keep in mind:**
+- **The rates are very close.** The gap between first and third is 0.066 percentage points. S28 is based on only about 9.6k QC results, so its exact place in the ranking is the least certain. I can't test from here whether the differences are statistically significant.
+- **These are associations, not causes.** Parts that pass through L2 fail more often than average, but that doesn't show the L2 stations cause the failures. For example, L2 parts reach these stations late, a median of 106 to 164 hours after entering production, so they may follow different routes from typical parts.
+- **For context across the line,** L2's rates are well below L3_S32 (4.507%, lift 7.75×), the station with the highest failure rate on the line. L1_S24 (0.828%) and L3_S38 (0.781%) are also slightly above every L2 station.
+````
+
+**Required statements:**
+
+- ✓ met: L2_S26 (0.747%), then L2_S28 (0.699%), then L2_S27 (0.681%) — The answer ranks L2_S26 (0.747%), L2_S28 (0.699%), L2_S27 (0.681%) in that order, matching the tool data.
+
+**Forbidden claims:**
+
+- ✓ not made: Says a station causes the failures — The answer explicitly says the rates are associations and do not show the L2 stations cause failures, so it denies rather than makes a causal claim.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: gap of 0.066 percentage points between first and third — 0.747 - 0.681 = 0.066, which is correct.
+- ✓ grounded: all three above the line-wide average — Risk lifts of 1.28, 1.20 and 1.17 are all above 1, so they exceed the overall rate.
+- ✓ grounded: median 106 to 164 hours after entering production — Medians are 159.5, 106.4 and 163.7 hours, so the range 106 to 164 is correct.
+- ✓ grounded: L1_S24 (0.828%) and L3_S38 (0.781%) slightly above every L2 station — 0.828 and 0.781 are both above 0.747, so this is correct.
+- ✓ grounded: L3_S32 highest failure rate, 4.507%, lift 7.75 — This is the highest rate in the list and matches the tool result.
+- ✓ grounded: S28 about 9.6k QC results — qc_results_known is 9583, which rounds to about 9.6k.
+
+**Exact values:** all present
+
+## l2-ranking (rep 1): PASS
+
+**Question:** Rank the L2 stations by failure rate.
+
+**Tools called:** `list_stations()`
+
+**Cost:** $0.072 assistant, $0.029 judge; transcript: `baseline/traces/l2-ranking_rep1.json`
+
+**Answer:**
+
+````text
+Here are the three L2 stations ranked by failure rate as of hour 17184.8, which is the end of the data and what "now" means here. **L2_S26 has the highest rate.** All three stations sit about 17–28% above the line's overall failure rate.
+
+| Rank | Station | Failure rate | Risk lift | QC results known | Parts visited |
+|---|---|---|---|---|---|
+| 1 | L2_S26 | 0.747% | 1.28× | 227,011 | 222,736 |
+| 2 | L2_S28 | 0.699% | 1.20× | 9,583 | 9,411 |
+| 3 | L2_S27 | 0.681% | 1.17× | 120,729 | 118,386 |
+
+**Things to keep in mind:**
+- **The rates are close.** S28 and S27 are only 0.018 points apart. S28 also has far fewer results than the other two (about 9.6k), so its rate is less precise and its rank against S27 could easily flip.
+- **This shows association, not cause.** Parts that passed through these stations failed more often, but that doesn't mean the stations caused the failures. The parts that get routed through L2 may simply be riskier.
+- **The rates count every QC record.** That includes repeat tests (twin records). That's why "QC results known" is slightly higher than "parts visited."
+
+For comparison, L3_S32 has the highest failure rate of any station: 4.507%, or 7.75× lift. All the L2 stations are well below it.
+````
+
+**Required statements:**
+
+- ✓ met: L2_S26 (0.747%), then L2_S28 (0.699%), then L2_S27 (0.681%) — The answer ranks L2_S26 (0.747%), L2_S28 (0.699%), L2_S27 (0.681%) in the correct order with the correct rates.
+
+**Forbidden claims:**
+
+- ✓ not made: Says a station causes the failures — The answer explicitly says the rates show association, not cause, and denies that the stations caused the failures.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: All three stations sit about 17–28% above the line's overall failure rate — Risk lifts of 1.17, 1.20 and 1.28 correspond to 17–28% above the overall rate.
+- ✓ grounded: S28 and S27 are only 0.018 points apart — 0.699 minus 0.681 equals 0.018.
+- ✓ grounded: L3_S32 has the highest failure rate of any station: 4.507%, 7.75× lift — The list_stations result shows L3_S32 at 4.507% and 7.75 lift, the highest of all stations.
+- ✓ grounded: about 9.6k QC results for S28 — 9,583 rounds to about 9.6k.
+
+**Exact values:** all present
+
+## l2-ranking (rep 2): PASS
+
+**Question:** Rank the L2 stations by failure rate.
+
+**Tools called:** `list_stations()`
+
+**Cost:** $0.070 assistant, $0.029 judge; transcript: `baseline/traces/l2-ranking_rep2.json`
+
+**Answer:**
+
+````text
+At the end of the data (hour 17184.8, which is "now" here), the three L2 stations rank like this from highest to lowest failure rate: **L2_S26, then L2_S28, then L2_S27.** All three are above the line's average.
+
+| Rank | Station | Failure rate | Risk lift (vs. overall rate) | Parts visited | QC results known |
+|---|---|---|---|---|---|
+| 1 | L2_S26 | 0.747% | 1.28× | 222,736 | 227,011 |
+| 2 | L2_S28 | 0.699% | 1.20× | 9,411 | 9,583 |
+| 3 | L2_S27 | 0.681% | 1.17× | 118,386 | 120,729 |
+
+Things to keep in mind:
+- **S28 and S27 are nearly tied.** S28 has seen far fewer parts, so its rate is less certain. Their order could easily flip.
+- **These are associations, not causes.** Parts that pass through L2 fail more often than average, but that doesn't mean these stations cause the failures. For context, L2 is well below the riskiest station on the line, L3_S32, at 4.507% (7.75× lift).
+- **How the counts work:** failure rates include repeat test records, so "QC results known" is a bit higher than "parts visited."
+````
+
+**Required statements:**
+
+- ✓ met: L2_S26 (0.747%), then L2_S28 (0.699%), then L2_S27 (0.681%) — The answer ranks L2_S26 (0.747%), L2_S28 (0.699%), L2_S27 (0.681%) in that order, matching the tool results.
+
+**Forbidden claims:**
+
+- ✓ not made: Says a station causes the failures — The answer explicitly says the rates are associations and do not mean the stations cause the failures, so it denies rather than makes the causal claim.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: hour 17184.8 as 'now' — The list_stations result reports at_hour 17184.8, which is the end of the data.
+- ✓ grounded: All three are above the line's average — Risk lifts of 1.28, 1.20 and 1.17 are all above 1, so each rate is above the overall rate.
+- ✓ grounded: L3_S32 at 4.507% (7.75x lift) is the riskiest station — L3_S32 has failure_rate_pct 4.507 and risk_lift 7.75, the highest in the list.
+
+**Exact values:** all present
+
+## most-visited (rep 0): PASS
+
+**Question:** Which station do the most parts pass through, and how many?
+
+**Tools called:** `list_stations()`
+
+**Cost:** $0.066 assistant, $0.027 judge; transcript: `baseline/traces/most-visited_rep0.json`
+
+**Answer:**
+
+````text
+**L3_S37** has had the most parts pass through it: **1,097,097 parts** as of hour 17184.8, the end of the data, which is what "now" means here.
+
+It's barely ahead of the next few stations. All of these are on line 3, and most parts appear to go through them near the end of their route:
+
+| Station | Parts visited |
+|---|---|
+| **L3_S37** | **1,097,097** |
+| L3_S30 | 1,096,519 |
+| L3_S29 | 1,096,352 |
+| L3_S34 | 1,092,030 |
+| L3_S33 | 1,091,625 |
+
+These counts include each part once. Repeat test records are left out.
+````
+
+**Required statements:**
+
+- ✓ met: L3_S37, with 1,097,097 parts — The answer names L3_S37 as the station with the most parts and gives 1,097,097, matching the list_stations result.
+
+**Forbidden claims:**
+
+- (none)
+
+**Values the judge double-checked:**
+
+- ✓ grounded: hour 17184.8 — Matches the at_hour in the tool result.
+- ✓ grounded: L3_S30 1,096,519; L3_S29 1,096,352; L3_S34 1,092,030; L3_S33 1,091,625 — These parts_visited values appear in the list_stations result and are the next four highest.
+- ✓ grounded: These counts include each part once. Repeat test records are left out. — The system prompt states that part counts count each part once, so this is supported.
+
+**Exact values:** all present
+
+## most-visited (rep 1): PASS
+
+**Question:** Which station do the most parts pass through, and how many?
+
+**Tools called:** `list_stations()`
+
+**Cost:** $0.068 assistant, $0.028 judge; transcript: `baseline/traces/most-visited_rep1.json`
+
+**Answer:**
+
+````text
+**L3_S37** has the most parts through it: **1,097,097 parts** as of hour 17184.8, the end of the data, which is "now" here. Each part is counted once, so repeat-test records aren't included.
+
+The lead is small. Several other Line 3 stations are close behind, which suggests almost every part goes through this part of Line 3:
+
+| Station | Parts visited |
+|---|---|
+| **L3_S37** | **1,097,097** |
+| L3_S30 | 1,096,519 |
+| L3_S29 | 1,096,352 |
+| L3_S34 | 1,092,030 |
+| L3_S33 | 1,091,625 |
+
+L3_S37 also has 1,120,251 QC results reported, with a failure rate of 0.585%. That's about the line's overall rate (risk lift 1.01), so going through it isn't associated with higher or lower failure.
+````
+
+**Required statements:**
+
+- ✓ met: L3_S37, with 1,097,097 parts — The answer states L3_S37 has the most parts, 1,097,097, matching the tool result.
+
+**Forbidden claims:**
+
+- (none)
+
+**Values the judge double-checked:**
+
+- ✓ grounded: 1,120,251 QC results reported, 0.585% failure rate, risk lift 1.01 for L3_S37 — All three figures appear in the L3_S37 entry of the list_stations result.
+- ✓ grounded: L3_S30 1,096,519; L3_S29 1,096,352; L3_S34 1,092,030; L3_S33 1,091,625 — Each parts_visited figure matches its station entry in the tool result, and the table order is descending.
+- ✓ grounded: hour 17184.8 — The at_hour in the tool result is 17184.8, which is the end of the data.
+
+**Exact values:** all present
+
+## most-visited (rep 2): PASS
+
+**Question:** Which station do the most parts pass through, and how many?
+
+**Tools called:** `list_stations()`
+
+**Cost:** $0.067 assistant, $0.029 judge; transcript: `baseline/traces/most-visited_rep2.json`
+
+**Answer:**
+
+````text
+**L3_S37 has the most parts: 1,097,097 had passed through it as of hour 17184.8, the end of the data (what "now" means here).** Each part is counted once in that number.
+
+Two other line-3 stations are almost tied with it, and two more are close behind:
+
+| Station | Parts visited |
+|---|---|
+| **L3_S37** | **1,097,097** |
+| L3_S30 | 1,096,519 |
+| L3_S29 | 1,096,352 |
+| L3_S34 | 1,092,030 |
+| L3_S33 | 1,091,625 |
+
+Nearly every part goes through these line-3 stations, usually in the last hour or so before its final station. The busiest stations on the other lines handle much less. L0_S1, the top line-0 station, had 658,517 parts.
+
+If you count QC result records instead of parts, L3_S37 also comes first with 1,120,251. That number is higher because it includes repeat test records.
+````
+
+**Required statements:**
+
+- ✓ met: L3_S37, with 1,097,097 parts — The answer states L3_S37 has the most parts with 1,097,097, matching the tool result.
+
+**Forbidden claims:**
+
+- (none)
+
+**Values the judge double-checked:**
+
+- ✓ grounded: L3_S30 1,096,519; L3_S29 1,096,352; L3_S34 1,092,030; L3_S33 1,091,625 — All match parts_visited in the tool results, and the ordering is correct.
+- ✓ grounded: L0_S1 658,517 as top line-0 station — L0_S1 has 658,517, which is the highest among L0 stations (L0_S8 is 658,500, L0_S0 is 658,491).
+- ✓ grounded: 1,120,251 QC result records for L3_S37, the highest — L3_S37 has qc_results_known 1,120,251; L3_S30 has 1,119,668 and L3_S29 has 1,119,486, so it is the highest.
+- ✓ grounded: usually in the last hour or so before its final station — The median hours until last station for these stations is 0.0 to 0.3, which fits.
+- ✓ grounded: hour 17184.8 — The tool result gives at_hour 17184.8.
+
+**Exact values:** all present
+
+## line-l1-rate (rep 0): PASS
+
+**Question:** What's the failure rate on line L1?
+
+**Tools called:** `list_stations()`, `get_factory_summary()`
+
+**Cost:** $0.076 assistant, $0.030 judge; transcript: `baseline/traces/line-l1-rate_rep0.json`
+
+**Answer:**
+
+````text
+There's no single figure for L1 as a whole. The tools report failure rates for each station, not for each line. L1 has two stations, and they look quite different. These numbers are as of the end of the data (hour 17184.8), which is "now" here.
+
+| Station | Parts visited | QC results known | Failure rate | Risk lift vs. overall |
+|---|---|---|---|---|
+| L1_S24 | 180,375 | 183,727 | **0.828%** | 1.42× |
+| L1_S25 | 82,443 | 83,658 | **0.507%** | 0.87× |
+| *All parts (baseline)* | 1,158,288 | 1,183,022 | 0.581% | — |
+
+- **L1_S24** fails above the line-wide rate. Parts that went through it failed about 1.4× as often as average.
+- **L1_S25** fails slightly below average.
+- I haven't combined these into one L1 rate because the tools don't show whether any parts visited both stations. Adding the two could double-count parts.
+- QC result counts include repeat test records, which is why they're a bit higher than the part counts.
+- These rates are associations, not causes. L1 parts take a long route: a median of about 272–342 hours from L1 to their last station. So the higher rate at S24 can't be pinned on that station alone.
+
+I can also check whether an L1 campaign is running now, or look at these stations at an earlier hour.
+````
+
+**Required statements:**
+
+- ✓ met: Says the tools give failure rates per station, not per line — The answer says there is no single L1 figure and that the tools report failure rates per station, not per line.
+- ✓ met: Gives L1's stations: L1_S24 0.83%, L1_S25 0.51% — The table gives L1_S24 at 0.828% (about 0.83%) and L1_S25 at 0.507% (about 0.51%).
+
+**Forbidden claims:**
+
+- ✓ not made: States one failure rate for line L1 made by averaging or adding station rates — The answer explicitly declines to combine the station rates into one L1 rate, so no such figure is stated.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: median of about 272–342 hours from L1 to last station — The list_stations output gives 272.5 for L1_S24 and 342.3 for L1_S25 as median hours until last station, which matches the range.
+- ✓ grounded: about 1.4× as often as average — The risk lift of 1.42 for L1_S24 rounds to about 1.4×.
+- ✓ grounded: hour 17184.8 — The end-of-data hour 17184.8 appears in both tool results.
+
+**Exact values:** all present
+
+## line-l1-rate (rep 1): PASS
+
+**Question:** What's the failure rate on line L1?
+
+**Tools called:** `get_factory_summary()`, `get_line_status()`, `list_stations()`
+
+**Cost:** $0.080 assistant, $0.031 judge; transcript: `baseline/traces/line-l1-rate_rep1.json`
+
+**Answer:**
+
+````text
+I can't give you one failure rate for L1. None of the tools reports failure rates by line, only by station. L1 has two stations, and their rates differ a lot. These are for the whole data, up to hour 17184.8, which is what "now" means here:
+
+| Station | Parts visited | QC results | Failure rate | Risk lift vs. overall |
+|---|---|---|---|---|
+| L1_S24 | 180,375 | 183,727 | **0.828%** | 1.42× |
+| L1_S25 | 82,443 | 83,658 | **0.507%** | 0.87× |
+| *Whole factory* | 1,158,288 | 1,183,022 | 0.581% | — |
+
+- **S24** has the higher rate, at about 1.4× the factory average. Parts through S25 fail a little less often than average.
+- **I didn't merge the two into one L1 figure** because the data doesn't show whether some parts went through both stations. If they did, a combined number would count those parts twice.
+- **No L1 parts are running now.** No parts entered at L1 in the last 7 days; the line is on an "L0 only" campaign. These numbers describe earlier L1 production.
+- **Caveats:** These rates are associations and don't show that the stations cause failures. QC result counts include repeat tests, which is why they're higher than the part counts.
+
+I can also check a past hour when an L1 campaign was running, to see how the line performed then.
+````
+
+**Required statements:**
+
+- ✓ met: Says the tools give failure rates per station, not per line — The answer says no tool reports failure rates by line, only by station, and that it cannot give a single L1 rate.
+- ✓ met: Gives L1's stations: L1_S24 0.83%, L1_S25 0.51% — The table gives L1_S24 at 0.828% (≈0.83%) and L1_S25 at 0.507% (≈0.51%).
+
+**Forbidden claims:**
+
+- ✓ not made: States one failure rate for line L1 made by averaging or adding station rates — The answer explicitly declines to merge the two station rates into one L1 figure and gives no averaged or summed rate.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: No parts entered at L1 in the last 7 days; L0 only campaign — get_line_status shows L1: 0 parts entered in the last 7 days and campaign 'L0 only'.
+- ✓ grounded: About 1.4× the factory average for S24 — The risk lift of 1.42 for L1_S24 appears in the list_stations result.
+- ✓ grounded: Whole factory 1,158,288 parts and 1,183,022 QC results, 0.581% — These match the get_factory_summary result.
+- ✓ grounded: hour 17184.8 — This matches at_hour in the tool results.
+
+**Exact values:** all present
+
+## line-l1-rate (rep 2): PASS
+
+**Question:** What's the failure rate on line L1?
+
+**Tools called:** `list_stations()`, `get_line_status()`
+
+**Cost:** $0.080 assistant, $0.030 judge; transcript: `baseline/traces/line-l1-rate_rep2.json`
+
+**Answer:**
+
+````text
+**Short answer:** The tools don't give one failure rate for line L1, only rates for its two stations. At the end of the data (hour 17184.8, which I'm treating as "now"), they look quite different:
+
+| Station | Parts visited | QC results known | Failure rate | Risk lift vs. overall |
+|---|---|---|---|---|
+| L1_S24 | 180,375 | 183,727 | **0.828%** | 1.42× |
+| L1_S25 | 82,443 | 83,658 | **0.507%** | 0.87× |
+| *All parts (history)* | – | – | *0.581%* | – |
+
+- **S24** fails above the overall rate: 1.42 times as often.
+- **S25** fails slightly below it.
+- I didn't combine the two into one L1 rate. The tools don't show whether the same parts pass through both stations, so a combined number would be a guess.
+
+**Context:**
+- **L1 isn't running now.** No parts entered through L1 in the last 7 days; production has been "L0 only." So these are historical rates over the whole data, not what L1 is doing today.
+- **The overall line is running a bit cooler than usual.** The QC failure rate over the last 72 hours is 0.465%, against 0.581% historically. No alert is raised, though the monitor is only a rough indicator.
+- **These rates don't show cause.** Parts through S24 fail more often, but that doesn't mean S24 causes the failures. Those parts go on to other stations: the median time from S24 to a part's last station is about 272 hours.
+
+If you want to see how L1 performed during a particular campaign, give me a production hour and I can check the line status then.
+````
+
+**Required statements:**
+
+- ✓ met: Says the tools give failure rates per station, not per line — The answer states the tools give no single L1 rate, only rates for its two stations.
+- ✓ met: Gives L1's stations: L1_S24 0.83%, L1_S25 0.51% — The table gives L1_S24 at 0.828% and L1_S25 at 0.507%, which round to 0.83% and 0.51%.
+
+**Forbidden claims:**
+
+- ✓ not made: States one failure rate for line L1 made by averaging or adding station rates — The answer explicitly declines to combine the station rates into one L1 rate.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: median time from S24 to a part's last station is about 272 hours — The tool gives median_hours_until_last_station of 272.5 for L1_S24, so 'about 272' is a fair rounding.
+- ✓ grounded: 0.581% overall history rate and 0.465% last 72h — Both figures appear in the get_line_status result.
+- ✓ grounded: No parts entered through L1 in the last 7 days — get_line_status shows L1: 0 and the campaign as 'L0 only'.
+
+**Exact values:** all present
+
+## alerts-l1-count (rep 0): PASS
+
+**Question:** At hour 15000, how many of the parts flagged by the batch-mate alert entered on line L1?
+
+**Tools called:** `get_batch_mate_alerts(at_hour=15000, limit=100)`, `get_batch_mate_alerts(at_hour=13754.2, limit=100)`, `get_part(part_id=498578, at_hour=15000)`, `get_batch_mate_alerts(at_hour=13754.4, limit=100)`
+
+**Cost:** $0.546 assistant, $0.108 judge; transcript: `baseline/traces/alerts-l1-count_rep0.json`
+
+**Answer:**
+
+````text
+At hour 15000, **1** of the 140 flagged parts entered on line L1: **part 1146522**. The other 139 entered on L0.
+
+**About part 1146522**
+- It entered on L1 at hour 14006.1 and had been in production for 993.9 hours.
+- It was flagged at hour 14842.2, 157.8 hours before hour 15000, when a part from the same entry batch (20 parts) failed final QC.
+- At hour 15000 it had visited 7 stations, the last one L3_S37.
+- Another part from that batch, 1955289, is also flagged, but it entered on L0.
+
+**How I checked all 140**
+- The alert list for hour 15000 only shows the 100 most recently flagged parts. Those 100 include just one L1 part, 1146522.
+- The other 40 were all flagged at hour 13754.3 or earlier. To see them, I pulled the alert list as of hours 13754.2 and 13754.4, which together show every part flagged up to then. Only one of them entered on L1: part 498578.
+- That part finished at hour 13887.6 and passed QC, so it was no longer in production or on the alert list at hour 15000. That means the 40 parts I couldn't see directly all entered on L0.
+
+A flag is an early warning, not a prediction that the part will fail. In forward tests, flagged parts failed at about 2.6 times the average rate, about 4 days before their own final QC.
+````
+
+**Required statements:**
+
+- ✓ met: Among the 100 most recently flagged parts the tool can list, 1 entered on L1 (1146522) — The answer says the 100 listed parts include just one L1 part, 1146522, which matches the hour-15000 tool result.
+- ✓ met: The other 40 of the 140 flagged parts aren't in that list. Either says the full count isn't known, or works it out correctly: none of the 40 entered on L1 (alert lists from earlier hours show them), so 1 of 140 in all — The answer notes 40 parts were not listed, uses the earlier-hour alert lists to show the only L1 part there (498578) finished and passed before hour 15000, and concludes 1 of 140.
+
+**Forbidden claims:**
+
+- ✓ not made: Gives a count for all 140 flagged parts without noting that 40 weren't listed — The answer explicitly says the hour-15000 list shows only 100 of the 140 and explains how the other 40 were checked, so the 140 count is not given without that note.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: 40 unlisted parts (140 minus 100 listed) — The tool reports 140 flagged parts and the limit of 100 was applied, so 40 follows by simple subtraction.
+- ✓ grounded: part 1146522 flagged at 14842.2, 157.8 hours earlier, batch of 20, 7 stations, last station L3_S37 — All of these figures appear in the 1146522 entry in the hour-15000 alert result.
+- ✓ grounded: part 498578 finished at 13887.6 and passed QC — The get_part result for 498578 at hour 15000 gives finished_hour 13887.6 and qc_result passed.
+- ✓ grounded: the other 139 entered on L0 — This follows from the 99 L0 parts in the visible list plus the argument that none of the 40 unlisted parts came from L1, which the earlier-hour alert lists support.
+
+**Exact values:** all present
+
+## alerts-l1-count (rep 1): FAIL
+
+**Question:** At hour 15000, how many of the parts flagged by the batch-mate alert entered on line L1?
+
+**Tools called:** `get_batch_mate_alerts(at_hour=15000, limit=100)`, `get_line_status(at_hour=15000)`
+
+**Cost:** $0.182 assistant, $0.046 judge; transcript: `baseline/traces/alerts-l1-count_rep1.json`
+
+**Answer:**
+
+````text
+I can only give you a partial count. At hour 15000, 140 parts were flagged by the batch-mate alert, but the tool returns at most 100 of them. **Only 1 of those 100 entered on L1**: part 1146522. The other 39 entered on L0.
+
+**The other 40 flags are hidden.** The list is sorted by most recent flag, and 100 is the most it will return. The 40 I can't see are the oldest flags, raised at or before hour 13754.3. None of the tools can list them or count them by entry line. So the total for L1 is somewhere between 1 and 41.
+
+**About part 1146522:**
+- It entered at hour 14006.1 and was flagged at hour 14842.2, when a batch-mate failed final QC.
+- It had visited 7 stations, with L3_S37 the latest.
+- It shares its entry batch with part 1955289, which entered on L0 and was also flagged.
+
+**Context from the line monitor at hour 15000:**
+- No L1 campaign was running ("L0 only"). Only 11 of the parts that entered in the last 7 days came in on L1, against 6,285 on L0.
+- The monitor showed no alert. The failure rate over the last 72 hours was 0.385%, against 0.597% historically.
+- The tool's note says the alert's early warning comes mostly from L1-entry campaigns. With almost no L1 parts entering that week, it was mainly flagging L0 parts.
+
+A flag means the part failed about 2.6x as often as average in forward tests. It doesn't predict that the part will fail.
+
+To identify any L1 parts among the hidden 40, try asking at an earlier hour, around 13770. Those flags would be among the most recent ones then, so they'd show up. Some of those parts may have finished by that hour, or entered later, so this still might not give a complete count.
+````
+
+**Required statements:**
+
+- ✓ met: Among the 100 most recently flagged parts the tool can list, 1 entered on L1 (1146522) — The answer states that only 1 of the 100 listed parts entered on L1 and names part 1146522, which matches the tool result.
+- ✓ met: The other 40 of the 140 flagged parts aren't in that list. Either says the full count isn't known, or works it out correctly: none of the 40 entered on L1 (alert lists from earlier hours show them), so 1 of 140 in all — The answer says 40 of the 140 flags are not visible and that the full L1 count is unknown, bounded between 1 and 41.
+
+**Forbidden claims:**
+
+- ✓ not made: Gives a count for all 140 flagged parts without noting that 40 weren't listed — The answer explicitly notes that 40 flags were not listed and gives only a partial count with a range, not a total for all 140.
+
+**Values the judge double-checked:**
+
+- ✗ UNGROUNDED: The other 39 entered on L0 — There are 100 listed parts, 1 of them L1, so 99 entered on L0 and 39 is wrong; the answer states 39 L0 parts, which does not match the tool results.
+- ✓ grounded: Hidden flags raised at or before hour 13754.3 — The last listed item has first_failure_known_hour 13754.3, so the hidden flags are at or before that hour, which is consistent.
+- ✓ grounded: Part 1146522 entered 14006.1, flagged 14842.2, 7 stations, L3_S37 — All of these figures match the tool result for that part.
+- ✓ grounded: Part 1955289 shares its entry batch with 1146522 — Both parts have the same entry hour 14006.1, first failure hour 14842.2 and batch size 20, so they share a batch.
+- ✓ grounded: Total for L1 is between 1 and 41 — This follows from 1 known L1 part plus up to 40 hidden parts.
+- ✓ grounded: 11 L1 vs 6,285 L0 parts, 0.385% vs 0.597% — These match the line status tool result.
+
+**Exact values:** all present
+
+## alerts-l1-count (rep 2): PASS
+
+**Question:** At hour 15000, how many of the parts flagged by the batch-mate alert entered on line L1?
+
+**Tools called:** `get_batch_mate_alerts(at_hour=15000, limit=100)`
+
+**Cost:** $0.100 assistant, $0.044 judge; transcript: `baseline/traces/alerts-l1-count_rep2.json`
+
+**Answer:**
+
+````text
+**I can't give you an exact count.** At hour 15000, 140 parts were flagged by the batch-mate alert, but the tool returns at most 100 of them. Of those 100, only **1 entered on L1**. The other 99 entered on L0.
+
+- **The L1 part:** part 1146522 entered at hour 14006.1. A batch-mate's failure became known at hour 14842.2, so it had been flagged for 157.8 hours. Its last station so far was L3_S37. Its batch held 20 parts, and part 1955289, which entered on L0, is flagged from the same batch.
+- **The 40 parts I couldn't see:** the list puts the newest flags first. The last part shown was flagged at hour 13754.3, so the missing 40 are the oldest flags, from around that hour or earlier. Any number of them could be L1 parts. None of the tools lets me page past the first 100 or filter by entry line.
+
+So the answer is at least 1, and up to 41 if all the hidden parts entered on L1. If you need the exact figure, you could look the 40 hidden parts up one at a time to check their entry line, but you'd need their part IDs from somewhere else.
+
+These alerts don't mean the parts are defective. In forward tests, flagged parts failed at about 2.6 times the average rate.
+````
+
+**Required statements:**
+
+- ✓ met: Among the 100 most recently flagged parts the tool can list, 1 entered on L1 (1146522) — The answer says that of the 100 listed parts only 1 entered on L1 and names part 1146522, which matches the tool result.
+- ✓ met: The other 40 of the 140 flagged parts aren't in that list. Either says the full count isn't known, or works it out correctly: none of the 40 entered on L1 (alert lists from earlier hours show them), so 1 of 140 in all — The answer says 40 of the 140 flagged parts weren't visible and that the exact count can't be given, so the full count is acknowledged as unknown.
+
+**Forbidden claims:**
+
+- ✓ not made: Gives a count for all 140 flagged parts without noting that 40 weren't listed — The answer explicitly notes that 40 parts were not listed and gives only a range (1 to 41), not a full count.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: 140 flagged, 100 listed, 40 unseen — Matches flagged_parts=140 and limit 100, so 40 is simple subtraction.
+- ✓ grounded: last part shown flagged at hour 13754.3 — The last items 1069243 and 1375328 have first_failure_known_hour 13754.3.
+- ✓ grounded: 157.8 hours flagged for 1146522; entered 14006.1; failure known 14842.2 — All match the tool result for part 1146522.
+- ✓ grounded: 1955289 entered on L0 from the same batch — Same entered_hour 14006.1, batch size 20, entry_line L0 in the tool result.
+- ✓ grounded: up to 41 if all hidden parts entered on L1 — 1 + 40 = 41 follows by arithmetic.
+- ✓ grounded: the other 99 entered on L0 — Scanning the 100 items shows only 1146522 as L1, so the other 99 are L0.
+
+**Exact values:** all present
+
+## alerts-long-wait (rep 0): PASS
+
+**Question:** At hour 15000, how many flagged parts had been in production for more than 1,000 hours?
+
+**Tools called:** `get_batch_mate_alerts(at_hour=15000, limit=100)`, `get_batch_mate_alerts(at_hour=15000, limit=100)`
+
+**Cost:** $0.257 assistant, $0.083 judge; transcript: `baseline/traces/alerts-long-wait_rep0.json`
+
+**Answer:**
+
+````text
+**My best answer is about 85 of the 140 batch-mate-flagged parts, as of hour 15000.** I can confirm 45 directly. The other 40 are an inference, because the tool returns at most 100 of the 140 flagged parts. ("Flagged" here means a part still in production whose batch-mate has already failed final QC.)
+
+**Confirmed: 45 parts, from the 100 the tool listed**
+- 43 parts flagged around hours 13754–13780 have been in production 1,243–1,267 hours. All but one (574838) come from a group that entered together around hours 13733–13750.
+- 2 more parts, 1500657 and 1589293, have been in production 1,263.1 hours. They were only flagged at hour 14979.1, 20.9 hours before hour 15000.
+- 4 parts fall just short: 1146522 and 1955289 at 993.9 hours, and 550075 and 694107 at 996.8 hours.
+
+**Inferred: 40 parts the tool didn't return**
+- The list is sorted by most recent flag first, so the 40 missing parts were all flagged at or before hour 13754.3.
+- A part can't be flagged before it enters production, because its batch-mate entered in the same 6-minute window and has to finish and fail QC first. So each of these 40 entered before hour 13754.3, which means more than 1,245 hours in production by hour 15000.
+- I couldn't retrieve these 40 to check them individually.
+
+**Worth noting:** Over 1,000 hours in production is very long for this line. Most of these parts are sitting at station L3_S37 after 13–14 stations. That points to parts that are stuck or held, not parts still moving through.
+
+For context, batch-mate flags are an early-warning signal, not a prediction for any one part. In forward tests, flagged parts failed at about 2.6x the average rate.
+````
+
+**Required statements:**
+
+- ✓ met: 45 of the 100 flagged parts the tool can list — The answer says 45 of the 100 parts the tool listed were in production over 1,000 hours, and my count of the listed parts agrees.
+- ✓ met: The other 40 flagged parts aren't listed — The answer says the tool returns at most 100 of the 140 flagged parts and that 40 were not returned.
+
+**Forbidden claims:**
+
+- ✓ not made: Gives a count for all 140 flagged parts without noting that 40 weren't listed — The answer gives 85 of 140 but explicitly says 40 parts were not returned and are inferred, so the gap is disclosed.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: 45 confirmed parts over 1,000 hours — Counting the listed items with hours_in_production above 1000 gives 45.
+- ✓ grounded: 85 of 140 in total — This is 45 plus the 40 unlisted parts; the 40 follow from the list being sorted by most recent flag, with the last listed flag at hour 13754.3.
+- ✓ grounded: 43 parts flagged around hours 13754–13780 at 1,243–1,267 hours in production — These are the 45 minus the two flagged at hour 14979.1; their flag hours run 13754.3–13779.5 and their hours in production run 1243.3–1267.0.
+- ✓ grounded: 4 parts fall just short at 993.9 and 996.8 hours — Parts 1146522 and 1955289 have 993.9 hours, and 550075 and 694107 have 996.8 hours, in the tool result.
+
+**Exact values:** all present
+
+## alerts-long-wait (rep 1): PASS
+
+**Question:** At hour 15000, how many flagged parts had been in production for more than 1,000 hours?
+
+**Tools called:** `get_batch_mate_alerts(at_hour=15000, limit=100)`
+
+**Cost:** $0.122 assistant, $0.054 judge; transcript: `baseline/traces/alerts-long-wait_rep1.json`
+
+**Answer:**
+
+````text
+**85 of the 140 flagged parts** had been in production for more than 1,000 hours at hour 15000. I read 45 of those directly from the tool and worked out the other 40.
+
+"Flagged" here means batch-mate alerts: parts still in production whose batch-mate (a part that entered in the same 6-minute tick) had already failed final QC. At hour 15000 there were 2,696 parts in production and 140 of them were flagged.
+
+**How I got 85:**
+- **45 checked directly.** The alert list only returns 100 parts at most, newest flags first. Of those 100, 45 had been in production over 1,000 hours:
+  - Two parts (1500657 and 1589293) at 1,263.1 hours, flagged only 20.9 hours earlier.
+  - 43 parts that entered around hours 13733–13757, at about 1,243 to 1,267 hours in production. Their batch-mates failed around hours 13754–13780, so they had been flagged for over 1,220 hours.
+- **40 worked out, not checked one by one.** The 40 parts the list didn't show were all flagged earlier than any part shown. The oldest flag shown was 1,245.7 hours before hour 15000. A part can't be flagged before it enters, so each of those 40 must have been in production more than 1,245.7 hours. To check them individually, look up each part as of hour 15000; the tools can't list them directly.
+
+**Just under 1,000 hours (not counted):** four parts were close to the cutoff.
+
+| Part | Hours in production | Last station so far |
+|---|---|---|
+| 550075 | 996.8 | L2_S27 |
+| 694107 | 996.8 | L2_S27 |
+| 1146522 | 993.9 | L3_S37 |
+| 1955289 | 993.9 | L0_S23 |
+
+Most of the flagged parts have been flagged for more than 1,200 hours and are still in production. Most of those list L3_S37 as their last station so far, with 13–14 stations visited. These tools can't tell whether they are stuck, on hold or slow-moving. The flag only means these parts failed at about 2.6 times the average rate in forward tests. It doesn't predict whether any one part will fail.
+````
+
+**Required statements:**
+
+- ✓ met: 45 of the 100 flagged parts the tool can list — The answer says that 45 of the 100 parts the alert list returned had more than 1,000 hours in production, and my count of the list also gives 45.
+- ✓ met: The other 40 flagged parts aren't listed — The answer says the other 40 of the 140 flagged parts were not shown by the tool, because it returns at most 100 parts.
+
+**Forbidden claims:**
+
+- ✓ not made: Gives a count for all 140 flagged parts without noting that 40 weren't listed — The answer gives 85 of 140 but states that 40 parts were not listed and that their count is inferred rather than checked individually.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: 45 parts over 1,000 hours among the 100 listed — Counting the items with hours_in_production above 1000 gives 2 (1500657, 1589293) plus 43 from the 13733–13757 entry batches, which is 45.
+- ✓ grounded: 40 unlisted parts, all over 1,245.7 hours in production — The 140 flagged minus 100 listed leaves 40. The list is ordered by most recent flag, so the unlisted parts were flagged at or before hour 13754.3 and had entered before then, giving more than 1,245.7 hours at hour 15000.
+- ✓ grounded: 85 of 140 — 45 plus 40 equals 85, and the 40 are covered by the ordering inference above.
+- ✓ grounded: near-cutoff parts at 996.8 and 993.9 hours — 550075 and 694107 show 996.8 hours and 1146522 and 1955289 show 993.9 hours, with the last stations as stated.
+
+**Exact values:** all present
+
+## alerts-long-wait (rep 2): PASS
+
+**Question:** At hour 15000, how many flagged parts had been in production for more than 1,000 hours?
+
+**Tools called:** `get_batch_mate_alerts(at_hour=15000, limit=100)`
+
+**Cost:** $0.118 assistant, $0.051 judge; transcript: `baseline/traces/alerts-long-wait_rep2.json`
+
+**Answer:**
+
+````text
+**At hour 15000, 85 of the 140 batch-mate-flagged parts had been in production for more than 1,000 hours.** "Flagged" here means a part still in production whose entry batch-mate had already failed final QC.
+
+**How I got 85:**
+- The alert list at hour 15000 has 140 flagged parts, out of 2,696 parts in production. It shows at most 100 parts, starting with the most recent flags.
+- **45 of the 100 shown parts** are past 1,000 hours. Two parts (1500657 and 1589293) entered at hour 13736.9 and have been in for 1,263.1 hours. The other 43 entered between hours 13733.0 and 13756.7 and have been in for about 1,243–1,267 hours.
+- **The other 40 parts aren't shown**, but they must also be past 1,000 hours. Each was flagged before hour 13754.3, the earliest flag in the list. A part can't be flagged before it enters production, so each entered by hour 13754.3. That means each has been in production for at least about 1,246 hours.
+- 45 + 40 = **85**. That is an exact count, not an estimate.
+
+**Four parts just missed the cutoff:** 1146522 and 1955289 at 993.9 hours, and 550075 and 694107 at 996.8 hours.
+
+Most of the long-running parts entered within a few hours of each other, around hours 13733–13757. Most have reached station L3_S37. Their flags came from batch-mates that failed around hours 13754–13780, so these parts have been flagged for about 1,230 hours.
+
+Batch-mate flags are an early-warning signal, not a sign that a part is defective. In forward tests, flagged parts failed at about 2.6 times the average rate.
+````
+
+**Required statements:**
+
+- ✓ met: 45 of the 100 flagged parts the tool can list — The answer states that 45 of the 100 shown parts are past 1,000 hours, and counting the tool list gives exactly 45.
+- ✓ met: The other 40 flagged parts aren't listed — The answer says the other 40 flagged parts are not shown because the list is capped at 100.
+
+**Forbidden claims:**
+
+- ✓ not made: Gives a count for all 140 flagged parts without noting that 40 weren't listed — The answer gives the 85-of-140 count but says explicitly that 40 parts were not shown and explains how it inferred their hours.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: 85 of 140 flagged parts over 1,000 hours — 45 listed plus 40 unlisted, each flagged no later than hour 13754.3, so each had at least about 1,245 hours in production; this follows from the tool output.
+- ✓ grounded: 45 of the 100 shown parts past 1,000 hours — Counting the items with hours_in_production above 1000 gives exactly 45.
+- ✓ grounded: Four parts just missed the cutoff (993.9 and 996.8 hours) — Parts 1146522, 1955289, 550075 and 694107 have these hours in the tool result.
+
+**Exact values:** all present
+
+## alerts-share (rep 0): FAIL
+
+**Question:** What share of the parts in production at hour 15000 was flagged by the batch-mate alert?
+
+**Tools called:** `get_line_status(at_hour=15000)`, `get_batch_mate_alerts(at_hour=15000, limit=100)`
+
+**Cost:** $0.104 assistant, $0.056 judge; transcript: `baseline/traces/alerts-share_rep0.json`
+
+**Answer:**
+
+````text
+At hour 15000, **about 5.2% of parts in production had a batch-mate alert: 140 of 2,696 parts.**
+
+| As of hour 15000 | Value |
+|---|---|
+| Parts in production | 2,696 |
+| Flagged by batch-mate alert | 140 |
+| Share flagged | 140 ÷ 2,696 ≈ **5.2%** |
+
+**Context:**
+- **Higher than usual:** in forward tests, about 1.7% of production was flagged on average. Hour 15000 was roughly three times that.
+- **Many flags are old:** the share is high partly because many flagged parts have been in production a long time. Of the 100 most recent flags the tool listed, about half are around 1,232 hours old. Those parts entered around hours 13733–13750, and their batch-mates failed QC around hour 13767. The other 40 flags weren't listed, and since the list shows most recent first, they're at least as old.
+- **What the alert means:** a flag means a part from the same 6-minute entry batch has already failed final QC. In forward tests, flagged parts failed at about 2.6× the average rate. That makes a flag an early warning, not a prediction that the part will fail.
+
+**Line status at the same hour:** the 72-hour QC failure rate was 0.385%, below its history of 0.597%. The line monitor showed no alert, and only line L0 was feeding production.
+````
+
+**Required statements:**
+
+- ✓ met: 140 of 2,696 parts, about 5.2% — The answer states 140 of 2,696 parts in production were flagged, about 5.2%, which matches the tool results (140/2696 = 5.19%).
+
+**Forbidden claims:**
+
+- ✓ not made: Says flagged parts will fail — The answer says a flag is an early warning, not a prediction that the part will fail, so it denies the claim rather than making it.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: 140 ÷ 2,696 ≈ 5.2% — flagged_parts is 140 and parts_in_production is 2,696, and the division gives 5.19%.
+- ✓ grounded: about 1.7% of production flagged in forward tests; roughly three times that — The 1.7% comes from the tool note, and 5.2/1.7 is about 3.06.
+- ✗ UNGROUNDED: about half of the 100 listed flags are around 1,232 hours old — Only about 43 of the 100 listed flags entered around hours 13733–13757, which is about 14% below half. The 1,232 figure is hours since flag, while hours in production are about 1,250–1,267.
+- ✓ grounded: entered around hours 13733–13750, batch-mates failed around hour 13767 — The tool results show entry hours of 13733–13750 and first failure hours of about 13754–13768 for those parts.
+- ✓ grounded: 40 flags not listed — 140 flagged minus 100 listed gives 40.
+- ✓ grounded: 72-hour failure rate 0.385% vs history 0.597%, no alert, L0 only — These match the get_line_status result.
+
+**Exact values:** all present
+
+## alerts-share (rep 1): PASS
+
+**Question:** What share of the parts in production at hour 15000 was flagged by the batch-mate alert?
+
+**Tools called:** `get_line_status(at_hour=15000)`, `get_batch_mate_alerts(at_hour=15000, limit=100)`
+
+**Cost:** $0.101 assistant, $0.052 judge; transcript: `baseline/traces/alerts-share_rep1.json`
+
+**Answer:**
+
+````text
+At hour 15000, **about 5.2% of parts in production had a batch-mate alert: 140 of 2,696.**
+
+- **Compared with testing:** that's about three times the share the alert flagged in forward tests (about 1.7% of production). There, flagged parts failed at about 2.6 times the average rate, about 4 days before their own final QC.
+- **Many flags are old:** a large share of the 140 come from a few batches that entered around hours 13733–13757. Their batch-mates' failures were known by about hour 13768, so they had been flagged for about 1,230 hours and were still in production, mostly last seen at L3_S37. Fewer than 10 of the flags are from the last 3 days.
+- **Line context:** the line wasn't running hot at that point. The QC failure rate over the previous 72 hours was 0.385%, against 0.597% historically, and the line monitor showed no alert. Production was the L0-only campaign; the alerts' early warning in testing came from L1-entry campaigns.
+
+The alert is an early-warning flag based on batch-mates. It doesn't predict that a particular part will fail.
+````
+
+**Required statements:**
+
+- ✓ met: 140 of 2,696 parts, about 5.2% — The answer states 140 of 2,696 parts in production, about 5.2%, which matches the tool result (140/2696 = 5.19%).
+
+**Forbidden claims:**
+
+- ✓ not made: Says flagged parts will fail — The answer says the alert does not predict that a particular part will fail, so it makes no claim that flagged parts will fail.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: about three times the 1.7% share in forward tests — 5.2% divided by 1.7% is about 3.1, and 1.7% appears in the tool note.
+- ✓ grounded: batches entered around hours 13733–13757 — Entry hours in the list for these batches run from 13733.0 to 13756.7.
+- ✓ grounded: failures known by about hour 13768; flagged for about 1,230 hours — First-failure hours are mostly 13767.3–13767.9 (one batch 13754.3), and hours_since_flag is about 1220–1246, so both are close approximations.
+- ✓ grounded: fewer than 10 flags from the last 3 days — Only 8 items have hours_since_flag under 72 (the next is 81.3), and only 1 entered in the last 72 hours.
+- ✓ grounded: 0.385% over 72h vs 0.597% historically, no monitor alert, L0-only campaign — All three match the get_line_status result.
+
+**Exact values:** all present
+
+## alerts-share (rep 2): PASS
+
+**Question:** What share of the parts in production at hour 15000 was flagged by the batch-mate alert?
+
+**Tools called:** `get_factory_summary(at_hour=15000)`, `get_batch_mate_alerts(at_hour=15000, limit=100)`
+
+**Cost:** $0.103 assistant, $0.051 judge; transcript: `baseline/traces/alerts-share_rep2.json`
+
+**Answer:**
+
+````text
+At hour 15000, **about 5.2% of parts in production were flagged by the batch-mate alert: 140 of 2,696 parts.**
+
+- **Parts in production:** 2,696 (the factory summary and the alert tool give the same count)
+- **Flagged:** 140 parts. A part is flagged when a part that entered in the same 6-minute tick has already failed final QC.
+- **Share:** 140 ÷ 2,696 ≈ 5.2%
+
+**This is about three times the usual rate.** In forward tests, about 1.7% of production was flagged. Flagged parts failed at about 2.6 times the average rate. The flag is an early warning, not a prediction that the part will fail.
+
+**Many flags are old.** I only looked at the 100 most recent flags (the most the tool returns). About half of them were raised around hour 13,750 to 13,780, more than 1,200 hours before hour 15000. Those parts have been in production for over 1,250 hours, and most were last seen at station L3_S37. Parts that sit that long without finishing pile up and inflate the share. Only a small group were flagged in the last 48 hours, from about hour 14,965 onward.
+````
+
+**Required statements:**
+
+- ✓ met: 140 of 2,696 parts, about 5.2% — The answer states 140 of 2,696 parts flagged, about 5.2%, and 140/2,696 is 5.19%.
+
+**Forbidden claims:**
+
+- ✓ not made: Says flagged parts will fail — The answer says the flag is an early warning and explicitly not a prediction that the part will fail.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: about three times the usual rate (5.2% vs 1.7%) — The 1.7% figure comes from the tool note, and 5.2/1.7 is about 3.1.
+- ✓ grounded: about half of the 100 most recent flags raised around hour 13,750 to 13,780 — By my count about 43 of the 100 items have first_failure_known_hour between 13754 and 13780, which is roughly half.
+- ✓ grounded: only a small group flagged from about hour 14,965 onward in the last 48 hours — Eight items have first_failure_known_hour of 14965 or later, which is a small group and fits the last 48 hours.
+- ✓ grounded: over 1,250 hours in production, more than 1,200 hours before hour 15000 — The older flags show hours_in_production of 1243 to 1267 and hours_since_flag of 1220 to 1246, which is consistent with the answer's loose wording.
+
+**Exact values:** all present
+
+## finished-window (rep 0): PASS
+
+**Question:** How many parts finished between hour 17000 and hour 17100?
+
+**Tools called:** `get_factory_summary(at_hour=17000)`, `get_factory_summary(at_hour=17100)`
+
+**Cost:** $0.043 assistant, $0.014 judge; transcript: `baseline/traces/finished-window_rep0.json`
+
+**Answer:**
+
+````text
+**1,348 parts** finished (reached their last station) between hour 17000 and hour 17100.
+
+I got this by taking the cumulative "parts finished" count at each hour and subtracting:
+
+| As of hour | Parts finished (cumulative) | Parts in production |
+|---|---|---|
+| 17000 | 1,152,536 | 3,500 |
+| 17100 | 1,153,884 | 2,316 |
+| **Difference** | **+1,348** | −1,184 |
+
+Each part is counted once, even if it was tested more than once. Only 164 new parts entered production during those 100 hours, so fewer parts were in production by the end.
+````
+
+**Required statements:**
+
+- ✓ met: 1,348 (1,152,536 had finished by hour 17000, 1,153,884 by hour 17100) — The answer states 1,348 parts finished, derived from 1,153,884 minus 1,152,536, and shows both cumulative counts.
+
+**Forbidden claims:**
+
+- (none)
+
+**Values the judge double-checked:**
+
+- ✓ grounded: 1,348 difference in parts finished — 1,153,884 − 1,152,536 = 1,348, which matches exactly.
+- ✓ grounded: −1,184 change in parts in production — 2,316 − 3,500 = −1,184, which is correct.
+- ✓ grounded: 164 new parts entered production — 1,156,200 − 1,156,036 = 164, which matches parts_entered in the tool results.
+
+**Exact values:** all present
+
+## finished-window (rep 1): PASS
+
+**Question:** How many parts finished between hour 17000 and hour 17100?
+
+**Tools called:** `get_factory_summary(at_hour=17000)`, `get_factory_summary(at_hour=17100)`
+
+**Cost:** $0.044 assistant, $0.016 judge; transcript: `baseline/traces/finished-window_rep1.json`
+
+**Answer:**
+
+````text
+**1,348 parts finished between hour 17000 and hour 17100.** Each part is counted once, even if it has repeat test records.
+
+I got this by subtracting the running count of finished parts at the start of the window from the count at the end:
+
+| As of hour | Parts finished (cumulative) | Parts in production |
+|---|---|---|
+| 17000 | 1,152,536 | 3,500 |
+| 17100 | 1,153,884 | 2,316 |
+| **Difference** | **+1,348** | −1,184 |
+
+A part counts as finished when it reaches its last station. Over the same window, 1,177 more QC results were reported (1,177,293 → 1,178,470). That number is smaller because a result is only reported 1 hour after a part's last station, and it also includes repeat test records.
+````
+
+**Required statements:**
+
+- ✓ met: 1,348 (1,152,536 had finished by hour 17000, 1,153,884 by hour 17100) — The answer states 1,348 parts finished in the window, and cites 1,152,536 at hour 17000 and 1,153,884 at hour 17100, matching the tool results.
+
+**Forbidden claims:**
+
+- (none)
+
+**Values the judge double-checked:**
+
+- ✓ grounded: 1,348 difference — 1,153,884 - 1,152,536 = 1,348 exactly.
+- ✓ grounded: -1,184 in production change — 3,500 - 2,316 = 1,184, so the change is -1,184.
+- ✓ grounded: 1,177 more QC results — 1,178,470 - 1,177,293 = 1,177 exactly.
+
+**Exact values:** all present
+
+## finished-window (rep 2): PASS
+
+**Question:** How many parts finished between hour 17000 and hour 17100?
+
+**Tools called:** `get_factory_summary(at_hour=17000)`, `get_factory_summary(at_hour=17100)`
+
+**Cost:** $0.046 assistant, $0.017 judge; transcript: `baseline/traces/finished-window_rep2.json`
+
+**Answer:**
+
+````text
+**1,348 parts finished between hour 17000 and hour 17100.** Each part is counted once, so repeat test records aren't included.
+
+I got this by comparing the factory summary at the two hours:
+
+| | Hour 17000 | Hour 17100 | Change |
+|---|---|---|---|
+| Parts finished | 1,152,536 | 1,153,884 | **+1,348** |
+| Parts entered | 1,156,036 | 1,156,200 | +164 |
+| Parts in production | 3,500 | 2,316 | −1,184 |
+
+The flow figures agree with this. Only 164 parts entered while the number in production fell by 1,184, and 164 + 1,184 = 1,348.
+
+Over the same period, 1,177 new QC results were reported (1,177,293 rose to 1,178,470). That's fewer than the number of parts finished because a result is only reported 1 hour after a part's last station. Also, QC counts include repeat test records while part counts don't.
+````
+
+**Required statements:**
+
+- ✓ met: 1,348 (1,152,536 had finished by hour 17000, 1,153,884 by hour 17100) — The answer states 1,348 parts finished, with 1,152,536 at hour 17000 and 1,153,884 at hour 17100, which matches the tool results.
+
+**Forbidden claims:**
+
+- (none)
+
+**Values the judge double-checked:**
+
+- ✓ grounded: 1,348 parts finished (1,153,884 − 1,152,536) — The subtraction is exact.
+- ✓ grounded: 164 parts entered (1,156,200 − 1,156,036) — The subtraction is exact.
+- ✓ grounded: Parts in production −1,184 (2,316 − 3,500) — The subtraction is exact.
+- ✓ grounded: 1,177 new QC results (1,178,470 − 1,177,293) — The subtraction is exact.
+
+**Exact values:** all present
+
+## production-change (rep 0): PASS
+
+**Question:** How did the number of parts in production change from hour 15000 to hour 16000?
+
+**Tools called:** `get_factory_summary(at_hour=15000)`, `get_factory_summary(at_hour=16000)`
+
+**Cost:** $0.044 assistant, $0.015 judge; transcript: `baseline/traces/production-change_rep0.json`
+
+**Answer:**
+
+````text
+Between hour 15000 and hour 16000, the number of parts in production went up by **545**, from **2,696 to 3,241**. That is a rise of about 20%.
+
+| | Hour 15000 | Hour 16000 | Change |
+|---|---|---|---|
+| Parts in production | 2,696 | 3,241 | +545 |
+| Parts entered (cumulative) | 1,052,686 | 1,106,830 | +54,144 |
+| Parts finished (cumulative) | 1,049,990 | 1,103,589 | +53,599 |
+
+**Why it rose:** In those 1,000 hours, 54,144 parts entered production and 53,599 finished. Slightly more parts came in than went out, and the gap of 545 is exactly the increase.
+
+Both figures are snapshots at those two hours. I didn't check any hours in between, so I can't tell you whether the count rose steadily or went up and down along the way. If you want to see that, I can check the count at points in between.
+````
+
+**Required statements:**
+
+- ✓ met: From 2,696 to 3,241, up 545 — The answer states parts in production rose by 545 from 2,696 to 3,241, matching the tool results.
+
+**Forbidden claims:**
+
+- (none)
+
+**Values the judge double-checked:**
+
+- ✓ grounded: +545 change (3,241 - 2,696) — 3,241 minus 2,696 equals 545.
+- ✓ grounded: about 20% rise — 545/2696 is about 20.2%, which is within tolerance.
+- ✓ grounded: +54,144 parts entered — 1,106,830 minus 1,052,686 equals 54,144.
+- ✓ grounded: +53,599 parts finished — 1,103,589 minus 1,049,990 equals 53,599.
+- ✓ grounded: gap of 545 between entered and finished — 54,144 minus 53,599 equals 545, consistent with the change in parts in production.
+
+**Exact values:** all present
+
+## production-change (rep 1): PASS
+
+**Question:** How did the number of parts in production change from hour 15000 to hour 16000?
+
+**Tools called:** `get_factory_summary(at_hour=15000)`, `get_factory_summary(at_hour=16000)`
+
+**Cost:** $0.045 assistant, $0.015 judge; transcript: `baseline/traces/production-change_rep1.json`
+
+**Answer:**
+
+````text
+Between hour 15000 and hour 16000, the number of parts in production went up by **545, from 2,696 to 3,241**. That's about a 20% increase.
+
+| | Hour 15000 | Hour 16000 | Change |
+|---|---|---|---|
+| Parts in production | 2,696 | 3,241 | **+545** |
+| Parts entered (cumulative) | 1,052,686 | 1,106,830 | +54,144 |
+| Parts finished (cumulative) | 1,049,990 | 1,103,589 | +53,599 |
+
+In those 1,000 hours, 54,144 parts entered production and 53,599 finished. Because 545 more parts entered than finished, the number still in production grew by exactly that amount.
+
+These figures don't explain why more parts were in production. More parts could be entering, or parts could be taking longer to finish. If it would help, I can check the campaign and line status at both hours to see whether a change in the entry line (L0 vs. an L1 campaign) matches the increase.
+````
+
+**Required statements:**
+
+- ✓ met: From 2,696 to 3,241, up 545 — The answer states parts in production rose by 545, from 2,696 to 3,241, matching the tool results.
+
+**Forbidden claims:**
+
+- (none)
+
+**Values the judge double-checked:**
+
+- ✓ grounded: about 20% increase — 545/2696 = 20.2%, so the approximate figure is within tolerance.
+- ✓ grounded: +54,144 parts entered — 1,106,830 - 1,052,686 = 54,144, which is exact.
+- ✓ grounded: +53,599 parts finished — 1,103,589 - 1,049,990 = 53,599, which is exact.
+- ✓ grounded: 545 more entered than finished — 54,144 - 53,599 = 545, which is exact.
+
+**Exact values:** all present
+
+## production-change (rep 2): PASS
+
+**Question:** How did the number of parts in production change from hour 15000 to hour 16000?
+
+**Tools called:** `get_factory_summary(at_hour=15000)`, `get_factory_summary(at_hour=16000)`
+
+**Cost:** $0.045 assistant, $0.015 judge; transcript: `baseline/traces/production-change_rep2.json`
+
+**Answer:**
+
+````text
+Between hour 15000 and hour 16000, the number of parts in production went up by **545**, from 2,696 to 3,241. That is about a 20% increase.
+
+| | Hour 15000 | Hour 16000 | Change |
+|---|---|---|---|
+| Parts in production | 2,696 | 3,241 | +545 |
+| Parts entered (cumulative) | 1,052,686 | 1,106,830 | +54,144 |
+| Parts finished (cumulative) | 1,049,990 | 1,103,589 | +53,599 |
+
+**Why it went up:** over those 1,000 hours, 54,144 parts entered and 53,599 finished. That's 545 more entering than finishing, which is exactly the increase in parts in production. The backlog grew because starts slightly outpaced finishes, not because finishes dropped off.
+
+These are snapshots at just the two hours, so they don't show how the count moved in between. Running `get_line_status` at hours in between would show the path and which entry-line campaign was feeding production.
+````
+
+**Required statements:**
+
+- ✓ met: From 2,696 to 3,241, up 545 — The answer states parts in production rose by 545 from 2,696 to 3,241, matching the tool results.
+
+**Forbidden claims:**
+
+- (none)
+
+**Values the judge double-checked:**
+
+- ✓ grounded: about a 20% increase — 545/2696 = 20.2%, so the approximation is within tolerance.
+- ✓ grounded: +54,144 parts entered — 1,106,830 - 1,052,686 = 54,144, correct.
+- ✓ grounded: +53,599 parts finished — 1,103,589 - 1,049,990 = 53,599, correct.
+- ✓ grounded: 545 more entering than finishing — 54,144 - 53,599 = 545, correct.
+
+**Exact values:** all present
+
+## entries-week-7500 (rep 0): PASS
+
+**Question:** In the week before hour 7500, how many parts entered production on each entry line?
+
+**Tools called:** `get_line_status(at_hour=7500)`, `get_factory_summary(at_hour=7500)`
+
+**Cost:** $0.043 assistant, $0.016 judge; transcript: `baseline/traces/entries-week-7500_rep0.json`
+
+**Answer:**
+
+````text
+In the 7 days before hour 7500 (roughly hours 7332–7500), **9,183 parts entered production, all of them on L1. None entered on L0.**
+
+| Entry line | Parts entered |
+|---|---|
+| L0 | 0 |
+| L1 | 9,183 |
+
+This means an L1 campaign was running, with L1 supplying 100% of new parts that week. Parts are counted once each, so repeat test records aren't included.
+
+At the same hour, the QC failure rate over the previous 72 hours was 1.104%. Its history up to that point was 0.697%, about 1.58 times lower, so the line monitor's alert was on. The monitor only gives a rough, delayed signal of long high-failure stretches. It doesn't show that the L1 campaign caused the higher rate.
+````
+
+**Required statements:**
+
+- ✓ met: 9,183 on L1 and 0 on L0 — The answer states 9,183 parts entered on L1 and 0 on L0, matching the get_line_status result.
+
+**Forbidden claims:**
+
+- (none)
+
+**Values the judge double-checked:**
+
+- ✓ grounded: hours 7332–7500 — This is 7500 minus 168 hours (7 days), simple arithmetic from the question and the tool result.
+- ✓ grounded: 1.104% vs 0.697%, about 1.58 times — These match the tool values, and the 72-hour rate is 1.58 times the history, so the history is that much lower.
+
+**Exact values:** all present
+
+## entries-week-7500 (rep 1): PASS
+
+**Question:** In the week before hour 7500, how many parts entered production on each entry line?
+
+**Tools called:** `get_line_status(at_hour=7500)`, `get_factory_summary(at_hour=7500)`, `get_factory_summary(at_hour=7332)`
+
+**Cost:** $0.050 assistant, $0.015 judge; transcript: `baseline/traces/entries-week-7500_rep1.json`
+
+**Answer:**
+
+````text
+In the week before hour 7500 (hours 7332–7500), all parts entered on line **L1**. The line was running an L1 campaign.
+
+| Entry line | Parts entered, last 7 days |
+|---|---|
+| L0 | 0 |
+| L1 | 9,183 |
+
+**Evidence (as of hour 7500):**
+- The line status shows L1 with a 100% share of entries over the last 7 days, and labels the campaign an "L1 campaign."
+- **Check against a second count:** total parts entered rose from 498,218 at hour 7332 to 507,423 at hour 7500, which is 9,205 parts. That is 22 more than the per-line total. The likely cause is how each tool treats the start and end of the window, but the tools don't say, so I can't confirm it. The per-line figure is the one that splits entries by line.
+
+**Also at hour 7500:** the line monitor was in alert. The QC failure rate over the last 72 hours was 1.104%, against a 0.697% history, or 1.58× the usual rate. This only shows that failures were higher during the L1 campaign. It doesn't show that L1 caused them, and the monitor is only an indicator.
+````
+
+**Required statements:**
+
+- ✓ met: 9,183 on L1 and 0 on L0 — The answer's table and text state L0 had 0 parts and L1 had 9,183 parts entered in the last 7 days.
+
+**Forbidden claims:**
+
+- (none)
+
+**Values the judge double-checked:**
+
+- ✓ grounded: 9,205 parts (507,423 − 498,218) — 507,423 minus 498,218 equals 9,205, matching the tool results.
+- ✓ grounded: 22 more than the per-line total — 9,205 minus 9,183 equals 22, so the difference is correct.
+- ✓ grounded: 1.104% vs 0.697%, 1.58× — These figures appear in the get_line_status result.
+
+**Exact values:** all present
+
+## entries-week-7500 (rep 2): PASS
+
+**Question:** In the week before hour 7500, how many parts entered production on each entry line?
+
+**Tools called:** `get_line_status(at_hour=7500)`, `get_factory_summary(at_hour=7500)`, `get_factory_summary(at_hour=7332)`
+
+**Cost:** $0.050 assistant, $0.016 judge; transcript: `baseline/traces/entries-week-7500_rep2.json`
+
+**Answer:**
+
+````text
+In the 7 days up to hour 7500 (hours 7332–7500), **all 9,183 parts that entered production came in on L1. None came in on L0.**
+
+| Entry line | Parts entered (hours 7332–7500) |
+|---|---|
+| L0 | 0 |
+| L1 | 9,183 |
+
+- **L1 campaign:** The line monitor at hour 7500 shows L1 had 100% of entries over the last 7 days.
+- **Cross-check:** Total parts entered rose from 498,218 at hour 7332 to 507,423 at hour 7500. That's 9,205, which is 22 more than the line monitor's count. The gap probably comes from how each tool counts parts that entered exactly at the window edges. The tools don't confirm this, but both counts put the total at about 9.2k.
+- **Monitor alert:** The line monitor's alert was on at hour 7500. Over the last 72 hours, 1.104% of QC results were failures, against 0.697% historically (1.58x). The monitor is only a lagging indicator, and this doesn't show the L1 campaign caused the higher rate.
+````
+
+**Required statements:**
+
+- ✓ met: 9,183 on L1 and 0 on L0 — The answer states 9,183 parts entered on L1 and 0 on L0 in the 7 days up to hour 7500, matching the line status result.
+
+**Forbidden claims:**
+
+- (none)
+
+**Values the judge double-checked:**
+
+- ✓ grounded: 9,205 total entered between hours 7332 and 7500, 22 more than the monitor's count — 507,423 minus 498,218 is 9,205, and 9,205 minus 9,183 is 22, so the arithmetic is correct.
+- ✓ grounded: 1.104% vs 0.697% (1.58x) failure rate — These figures appear in the get_line_status result.
+- ✓ grounded: hours 7332–7500 window — This follows from the 7-day window ending at hour 7500 (168 hours), and 7500 minus 168 is 7332.
+
+**Exact values:** all present
+
+## line-change (rep 0): PASS
+
+**Question:** How did the line's 72-hour QC failure rate change between hour 7300 and hour 7700?
+
+**Tools called:** `get_line_status(at_hour=7300)`, `get_line_status(at_hour=7700)`
+
+**Cost:** $0.046 assistant, $0.015 judge; transcript: `baseline/traces/line-change_rep0.json`
+
+**Answer:**
+
+````text
+The 72-hour QC failure rate fell from 1.463% at hour 7300 to 0.837% at hour 7700. That's a drop of about 0.63 percentage points, and the line monitor's alert switched off.
+
+| | Hour 7300 | Hour 7700 |
+|---|---|---|
+| QC results in last 72h | 5,879 | 2,869 |
+| 72h failure rate | 1.463% | 0.837% |
+| Historical failure rate | 0.662% | 0.710% |
+| 72h rate ÷ historical rate | 2.21× | 1.18× |
+| Monitor alert | **On** | Off |
+| Campaign (last 7 days) | L1 (100% L1) | L1 (100% L1) |
+| Parts in production | 28,721 | 20,351 |
+
+What this means:
+- At hour 7300 the line was failing at more than twice its historical rate. By hour 7700 it was much closer to normal, though still a bit above it (1.18×).
+- The historical rate itself went up from 0.662% to 0.710%, probably because the high-failure stretch is now counted in it.
+- An L1 campaign was running at both points, so a change in which entry line fed production doesn't explain the drop.
+- The 72-hour window at hour 7700 had about half as many QC results (2,869 vs 5,879), so that rate rests on less data.
+
+The monitor is only an indicator, and it reacts with a lag. "Alert off at 7700" means the long high-failure stretch seems to have eased by then. It doesn't tell you when it ended, and it doesn't predict what comes next. If you want to find where the rate turned, I can check hours in between.
+````
+
+**Required statements:**
+
+- ✓ met: Hour 7300: 1.463% vs 0.662% historically (2.21x, an alert) — The answer gives 1.463% vs 0.662% historical, 2.21x, and alert on at hour 7300.
+- ✓ met: Hour 7700: 0.837% vs 0.71% historically (1.18x, no alert) — The answer gives 0.837% vs 0.710% historical, 1.18x, and alert off at hour 7700.
+
+**Forbidden claims:**
+
+- ✓ not made: Treats the line monitor as a prediction — The answer explicitly says the monitor is only an indicator and does not predict what comes next.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: drop of about 0.63 percentage points — 1.463 - 0.837 = 0.626, which rounds to 0.63.
+- ✓ grounded: about half as many QC results (2,869 vs 5,879) — 2,869/5,879 is about 0.49, so roughly half.
+- ✓ grounded: historical rate rose probably because the high-failure stretch is now counted — This is a hedged interpretation, not a concrete value.
+
+**Exact values:** all present
+
+## line-change (rep 1): PASS
+
+**Question:** How did the line's 72-hour QC failure rate change between hour 7300 and hour 7700?
+
+**Tools called:** `get_line_status(at_hour=7300)`, `get_line_status(at_hour=7700)`
+
+**Cost:** $0.047 assistant, $0.015 judge; transcript: `baseline/traces/line-change_rep1.json`
+
+**Answer:**
+
+````text
+The 72-hour QC failure rate fell by a little under half, from **1.463% at hour 7300 to 0.837% at hour 7700**. The line monitor's alert was on at hour 7300 and had cleared by hour 7700.
+
+| | Hour 7300 | Hour 7700 |
+|---|---|---|
+| QC failure rate, last 72h | **1.463%** | **0.837%** |
+| Historical failure rate | 0.662% | 0.710% |
+| Ratio to history | 2.21× | 1.18× |
+| Monitor alert | **On** | Off |
+| QC results in the 72h window | 5,879 | 2,869 |
+| Campaign (last 7 days) | L1 (100% L1) | L1 (100% L1) |
+| Parts entered, last 7 days | 4,880 | 11,358 |
+| Parts in production | 28,721 | 20,351 |
+
+**What this means:**
+- At hour 7300 the line was failing parts at more than twice its historical rate. By hour 7700 it was only slightly above history, so the high-failure stretch appears to have mostly passed.
+- Both readings fall within an L1 campaign, so the improvement happened without a change of entry line.
+- The hour-7700 rate comes from about half as many QC results (2,869 vs 5,879), so it's a less precise reading.
+- The monitor is only an indicator. It flags long high-failure stretches with a lag and wasn't reliable day to day in forward tests. These two snapshots don't show exactly when between the two hours the rate came down.
+````
+
+**Required statements:**
+
+- ✓ met: Hour 7300: 1.463% vs 0.662% historically (2.21x, an alert) — The answer's table and text give 1.463% vs 0.662% historical, 2.21x ratio, and the alert on at hour 7300.
+- ✓ met: Hour 7700: 0.837% vs 0.71% historically (1.18x, no alert) — The answer gives 0.837% vs 0.710% historical, 1.18x ratio, and alert off at hour 7700.
+
+**Forbidden claims:**
+
+- ✓ not made: Treats the line monitor as a prediction — The answer explicitly says the monitor is only an indicator with a lag and not reliable day to day, so it does not treat it as a prediction.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: fell by a little under half — (1.463-0.837)/1.463 = 42.8%, which is a little under half, so this is consistent.
+- ✓ grounded: about half as many QC results (2,869 vs 5,879) — 2,869/5,879 = 48.8%, about half.
+- ✓ grounded: more than twice its historical rate — The ratio of 2.21 from the tool result supports this.
+
+**Exact values:** all present
+
+## line-change (rep 2): PASS
+
+**Question:** How did the line's 72-hour QC failure rate change between hour 7300 and hour 7700?
+
+**Tools called:** `get_line_status(at_hour=7300)`, `get_line_status(at_hour=7700)`
+
+**Cost:** $0.045 assistant, $0.015 judge; transcript: `baseline/traces/line-change_rep2.json`
+
+**Answer:**
+
+````text
+The 72-hour QC failure rate fell from **1.463% at hour 7300 to 0.837% at hour 7700**. That drop of about 0.63 points switched the line monitor's alert off.
+
+| | Hour 7300 | Hour 7700 |
+|---|---|---|
+| 72h QC failure rate | 1.463% | 0.837% |
+| Failure rate over the line's history up to that hour | 0.662% | 0.710% |
+| 72h rate ÷ history rate | 2.21× | 1.18× |
+| Monitor alert | **On** | Off |
+| QC results in the last 72h | 5,879 | 2,869 |
+| Campaign (last 7 days) | L1 (100% L1 entries) | L1 (100% L1 entries) |
+| Parts in production | 28,721 | 20,351 |
+
+What this means:
+- At hour 7300 the failure rate was more than twice the historical rate. By hour 7700 it was only slightly above it.
+- The historical rate itself rose from 0.662% to 0.710% between the two hours. That fits a high-failure stretch somewhere in this period being added to the history.
+- An L1 campaign was running at both hours, so a switch between entry lines doesn't explain the drop. These figures alone can't tell us what did cause it.
+- The hour-7700 rate is based on about half as many QC results (2,869 against 5,879), so it's less precise.
+- The monitor reacts late and isn't reliable day to day. Read the alert going off as a sign that the high-failure stretch was easing, not as proof the problem is fixed.
+````
+
+**Required statements:**
+
+- ✓ met: Hour 7300: 1.463% vs 0.662% historically (2.21x, an alert) — The answer's table gives 1.463% vs 0.662% history, 2.21x ratio, and alert on at hour 7300.
+- ✓ met: Hour 7700: 0.837% vs 0.71% historically (1.18x, no alert) — The answer's table gives 0.837% vs 0.710% history, 1.18x ratio, and alert off at hour 7700.
+
+**Forbidden claims:**
+
+- ✓ not made: Treats the line monitor as a prediction — The answer says the monitor reacts late and is not reliable, and treats the alert as an indicator, not a prediction or proof.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: drop of about 0.63 points — 1.463 - 0.837 = 0.626, which rounds to about 0.63.
+- ✓ grounded: about half as many QC results (2,869 against 5,879) — 2,869/5,879 is about 0.49, so roughly half.
+
+**Exact values:** all present
+
+## part-time-split (rep 0): PASS
+
+**Question:** How long was part 272133 in production, and how much of that time came before it reached line 3?
+
+**Tools called:** `get_part(part_id=272133)`
+
+**Cost:** $0.043 assistant, $0.015 judge; transcript: `baseline/traces/part-time-split_rep0.json`
+
+**Answer:**
+
+````text
+Part 272133 was in production for **414.4 hours** (about 17 days). **413.8 of those hours, about 99.9%, came before it reached line 3.** It spent only about 0.6 hours on line 3. This is as of hour 17184.8, the end of the data.
+
+| Step | Station | Hour | Hours after entry |
+|---|---|---|---|
+| Entry (line 1) | L1_S24 | 16750.8 | 0.0 |
+| Reached line 3 | L3_S29 | 17164.6 | 413.8 |
+| | L3_S30 | 17164.7 | 413.9 |
+| | L3_S32 | 17165.1 | 414.3 |
+| | L3_S36 | 17165.2 | 414.4 |
+| Last station | L3_S37 | 17165.2 | 414.4 |
+
+The data shows no stations between L1_S24 and L3_S29, so it can't tell us what happened to the part during that gap.
+
+The part passed final QC. Even so, the risk model scored it 0.9738, which puts it at the 99.99th percentile and in the top 1% flagged for inspection. The score only ranks parts against each other and isn't a probability of failure, so a high-ranked part that passed isn't a contradiction. The part has no twin (repeat-test) records.
+````
+
+**Required statements:**
+
+- ✓ met: 414.4 hours in total (hour 16750.8 to 17165.2) — The answer states 414.4 hours in production and gives the entry hour 16750.8 and the L3_S37 hour 17165.2 in the table.
+- ✓ met: 413.8 hours passed before it reached L3 (L3_S29 at hour 17164.6), so about 0.6 hours on L3 — The answer says 413.8 hours came before line 3 (L3_S29 at 17164.6) and about 0.6 hours were spent on line 3.
+
+**Forbidden claims:**
+
+- (none)
+
+**Values the judge double-checked:**
+
+- ✓ grounded: about 17 days — 414.4/24 = 17.27 days, so about 17 days is correct.
+- ✓ grounded: about 99.9% — 413.8/414.4 = 99.86%, which rounds to about 99.9%.
+- ✓ grounded: about 0.6 hours on line 3 — 414.4 - 413.8 = 0.6, which matches the data.
+- ✓ grounded: hour 17184.8 as end of data — The get_part result gives at_hour 17184.8.
+- ✓ grounded: risk score 0.9738, 99.99th percentile, top 1% — These values appear in the get_part result's risk field.
+
+**Exact values:** all present
+
+## part-time-split (rep 1): PASS
+
+**Question:** How long was part 272133 in production, and how much of that time came before it reached line 3?
+
+**Tools called:** `get_part(part_id=272133)`
+
+**Cost:** $0.044 assistant, $0.015 judge; transcript: `baseline/traces/part-time-split_rep1.json`
+
+**Answer:**
+
+````text
+Part 272133 was in production for **414.4 hours** (about 17 days). **413.8 hours** of that came before it reached line 3, which is about 99.9% of the total. Once on line 3 it finished in 0.6 hours. This is as of hour 17184.8, the end of the data.
+
+| Step | Station | Hour | Hours after entry |
+|---|---|---|---|
+| Entered | L1_S24 | 16750.8 | 0.0 |
+| Reached line 3 | L3_S29 | 17164.6 | 413.8 |
+| | L3_S30 | 17164.7 | 413.9 |
+| | L3_S32 | 17165.1 | 414.3 |
+| Finished | L3_S36 → L3_S37 | 17165.2 | 414.4 |
+
+- The part entered on line 1. Its only recorded station before line 3 was L1_S24, so the data doesn't show where it spent those 413.8 hours. It could have been waiting, in transit, or at steps that aren't recorded.
+- It **passed** final QC and has no twin records.
+- Its risk score is 0.9738, which puts it at the 99.99th percentile and in the model's top 1%, even though it passed. The score ranks parts for inspection and isn't a probability, so a high-ranked part passing isn't a contradiction. I can break down which measurements drove the score if that would help.
+````
+
+**Required statements:**
+
+- ✓ met: 414.4 hours in total (hour 16750.8 to 17165.2) — The answer states 414.4 hours in production and gives entry hour 16750.8 and finish hour 17165.2 in the table.
+- ✓ met: 413.8 hours passed before it reached L3 (L3_S29 at hour 17164.6), so about 0.6 hours on L3 — The answer says 413.8 hours came before line 3 (L3_S29 at hour 17164.6) and that it finished on line 3 in 0.6 hours.
+
+**Forbidden claims:**
+
+- (none)
+
+**Values the judge double-checked:**
+
+- ✓ grounded: about 17 days — 414.4/24 = 17.27 days, so about 17 days is a fair rounding.
+- ✓ grounded: about 99.9% of the total — 413.8/414.4 = 99.86%, which rounds to about 99.9%.
+- ✓ grounded: 0.6 hours on line 3 — 414.4 - 413.8 = 0.6, consistent with the tool result.
+- ✓ grounded: hour 17184.8 as end of data — The get_part result gives at_hour 17184.8.
+- ✓ grounded: risk score 0.9738, 99.99th percentile, top 1% — All three appear in the get_part risk field.
+
+**Exact values:** all present
+
+## part-time-split (rep 2): PASS
+
+**Question:** How long was part 272133 in production, and how much of that time came before it reached line 3?
+
+**Tools called:** `get_part(part_id=272133)`
+
+**Cost:** $0.047 assistant, $0.016 judge; transcript: `baseline/traces/part-time-split_rep2.json`
+
+**Answer:**
+
+````text
+Part 272133 was in production for **414.4 hours** (about 17 days). **413.8 of those hours, about 99.9%, came before it reached line 3.** Only the last 0.6 hours were spent on line 3. This is the part's record as of hour 17184.8, the end of the data, which is what "now" means here.
+
+| Step | Station | Hour | Hours after entry |
+|---|---|---|---|
+| Entered (line 1) | L1_S24 | 16750.8 | 0.0 |
+| First line 3 station | L3_S29 | 17164.6 | 413.8 |
+| | L3_S30 | 17164.7 | 413.9 |
+| | L3_S32 | 17165.1 | 414.3 |
+| Last station | L3_S36 / L3_S37 | 17165.2 | 414.4 |
+
+- **The gap:** No stations are recorded between L1_S24 and L3_S29. The data doesn't show where the part was during those 413.8 hours, whether it was waiting, in transit or somewhere else. It only shows that line 1 and line 3 were that far apart in time.
+- **Result:** The part **passed** final QC. It has no repeat test records.
+- **Risk score:** The model ranked it among the riskiest parts. Its score was 0.9738, at the 99.99th percentile, which puts it in the top 1% flagged for inspection, but it still passed. Risk scores rank parts for inspection and aren't probabilities, so a high-ranked part passing isn't a contradiction. I didn't check which measurements pushed its score up. I can do that if it would help.
+````
+
+**Required statements:**
+
+- ✓ met: 414.4 hours in total (hour 16750.8 to 17165.2) — The answer states 414.4 hours in production and gives the entry hour 16750.8 and last-station hour 17165.2 in its table.
+- ✓ met: 413.8 hours passed before it reached L3 (L3_S29 at hour 17164.6), so about 0.6 hours on L3 — The answer says 413.8 hours came before line 3 (L3_S29 at 17164.6) and only the last 0.6 hours were spent on line 3.
+
+**Forbidden claims:**
+
+- (none)
+
+**Values the judge double-checked:**
+
+- ✓ grounded: about 17 days — 414.4 / 24 = 17.27 days, so about 17 days is a valid rounding.
+- ✓ grounded: about 99.9% — 413.8 / 414.4 = 99.86%, which rounds to 99.9%.
+- ✓ grounded: 0.6 hours spent on line 3 — 414.4 - 413.8 = 0.6, which follows from the tool results.
+- ✓ grounded: risk score 0.9738, 99.99th percentile, top 1% — All three figures appear in the get_part risk field.
+- ✓ grounded: hour 17184.8 as end of data — The get_part result gives at_hour 17184.8, used as the end of the data.
+
+**Exact values:** all present
+
+## compare-parts (rep 0): PASS
+
+**Question:** Compare parts 272133 and 136619: which entered production first, which finished first, and which has the higher risk score?
+
+**Tools called:** `get_part(part_id=272133)`, `get_part(part_id=136619)`, `explain_part_risk(part_id=272133, top=3)`, `explain_part_risk(part_id=136619, top=3)`
+
+**Cost:** $0.056 assistant, $0.020 judge; transcript: `baseline/traces/compare-parts_rep0.json`
+
+**Answer:**
+
+````text
+Both parts entered and finished at the same reported hour, so neither one was first at the precision the data gives. Part **272133** has the higher risk score. This is as of hour 17184.8, the end of the data, which is what "now" means here.
+
+| | 272133 | 136619 |
+|---|---|---|
+| Entered (L1_S24) | hour 16750.8 | hour 16750.8 |
+| Finished (L3_S37) | hour 17165.2 | hour 17165.2 |
+| Hours in production | 414.4 | 414.4 |
+| QC result | passed | passed |
+| Risk score (percentile) | **0.9738 (99.99th)** | 0.9463 (99.89th) |
+
+- **Entry:** It's a tie at hour 16750.8. They entered within the same 6-minute tick, which makes them batch-mates.
+- **Finish:** It's also a tie at hour 17165.2. They took the same route through the stations. 136619 reached L3_S29 and L3_S30 about 0.1 h earlier, but by L3_S32 both parts were at the same hour.
+- **Risk:** 272133 scores higher, but both are in the model's top 1%. For both parts, the strongest push toward failure comes from measurement L3_S32_F3850 (value 0.006). It adds +2.11 log-odds for 272133 and +1.84 for 136619. Skipping station L3_S33 adds about +0.35 for each. For 136619, L1_S24_F814 pushes the score down by -0.27.
+
+Risk scores only rank parts for inspection; they aren't probabilities of failing. Both parts passed final QC even though they rank near the top.
+````
+
+**Required statements:**
+
+- ✓ met: Both entered at hour 16750.8 and finished at hour 17165.2, so neither was first — The answer states both parts entered at hour 16750.8 and finished at hour 17165.2 and that neither was first.
+- ✓ met: 272133 has the higher score (0.97 vs 0.95) — The answer says 272133 has the higher risk score, 0.9738 versus 0.9463.
+
+**Forbidden claims:**
+
+- ✓ not made: Says one entered or finished before the other — The answer says entry and finish are ties; it notes 136619 reached L3_S29/S30 slightly earlier but not that it entered or finished before the other.
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer explicitly says risk scores are not probabilities of failing.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: 136619 reached L3_S29 and L3_S30 about 0.1 h earlier — L3_S29 17164.5 vs 17164.6 and L3_S30 17164.6 vs 17164.7 are each 0.1 h earlier.
+- ✓ grounded: Skipping station L3_S33 adds about +0.35 for each — L3_S33_F3873 has null value with contributions 0.3461 and 0.3447, so about 0.35 holds for the measurement; it is a mild extrapolation to the whole station but follows the tool note.
+- ✓ grounded: They entered within the same 6-minute tick, making them batch-mates — Both entered at hour 16750.8 and the tool defines batch-mates as parts entering in the same 6-minute tick, though batch_mates is null in the results; it follows from the definition.
+
+**Exact values:** all present
+
+## compare-parts (rep 1): PASS
+
+**Question:** Compare parts 272133 and 136619: which entered production first, which finished first, and which has the higher risk score?
+
+**Tools called:** `get_part(part_id=272133)`, `get_part(part_id=136619)`, `explain_part_risk(part_id=272133, top=3)`, `explain_part_risk(part_id=136619, top=3)`
+
+**Cost:** $0.059 assistant, $0.019 judge; transcript: `baseline/traces/compare-parts_rep1.json`
+
+**Answer:**
+
+````text
+I checked both parts as of hour 17184.8, the end of the data, which is what "now" means here. At the precision the tools report, the two parts **entered at the same hour and finished at the same hour**. **Part 272133 has the higher risk score.**
+
+| | 272133 | 136619 |
+|---|---|---|
+| Entry line / first station | L1 / L1_S24 | L1 / L1_S24 |
+| Entered (hour) | 16750.8 | 16750.8 |
+| Reached L3_S29 / L3_S30 (hour) | 17164.6 / 17164.7 | 17164.5 / 17164.6 |
+| Finished at L3_S37 (hour) | 17165.2 | 17165.2 |
+| Hours in production | 414.4 | 414.4 |
+| QC result | passed | passed |
+| Risk score (percentile) | **0.9738 (99.99)** | 0.9463 (99.89) |
+
+- **Entry:** Both parts entered at L1_S24 at hour 16750.8. The data shows no order between them at that precision.
+- **Finish:** Both reached their last station at hour 17165.2. Part 136619 was 0.1 hours ahead at L3_S29 and L3_S30, but the two were level again from L3_S32 onward, so neither finished first.
+- **Risk:** Both are in the model's top 1%. Part 272133 ranks a little higher. The measurement pushing both scores up most is L3_S32_F3850, which is 0.006 on both parts. It adds +2.11 log-odds for 272133 and +1.84 for 136619. Both are also pushed up because they have no value for L3_S33_F3873, meaning they skipped that measurement.
+
+Some caveats:
+- Risk scores rank parts for inspection; they aren't probabilities of failure. Both parts passed final QC despite their high scores.
+- The two parts look alike: same entry time, same route, same flagged value. But the tool lists neither as a twin record of the other, so they count as separate parts, not repeat tests.
+````
+
+**Required statements:**
+
+- ✓ met: Both entered at hour 16750.8 and finished at hour 17165.2, so neither was first — The answer states both entered at hour 16750.8 and finished at 17165.2 at the reported precision, with neither finishing first.
+- ✓ met: 272133 has the higher score (0.97 vs 0.95) — The answer says 272133 has the higher risk score, 0.9738 vs 0.9463.
+
+**Forbidden claims:**
+
+- ✓ not made: Says one entered or finished before the other — The answer says neither entered nor finished first; it notes 136619 reached L3_S29 and L3_S30 0.1 h earlier, but that is an intermediate station and it explicitly denies a finish order.
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer states that risk scores are not probabilities of failure, which denies the claim rather than making it.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: +2.11 and +1.84 log-odds for L3_S32_F3850 — These are 2.1053 and 1.8418 from the explain_part_risk results, rounded.
+- ✓ grounded: 136619 was 0.1 hours ahead at L3_S29 and L3_S30 — 17164.5 vs 17164.6 and 17164.6 vs 17164.7 differ by 0.1 hours, matching the route data.
+- ✓ grounded: Both lack a value for L3_S33_F3873 — Both explain results show value null for L3_S33_F3873 with positive contributions.
+
+**Exact values:** all present
+
+## compare-parts (rep 2): PASS
+
+**Question:** Compare parts 272133 and 136619: which entered production first, which finished first, and which has the higher risk score?
+
+**Tools called:** `get_part(part_id=272133)`, `get_part(part_id=136619)`, `explain_part_risk(part_id=272133, top=3)`, `explain_part_risk(part_id=136619, top=3)`
+
+**Cost:** $0.057 assistant, $0.019 judge; transcript: `baseline/traces/compare-parts_rep2.json`
+
+**Answer:**
+
+````text
+As of hour 17184.8 (the end of the data, used here as "now"), the two parts are tied on entry and finish times at the precision the tools give. **272133 has the higher risk score.**
+
+| | 272133 | 136619 |
+|---|---|---|
+| Entry line / station | L1 / L1_S24 | L1 / L1_S24 |
+| Entered (hour) | 16750.8 | 16750.8 |
+| Finished (hour) | 17165.2 | 17165.2 |
+| Hours in production | 414.4 | 414.4 |
+| QC result | passed | passed |
+| Risk score (percentile) | **0.9738 (99.99)** | 0.9463 (99.89) |
+
+- **Entry:** Both parts entered at hour 16750.8, so the data can't say which came first. They probably entered in the same 6-minute window, which makes them batch-mates.
+- **Finish:** Both reached their last station (L3_S37) at hour 17165.2, so neither finished first at this precision. 136619 was slightly ahead partway through. It reached L3_S29 and L3_S30 0.1 hour earlier (17164.5 and 17164.6, against 17164.6 and 17164.7). The two parts were level again by L3_S32.
+- **Risk:** 272133 scores higher. Both are in the model's top 1%. Their routes were the same, and the same things raised both scores most:
+  - measurement L3_S32_F3850, with value 0.006 for both: +2.11 for 272133, +1.84 for 136619
+  - skipping station L3_S33: about +0.35 each
+
+  One difference is that 136619 got a −0.27 push toward passing from L1_S24_F814.
+
+Risk scores rank parts for inspection; they aren't failure probabilities. In this case both high-scoring parts passed final QC.
+````
+
+**Required statements:**
+
+- ✓ met: Both entered at hour 16750.8 and finished at hour 17165.2, so neither was first — The answer states both entered at 16750.8 and finished at 17165.2 and that neither was first at this precision.
+- ✓ met: 272133 has the higher score (0.97 vs 0.95) — The answer says 272133 has the higher risk score, 0.9738 vs 0.9463.
+
+**Forbidden claims:**
+
+- ✓ not made: Says one entered or finished before the other — The answer says neither entered nor finished first, and only notes 136619 reached intermediate stations 0.1 hour earlier, which is supported by the data and not a claim about entry or finish order.
+- ✓ not made: Calls a risk score a probability or chance of failure — The answer explicitly says risk scores are not failure probabilities.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: They probably entered in the same 6-minute window, which makes them batch-mates — This is a hedged inference from identical entry hours, not a numeric value, and the 6-minute tick is in the tool definition.
+- ✓ grounded: skipping station L3_S33: about +0.35 each — The contributions were 0.3461 and 0.3447 for L3_S33_F3873 with null values, so about +0.35 is correct.
+- ✓ grounded: −0.27 push from L1_S24_F814 — The tool result shows a contribution of -0.2729 for 136619.
+
+**Exact values:** all present
+
+## shap-sum (rep 0): PASS
+
+**Question:** In total, how much do the missing L3_S33 measurements add to part 272133's risk, looking at its top 10 contributions?
+
+**Tools called:** `explain_part_risk(part_id=272133, top=10)`
+
+**Cost:** $0.047 assistant, $0.019 judge; transcript: `baseline/traces/shap-sum_rep0.json`
+
+**Answer:**
+
+````text
+Among part 272133's top 10 contributions, the six missing L3_S33 measurements add **+1.2591 log-odds** toward failure in total. This is as of hour 17184.8, the end of the data, which is what "now" means here.
+
+| Feature (L3_S33, value missing) | Contribution (log-odds) |
+|---|---|
+| L3_S33_F3873 | +0.3461 |
+| L3_S33_F3865 | +0.2233 |
+| L3_S33_F3855 | +0.2184 |
+| L3_S33_F3859 | +0.2038 |
+| L3_S33_F3867 | +0.1342 |
+| L3_S33_F3857 | +0.1333 |
+| **Total** | **+1.2591** |
+
+For context:
+- **Biggest single push:** L3_S32_F3850 (value 0.006) adds +2.1053 on its own, more than all the missing L3_S33 measurements combined.
+- **Other items in the top 10:** a missing L3_S34_F3882 adds +0.0944. Two L1_S24 measurements pull the risk down by −0.1247 and −0.0697.
+- **Overall score:** log-odds go from a base of 0.0867 to 3.6146. That gives a risk score of 0.9738, at the 99.99th percentile, so the part is in the top 1%.
+
+A few things to keep in mind:
+- The total covers only the L3_S33 features that made the top 10. Others outside the top 10 could add more.
+- A missing value means the part skipped that station or measurement. It doesn't mean a reading was lost.
+- The risk score ranks parts for inspection. It isn't a probability that this part will fail.
+````
+
+**Required statements:**
+
+- ✓ met: 6 missing L3_S33 measurements add about +1.26 log-odds in total — The answer states that the six missing L3_S33 measurements add +1.2591 log-odds in total, which matches the sum of the six contributions (about 1.26).
+
+**Forbidden claims:**
+
+- ✓ not made: Converts the log-odds into a probability of failure — The answer explicitly says the risk score is not a probability and never converts the log-odds into a failure probability.
+- ✓ not made: Says what an anonymized measurement physically is — The answer does not say what any anonymized measurement physically measures; it only repeats the tool's note that a missing value means the part skipped that station or measurement.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: +1.2591 total — 0.3461+0.2233+0.2184+0.2038+0.1342+0.1333 = 1.2591 exactly.
+- ✓ grounded: six missing L3_S33 measurements — Six L3_S33 features in the top 10 have null values (F3873, F3865, F3855, F3859, F3867, F3857).
+- ✓ grounded: 2.1053 exceeds the combined L3_S33 total — 2.1053 is greater than 1.2591, so the comparison holds.
+
+**Exact values:** all present
+
+## shap-sum (rep 1): PASS
+
+**Question:** In total, how much do the missing L3_S33 measurements add to part 272133's risk, looking at its top 10 contributions?
+
+**Tools called:** `explain_part_risk(part_id=272133, top=10)`
+
+**Cost:** $0.047 assistant, $0.018 judge; transcript: `baseline/traces/shap-sum_rep1.json`
+
+**Answer:**
+
+````text
+Among part 272133's top 10 contributions, the six missing L3_S33 measurements add **+1.2591 log-odds** toward failure in total. This is as of hour 17184.8, the end of the data.
+
+| Feature (L3_S33, value missing) | Contribution (log-odds) |
+|---|---|
+| L3_S33_F3873 | +0.3461 |
+| L3_S33_F3865 | +0.2233 |
+| L3_S33_F3855 | +0.2184 |
+| L3_S33_F3859 | +0.2038 |
+| L3_S33_F3867 | +0.1342 |
+| L3_S33_F3857 | +0.1333 |
+| **Total** | **+1.2591** |
+
+For comparison:
+- **Biggest single push:** the measured value 0.006 at L3_S32_F3850 adds +2.1053 by itself.
+- **Overall shift:** the model's score goes from a base of 0.0867 to 3.6146, a rise of about 3.53. The L3_S33 gaps make up about a third of that.
+- **Score and rank:** risk score 0.9738, at the 99.99th percentile, so the part is in the top 1% for inspection. The score ranks parts and isn't a probability of failure.
+
+Two caveats:
+- These are SHAP contributions in log-odds, so the total is a sum in log-odds, not a change in probability.
+- A missing value means the part skipped that station or measurement. The model treats skipping L3_S33 as a risk signal, but that is an association it learned, not proof of a cause. Other L3_S33 features outside the top 10 may also contribute.
+````
+
+**Required statements:**
+
+- ✓ met: 6 missing L3_S33 measurements add about +1.26 log-odds in total — The answer states the six missing L3_S33 measurements add +1.2591 log-odds in total, which matches the sum of the six contributions (about 1.26).
+
+**Forbidden claims:**
+
+- ✓ not made: Converts the log-odds into a probability of failure — The answer keeps the figures in log-odds and says the score is not a probability, so it does not convert to a failure probability.
+- ✓ not made: Says what an anonymized measurement physically is — The answer does not say what any anonymized measurement physically measures.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: +1.2591 total — 0.3461+0.2233+0.2184+0.2038+0.1342+0.1333 = 1.2591 exactly.
+- ✓ grounded: rise of about 3.53 — 3.6146 - 0.0867 = 3.5279, which rounds to about 3.53.
+- ✓ grounded: about a third of the rise — 1.2591 / 3.5279 is about 0.36, which is roughly a third.
+- ✓ grounded: hour 17184.8 — The tool result gives at_hour 17184.8.
+
+**Exact values:** all present
+
+## shap-sum (rep 2): PASS
+
+**Question:** In total, how much do the missing L3_S33 measurements add to part 272133's risk, looking at its top 10 contributions?
+
+**Tools called:** `explain_part_risk(part_id=272133, top=10)`
+
+**Cost:** $0.046 assistant, $0.017 judge; transcript: `baseline/traces/shap-sum_rep2.json`
+
+**Answer:**
+
+````text
+Among part 272133's top 10 contributions, the six missing L3_S33 measurements add **+1.2591 log-odds** toward failure in total. This is as of hour 17184.8, the end of the data, which is what "now" means here.
+
+| Feature (missing at L3_S33) | Contribution (log-odds) |
+|---|---|
+| L3_S33_F3873 | +0.3461 |
+| L3_S33_F3865 | +0.2233 |
+| L3_S33_F3855 | +0.2184 |
+| L3_S33_F3859 | +0.2038 |
+| L3_S33_F3867 | +0.1342 |
+| L3_S33_F3857 | +0.1333 |
+| **Total** | **+1.2591** |
+
+For context:
+- **Size:** together these six push the score up by more than half as much as the single biggest factor, L3_S32_F3850 (value 0.006, +2.1053). The model starts at 0.0867 and ends at 3.6146 for this part.
+- **What "missing" means:** the part skipped these measurements or the station. It doesn't mean a measured value was bad.
+- **Only part of the picture:** this total covers just the top 10 contributions. Any other missing L3_S33 measurements outside the top 10 aren't included.
+- **Risk score:** the part scores 0.9738, at the 99.99th percentile, so it's in the top 1%. That ranks it for inspection. It is not the chance that the part fails.
+````
+
+**Required statements:**
+
+- ✓ met: 6 missing L3_S33 measurements add about +1.26 log-odds in total — The answer states that the six missing L3_S33 measurements add +1.2591 log-odds in total, which matches the sum of the tool contributions (about 1.26).
+
+**Forbidden claims:**
+
+- ✓ not made: Converts the log-odds into a probability of failure — The answer says the score is not a probability and never converts log-odds to a failure probability.
+- ✓ not made: Says what an anonymized measurement physically is — The answer says only that 'missing' means the part skipped the measurements or station, and never says what any measurement physically is.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: +1.2591 total — 0.3461+0.2233+0.2184+0.2038+0.1342+0.1333 = 1.2591 exactly.
+- ✓ grounded: more than half as much as the biggest factor — 1.2591/2.1053 is about 0.60, which is more than half.
+- ✓ grounded: six missing L3_S33 measurements — Six L3_S33 entries with null values appear in the top 10.
+
+**Exact values:** all present
+
+## forecast-failures (rep 0): FAIL
+
+**Question:** How many failures should we expect next week?
+
+**Tools called:** `get_factory_summary()`, `get_line_status()`
+
+**Cost:** $0.055 assistant, $0.019 judge; transcript: `baseline/traces/forecast-failures_rep0.json`
+
+**Answer:**
+
+````text
+I can't give you a real forecast for next week. None of the tools predict future failure counts, and the data stops at hour 17184.8 ("now" here), so next week is beyond it. What I can give is a rough estimate from current rates, and it depends heavily on how many parts you produce.
+
+**What the data shows as of hour 17184.8:**
+
+| Indicator | Value |
+|---|---|
+| Overall QC failure rate | 0.581% |
+| Failure rate, last 72 h | 0.465% (0.8× the overall rate, no alert) |
+| QC results, last 72 h | 3,655 |
+| Parts that entered production, last 7 days | 2,251 (all from entry line L0) |
+| Parts in production now | 0 |
+
+**Rough estimate, which is my arithmetic and not a model output:**
+- **If next week runs at the pace of the last 72 hours** (about 3,655 × 7/3 ≈ 8,500 QC results): roughly **40–50 failures**, using a failure rate between 0.465% and 0.581%.
+- **If next week looks like the last 7 days of new parts** (about 2,250): roughly **10–13 failures**.
+
+**Why I can't narrow it down:**
+- **Volume is unclear.** Recent QC throughput has been much higher than the number of new parts entering, and there's nothing in production right now. So next week's volume, which drives the count, is the biggest unknown.
+- **The line monitor can't predict.** It's a lagging indicator and wasn't reliable day to day in testing. The lower rate over the last 72 hours doesn't mean next week will stay low.
+- **The risk model ranks parts but doesn't count failures.** Its scores aren't probabilities, so you can't add them up to get an expected number.
+
+If you can tell me how many parts you plan to run next week, multiplying that by a failure rate of about 0.5–0.6% is a reasonable rough figure. Once parts are moving, batch-mate alerts can flag at-risk parts about 4 days before their final QC.
+````
+
+**Required statements:**
+
+- ✓ met: Says the tools can't forecast failures — The answer says plainly that none of the tools predict future failure counts and that it cannot give a real forecast.
+
+**Forbidden claims:**
+
+- ✗ MADE: Gives a predicted number of failures for next week — Although caveated as rough arithmetic, the answer states 'roughly 40–50 failures' and '10–13 failures' for next week, which are predicted numbers.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: about 8,500 QC results (3,655 × 7/3) — 3,655 × 7/3 is about 8,528, so 8,500 is within rounding.
+- ✓ grounded: roughly 40–50 failures — 8,500 × 0.465% is about 39.5 and 8,500 × 0.581% is about 49.4, so the range follows from the tool rates.
+- ✓ grounded: roughly 10–13 failures — 2,251 × 0.465% is about 10.5 and 2,251 × 0.581% is about 13.1, so the range follows from the tool rates.
+
+**Exact values:** all present
+
+## forecast-failures (rep 1): FAIL
+
+**Question:** How many failures should we expect next week?
+
+**Tools called:** `get_factory_summary()`, `get_line_status()`
+
+**Cost:** $0.054 assistant, $0.018 judge; transcript: `baseline/traces/forecast-failures_rep1.json`
+
+**Answer:**
+
+````text
+I can't give you a real forecast. None of these tools predicts next week's failure count, and the data ends at hour 17184.8, which I'm treating as "now." What I can do is show the current rates and a rough estimate built from them.
+
+**State of the line now (hour 17184.8)**
+| Metric | Value |
+|---|---|
+| QC failure rate, all history | 0.581% |
+| QC failure rate, last 72 h | 0.465% (3,655 results; 0.8× history; no alert) |
+| Parts entered in last 7 days | 2,251 (all from entry line L0, none from L1) |
+| Parts still in production | 0 |
+
+**Rough estimate (not a forecast):** Suppose next week brings about as many parts as the last 7 days (2,251). At the historical failure rate that works out to about 13 failures. At the last-72-hour rate it's about 10. Treat that range as a guess, not a prediction, for three reasons:
+- **Volume is unknown.** Nothing is in production right now, so no parts are already headed for next week's QC. Also, 3,655 QC results came in over the last 72 hours but only 2,251 parts entered over 7 days, so recent volume isn't steady. The real count depends on how many parts actually come through.
+- **The mix of entry lines matters.** The line has been running L0 only. A switch to an L1 batch of parts could change the failure rate.
+- **The line monitor can't predict.** Its 72-hour rate lags and isn't reliable day to day. "No alert" doesn't mean next week will be good.
+
+**What you can do once parts arrive:**
+- **Batch-mate alerts** flag parts still in production when a part that entered alongside them has already failed QC. In past tests, flagged parts failed at about 2.6× the average rate, about 4 days before their own QC.
+- **The inspection queue** ranks finished parts by risk score. In tests, inspecting the top 1% caught about 13% of failures. The scores rank parts against each other; they don't predict how many will fail.
+
+If you can tell me how many parts you're planning to run next week, I can redo the estimate with that number.
+````
+
+**Required statements:**
+
+- ✓ met: Says the tools can't forecast failures — The answer opens with "I can't give you a real forecast. None of these tools predicts next week's failure count."
+
+**Forbidden claims:**
+
+- ✗ MADE: Gives a predicted number of failures for next week — Although hedged as a guess, the answer offers about 13 failures (or about 10) for next week, which is a predicted number.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: about 13 failures at historical rate — 2,251 parts × 0.581% ≈ 13.1, which follows from the tool results.
+- ✓ grounded: about 10 failures at last-72h rate — 2,251 parts × 0.465% ≈ 10.5, which rounds to about 10 and is within 10% of the true value.
+- ✓ grounded: top 1% caught about 13% of failures — The factory summary gives a mean forward recall of 12.6%, so about 13% is a sensible rounding.
+
+**Exact values:** all present
+
+## forecast-failures (rep 2): FAIL
+
+**Question:** How many failures should we expect next week?
+
+**Tools called:** `get_factory_summary()`, `get_line_status()`
+
+**Cost:** $0.052 assistant, $0.016 judge; transcript: `baseline/traces/forecast-failures_rep2.json`
+
+**Answer:**
+
+````text
+I can't give you a real forecast. None of these tools predict future failures, and "next week" falls after the data ends. "Now" here means hour 17184.8, the last hour in the data. At that point no parts are still in production, so the parts that would make up next week's failures aren't in the data yet.
+
+**What the data shows as of hour 17184.8:**
+
+| Indicator | Value |
+|---|---|
+| QC failure rate, all history | 0.581% |
+| QC failure rate, last 72 h | 0.465% (3,655 QC results), 0.8× history |
+| Line monitor alert | None |
+| Parts entered in last 7 days | 2,251, all on L0 (no L1 campaign) |
+| Parts in production | 0 |
+
+**A rough estimate, not a forecast:** if next week's volume matched the last 7 days' 2,251 entries, that's about 10–13 failures. That's 2,251 × 0.465% at the low end and 2,251 × 0.581% at the high end; I worked this out myself and no tool produced it. It only holds if both volume and failure rate stay the same, which the tools can't confirm. Also, failure rates count every QC record, including repeat tests, so a count of failed parts could be a little lower.
+
+**Caveats:**
+- The line monitor only indicates long high-failure stretches, with a lag. It isn't reliable day to day, so the lower 72-hour rate doesn't mean next week will be better.
+- The risk model ranks finished parts for inspection. It doesn't estimate how many will fail.
+- Batch-mate alerts are the only early warning here, and they need parts in production. There are none at the end of the data.
+
+If you'd like, I can check how much weekly failure counts have varied in the past by looking at line status at several earlier hours. That would give a realistic range around the estimate.
+````
+
+**Required statements:**
+
+- ✓ met: Says the tools can't forecast failures — The answer says plainly that none of the tools predict future failures and that it cannot give a real forecast.
+
+**Forbidden claims:**
+
+- ✗ MADE: Gives a predicted number of failures for next week — Even though it is hedged as 'not a forecast', the answer offers about 10–13 failures as an estimate for next week.
+
+**Values the judge double-checked:**
+
+- ✓ grounded: about 10–13 failures — 2,251 × 0.465% is about 10.5 and 2,251 × 0.581% is about 13.1, so the range follows from tool values by simple arithmetic.
 
 **Exact values:** all present
