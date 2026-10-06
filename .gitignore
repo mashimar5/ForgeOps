@@ -20,3 +20,10 @@ serving/
 
 # Test cache
 .pytest_cache/
+
+# Eval runs: transcripts hold raw per-part tool outputs; the rest is regenerated
+.claude/hillclimb/**/traces/
+.claude/hillclimb/**/report.html
+.claude/hillclimb/**/state.json
+.claude/hillclimb/**/trajectory/
+.claude/hillclimb/**/grader_history/

@@ -1,0 +1,62 @@
+{
+  "flow": "assistant",
+  "description": "Operations assistant (src/assistant.py): single questions graded against facts computed from the serving data",
+  "metrics": [
+    {
+      "id": "pass",
+      "label": "Pass",
+      "kind": "binary"
+    },
+    {
+      "id": "facts",
+      "label": "Facts met",
+      "kind": "float",
+      "scale": 1
+    },
+    {
+      "id": "no_bad_claims",
+      "label": "No bad claims",
+      "kind": "binary"
+    },
+    {
+      "id": "exact_values",
+      "label": "Exact values",
+      "kind": "float",
+      "scale": 1
+    },
+    {
+      "id": "grounded",
+      "label": "Grounded",
+      "kind": "binary"
+    }
+  ],
+  "perf_fields": [
+    {
+      "id": "cost_usd",
+      "label": "Cost",
+      "unit": "$"
+    },
+    {
+      "id": "in_tokens",
+      "label": "In tokens"
+    },
+    {
+      "id": "out_tokens",
+      "label": "Out tokens"
+    }
+  ],
+  "prices": {
+    "claude-opus-5-5": {
+      "in": 4.0,
+      "out": 20.0,
+      "cache_read": 0.2
+    },
+    "claude-sonnet-5-5": {
+      "in": 2.0,
+      "out": 10.0,
+      "cache_read": 0.2
+    }
+  },
+  "harness_paths": [],
+  "harness_sha": "cd2e4c71c1d7c7383dbecbdd0a891e9372e44eee843f27214b57799d64a9a6f4"
+}

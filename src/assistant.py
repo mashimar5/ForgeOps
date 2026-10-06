@@ -17,6 +17,7 @@ import argparse
 import asyncio
 import json
 import sys
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 import anthropic
@@ -49,18 +50,36 @@ comparing several parts or stations.
 """
 
 
+@asynccontextmanager
+async def connect():
+    """Start the MCP server; yield its tools (as Claude tools) and the system prompt."""
+
+    async with stdio_client(SERVER) as (read, write):
+        async with ClientSession(read, write) as session:
+            server_info = await session.initialize()
+            listed = await session.list_tools()
+
+            tools = [async_mcp_tool(tool, session) for tool in listed.tools]
+            yield tools, f"{GUIDELINES}\nAbout the data and the tools:\n{server_info.instructions}"
+
+
 def describe_call(block):
     args = ", ".join(f"{key}={json.dumps(value)}" for key, value in block.input.items())
     return f"{block.name}({args})"
 
 
-async def answer(client, tools, system, history, question, effort):
-    """Ask one question; `history` grows append-only with every turn."""
+async def answer(client, tools, system, history, question, effort, model=MODEL, on_message=None):
+    """
+    Ask one question; `history` grows append-only with every turn.
+
+    on_message, if given, is called with every API response (its model,
+    usage and stop_reason) -- the eval runner records them.
+    """
 
     history.append({"role": "user", "content": question})
 
     runner = client.beta.messages.tool_runner(
-        model=MODEL,
+        model=model,
         max_tokens=16000,
         system=system,
         tools=tools,
@@ -76,6 +95,9 @@ async def answer(client, tools, system, history, question, effort):
 
     async for message in runner:
         final = message
+
+        if on_message is not None:
+            on_message(message)
 
         # Mirror the conversation exactly as sent: each assistant turn unchanged,
         # then its tool results. Editing earlier turns would invalidate them.
@@ -122,43 +144,37 @@ async def main():
             "to a key from platform.claude.com, then try again."
         )
 
-    async with stdio_client(SERVER) as (read, write):
-        async with ClientSession(read, write) as session:
-            server_info = await session.initialize()
-            listed = await session.list_tools()
+    async with connect() as (tools, system):
+        history = []
 
-            tools = [async_mcp_tool(tool, session) for tool in listed.tools]
-            system = f"{GUIDELINES}\nAbout the data and the tools:\n{server_info.instructions}"
-            history = []
+        questions = [" ".join(args.question)] if args.question else None
 
-            questions = [" ".join(args.question)] if args.question else None
+        if questions is None:
+            print("Ask about the production line (Ctrl-D to quit).")
 
-            if questions is None:
-                print("Ask about the production line (Ctrl-D to quit).")
-
-            while True:
-                if questions is not None:
-                    if not questions:
-                        break
-                    question = questions.pop()
-                else:
-                    try:
-                        question = (await asyncio.to_thread(input, "\n> ")).strip()
-                    except EOFError:
-                        break
-                    if not question:
-                        continue
-
+        while True:
+            if questions is not None:
+                if not questions:
+                    break
+                question = questions.pop()
+            else:
                 try:
-                    print(await answer(client, tools, system, history, question, args.effort))
-                except anthropic.AuthenticationError:
-                    sys.exit("Claude API credentials were rejected. Check ANTHROPIC_API_KEY or run `ant auth login`.")
-                except anthropic.RateLimitError:
-                    print("Rate limited by the Claude API; wait a moment and ask again.", file=sys.stderr)
-                except anthropic.APIStatusError as error:
-                    print(f"Claude API error {error.status_code}: {error.message}", file=sys.stderr)
-                except anthropic.APIConnectionError:
-                    print("Couldn't reach the Claude API; check the network connection.", file=sys.stderr)
+                    question = (await asyncio.to_thread(input, "\n> ")).strip()
+                except EOFError:
+                    break
+                if not question:
+                    continue
+
+            try:
+                print(await answer(client, tools, system, history, question, args.effort))
+            except anthropic.AuthenticationError:
+                sys.exit("Claude API credentials were rejected. Check ANTHROPIC_API_KEY or run `ant auth login`.")
+            except anthropic.RateLimitError:
+                print("Rate limited by the Claude API; wait a moment and ask again.", file=sys.stderr)
+            except anthropic.APIStatusError as error:
+                print(f"Claude API error {error.status_code}: {error.message}", file=sys.stderr)
+            except anthropic.APIConnectionError:
+                print("Couldn't reach the Claude API; check the network connection.", file=sys.stderr)
 
 
 if __name__ == "__main__":

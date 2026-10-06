@@ -128,8 +128,22 @@ claude mcp add forgeops -- "$PWD/.venv/bin/python" "$PWD/src/mcp_server.py"
 
 The tests in [`tests/test_mcp_server.py`](tests/test_mcp_server.py) check the tools in process and over stdio, and that they convert into Claude tool definitions, without calling the Claude API.
 
+### Evaluating the assistant
+
+[`evals/assistant/`](evals/assistant/) holds a 25-question eval for the assistant. Each question goes through the assistant's real entry point, and Claude Sonnet 5.5 grades the answer against facts computed from the serving data with the same code the tools call, so the expected answers come from the data, not from a model. An answer passes if it states every required fact, makes none of the case's forbidden claims (such as calling a risk score a probability, giving a calendar date or using data from the future), contains the exact part Ids and names, and every number in it traces back to a tool result. A third of the questions test limits: unknown or not-yet-entered parts, QC results not reported yet, root-cause and cost questions the data can't answer.
+
+Baseline (Claude Opus 5.5, 25 questions × 2 runs): **46 of 50 answers pass (92%)**. The misses were small errors in details the assistant worked out on its own, such as a count taken from a long list. At this size the eval can't yet show whether a prompt change helps, because the run-to-run noise is larger than the room left to improve, so harder cases come first.
+
+```bash
+.venv/bin/python evals/assistant/build_cases.py                       # after build_serving_data.py
+.venv/bin/python evals/assistant/run_eval.py --check-grader --reps 2   # about $4 per full run
+.venv/bin/python evals/assistant/review.py                            # grades with the judge's reasons
+```
+
+The runner needs Claude API credentials, writes to `.claude/hillclimb/assistant/`, and refuses to run after its own code changes until a person approves it again with `--approve-harness`.
+
 ## Status
 
-Done: decoding the data, forward-in-time evaluation, the final-QC model with SHAP explanations, the early-warning, burst-monitoring and campaign analyses, and first versions of the API and the AI-assistant tools.
+Done: decoding the data, forward-in-time evaluation, the final-QC model with SHAP explanations, the early-warning, burst-monitoring and campaign analyses, first versions of the API and the AI-assistant tools, and an eval for the assistant.
 
 Planned, not built yet: a station-drift monitor and an operations dashboard.
