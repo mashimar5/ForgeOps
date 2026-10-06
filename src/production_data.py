@@ -59,13 +59,14 @@ def load_numeric(nrows):
     )
 
 
-def load_dates(nrows):
+def load_dates(nrows, split="train"):
     """
-    Raw train_date.csv rows. float32 halves memory; timestamps only have
-    two decimals, so nothing is lost.
+    Raw train_date.csv rows (split="test": test_date.csv, Kaggle's
+    unlabelled records). float32 halves memory; timestamps only have two
+    decimals, so nothing is lost.
     """
 
-    path = DATA_DIR / "train_date.csv"
+    path = DATA_DIR / f"{split}_date.csv"
     header = pd.read_csv(path, nrows=0).columns
 
     dtypes = {col: np.float32 for col in header}
@@ -110,14 +111,14 @@ def station_times(dates):
     return first_seen, last_seen
 
 
-def load_part_times(nrows):
+def load_part_times(nrows, split="train"):
     """
     When each part entered production (its first timestamp) and left it
     (its last timestamp), in date units. NaN for the few parts with no
     timestamps at all.
     """
 
-    dates = load_dates(nrows)
+    dates = load_dates(nrows, split)
     timestamps = dates.drop(columns="Id")
 
     return pd.DataFrame(

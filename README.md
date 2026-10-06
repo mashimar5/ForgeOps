@@ -17,7 +17,7 @@ Every result below is measured **forward in time**: models train only on parts w
 | **Early warning from measurements** | **None.** Measurements taken before the final line (L3) predict nothing about future parts. The usable signal arrives at L3, in a part's last ~18 minutes on the line. |
 | **Batch-mate alert** | When a part fails final QC, the parts that entered production with it and are still on the line fail more often. Flagging them marks **1.7% of production at 2.9× the average failure rate** and catches 4.9% of failures about **4 days** before final QC. Late flags are stronger while entry line L1 is running, but a cutoff tuned only on past data raises this to just 3.3× (the 4.6× seen in hindsight doesn't hold up). |
 | **Production campaigns** | The factory alternates between two entry lines, L0 and L1. Failure rates on both rise and fall together (r = 0.64), and the model ranks L1-entry parts about twice as well (14× vs 6× lift). |
-| **A leak that passes a forward split** | About 4% of records share every measurement and timestamp with another record. "Has a twin" raises lift from 7.4× to 9.2× in every test period, but it leaks the QC result: twins are most likely repeat tests of one part, made after a failed test. Not used (see [Evaluation](#evaluation)). |
+| **A leak that passes a forward split** | About 4% of train records share every measurement and timestamp with another record. "Has a twin" raises lift from 7.4× to 9.2× in every test period, but it leaks the QC result: twins are most likely repeat tests of one part, made after a failed test, and twins hidden in Kaggle's test file confirm it. Not used (see [Evaluation](#evaluation)). |
 
 ![When does the failure signal become available?](results/plots/early_warning_curve.png)
 
@@ -47,6 +47,8 @@ The headline numbers above use all 1.18M parts. The first 500k rows turned out t
 
 A forward split doesn't catch every leak. About 4% of records are "twins": they share every measurement and timestamp with another record, and they fail 7.5× as often as other records. Adding "has a twin" to the model raises lift from 7.4× to 9.2× and top-1% recall from 14% to 17%, in every test period and with every random seed. But within a twin group the failures sit on the first record: in pairs with one failure, the failing record has the lower Id 95% of the time. Twins are most likely repeat tests of one part, logged with a copy of its production record, and a failed test makes a repeat far more likely. The copied timestamps only make the repeat look simultaneous, so "has a twin" isn't known when a part is first tested. [`twin_feature.py`](src/twin_feature.py) has the details; the feature is not used.
 
+Kaggle split the records between its train and test files at random, so half of all twin pairs straddle the two files. Matching twins across both files ([`kaggle_split_repeats.py`](src/kaggle_split_repeats.py), [chart](results/plots/kaggle_split_repeats.png)) checks the reading out of sample: train records whose twins are all in the test file fail like the twins seen before (first records 6.2% vs 5.7%, later records 1.7% vs 1.7%). Counting them, 4% of train records are repeat tests, parts tested more than once hold 48% of the train file's failures, and parts tested once fail at only 0.33%.
+
 !["Has a twin" looks like a strong feature, but it leaks the QC result](results/plots/twin_feature.png)
 
 ## Setup
@@ -57,7 +59,7 @@ python3 -m venv .venv
 brew install libomp    # macOS only, needed by XGBoost
 ```
 
-Download the competition data from Kaggle into `data/`: `train_numeric.csv` and `train_date.csv` (`train_categorical.csv` is not used yet). The data is not included here because the competition rules don't allow redistributing it.
+Download the competition data from Kaggle into `data/`: `train_numeric.csv` and `train_date.csv`, plus `test_numeric.csv` and `test_date.csv` for `kaggle_split_repeats.py` (the categorical files are not used yet). The data is not included here because the competition rules don't allow redistributing it.
 
 ## Scripts
 
@@ -73,9 +75,10 @@ Run from the project root, for example `.venv/bin/python src/train_xgboost.py`.
 | [`batch_alert_cutoff.py`](src/batch_alert_cutoff.py) | Honest check of the batch-mate alert's cutoff: chosen on past data only, scored on each later period | ~30 s |
 | [`campaign_analysis.py`](src/campaign_analysis.py) | L0/L1 entry-line campaigns and the model by entry line | ~2 min |
 | [`twin_feature.py`](src/twin_feature.py) | Tests "has a twin" as a model feature, and why it leaks: twin records are most likely repeat tests of one part | ~6 min |
+| [`kaggle_split_repeats.py`](src/kaggle_split_repeats.py) | Matches twin records across Kaggle's train and test files: how the split cut twin groups, and an out-of-sample check of the repeat-test reading | ~5 min |
 | [`eda.py`](src/eda.py) | First exploration on a 10k-row sample; reads `train_numeric.csv` from the current directory | — |
 
-Runtimes are from a Mac with 18 CPU cores and 64 GB of RAM. `train_xgboost.py` and `twin_feature.py` use all 1.18M parts and peak at about 26 GB of RAM (set `NUM_ROWS = 500_000` in `train_xgboost.py` to use less). The other model scripts use the first 500k rows; analyses that only need timestamps use all 1.18M.
+Runtimes are from a Mac with 18 CPU cores and 64 GB of RAM. `train_xgboost.py` and `twin_feature.py` use all 1.18M parts and peak at about 26 GB of RAM (set `NUM_ROWS = 500_000` in `train_xgboost.py` to use less); `kaggle_split_repeats.py` reads both Kaggle files (2.37M records, ~25 GB). The other model scripts use the first 500k rows; analyses that only need timestamps use all 1.18M.
 
 Shared code: [`production_data.py`](src/production_data.py) (loaders, station helpers, twin records, forward-in-time folds) and [`qc_monitor.py`](src/qc_monitor.py) (which QC results were known at a given time).
 

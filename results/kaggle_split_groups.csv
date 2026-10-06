@@ -1,0 +1,7 @@
+Where,Groups,Share (%),Kind,Expected If Random (%),Observed (%)
+Train file only,20644,24.094585604407147,Group,,
+Test file only,20368,23.772452993148846,Group,,
+Both files,44667,52.13296140244401,Group,,
+Both in train,19865,,Pair,24.99997888063568,25.184142800999
+One in each file,39495,,Pair,49.99999999999108,50.0703609325676
+Both in test,19519,,Pair,25.000021119373244,24.7454962664334

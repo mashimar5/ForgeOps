@@ -1,0 +1,8 @@
+Role,Other Records In,Records,Failures,Failure Rate (%)
+No twin,-,1093559,3588,0.32810301044570983
+1st record,Train file,22494,1275,5.668178180848226
+1st record,Test file only,20370,1258,6.175748649975454
+2nd record,Train file,22503,378,1.6797760298626851
+2nd record,Test file only,20695,352,1.7008939357332689
+3rd+ record,Train file,3345,24,0.7174887892376681
+3rd+ record,Test file only,781,4,0.5121638924455826

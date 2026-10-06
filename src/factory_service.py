@@ -149,6 +149,9 @@ class FactoryService:
         # A part can be seen once it enters production, a repeat record
         # only once the part's QC result is reported (same tick as
         # _qc_known), because the repeat usually follows a failed test.
+        # Only train-file records are served: a repeat whose first record
+        # is in Kaggle's test file looks like a part here and stands in for
+        # it (see kaggle_split_repeats.py).
         self._repeat = np.zeros(len(parts), dtype=bool)
         self._repeat[np.delete(twin_rows, first)] = True
         self._is_part = dated & ~self._repeat

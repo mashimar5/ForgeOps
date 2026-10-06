@@ -1,0 +1,4 @@
+Train Records,Records,Failures,Failure Rate (%)
+First tests,1136423,6121,0.5386198624983831
+Repeats,47324,758,1.601724283661567
+  of which repeat a test-file record,23661,388,1.6398292548920164
