@@ -137,7 +137,7 @@ def test_qc_result_hidden_until_reported(client, riskiest_failure):
     assert client.get(url, params={"at_hour": end + 1.1}).json()["qc_result"] == "failed"
 
 
-def test_batch_alerts_only_flag_parts_still_in_production(client):
+def test_batch_alerts_only_flag_parts_still_in_production(client, service):
     at = 15000
     alerts = client.get("/alerts/batch-mates", params={"at_hour": at, "limit": 5}).json()
 
@@ -146,6 +146,7 @@ def test_batch_alerts_only_flag_parts_still_in_production(client):
     for item in alerts["items"]:
         assert item["entered_hour"] <= at
         assert item["first_failure_known_hour"] < at
+        assert not service._repeat[service._row_of.get_loc(item["part_id"])]
 
         part = client.get(f"/parts/{item['part_id']}", params={"at_hour": at}).json()
         assert part["status"] == "in production"
@@ -198,32 +199,72 @@ def test_inspection_queue_is_empty_before_the_model_can_score(client):
 
 # ============================================================
 # TWIN RECORDS
+#
+# Twin records are most likely repeat tests of one part: the first
+# record (lowest Id) is the part, and a repeat record must stay
+# hidden until the part's QC result is reported. 280944 and 280945
+# are such a pair (the assistant's first answer listed both).
 # ============================================================
 
-def test_twin_records_are_listed_once(client):
-    queue = client.get("/inspection-queue", params={"hours": 24, "limit": 50}).json()
-
-    listed = [item["part_id"] for item in queue["items"]]
-    twins = [part for item in queue["items"] for part in item["twin_part_ids"]]
-
-    assert not set(listed) & set(twins)
-    assert queue["parts_covered"] == len(listed) + len(twins)
-
-    # 280944 and 280945 have identical records (the assistant's first answer listed both)
-    pair = next(item for item in queue["items"] if item["part_id"] == 280944)
-    assert pair["twin_part_ids"] == [280945]
-
-
-def test_twins_are_shown_once_the_part_finishes(client, service):
+@pytest.fixture(scope="module")
+def twin_pair(service):
     row = service._row_of.get_loc(280944)
-    start, end = hours(service._start[row]), hours(service._end[row])
 
-    finished = client.get("/parts/280944", params={"at_hour": end}).json()
-    in_production = client.get("/parts/280944", params={"at_hour": (start + end) / 2}).json()
+    return {
+        "part": 280944,
+        "repeat": 280945,
+        "start": hours(service._start[row]),
+        "end": hours(service._end[row]),
+    }
 
-    assert finished["twin_part_ids"] == [280945]
-    assert in_production["status"] == "in production"
-    assert in_production["twin_part_ids"] is None
+
+def test_repeat_record_appears_once_the_qc_result_is_reported(client, twin_pair):
+    part_url, repeat_url = f"/parts/{twin_pair['part']}", f"/parts/{twin_pair['repeat']}"
+    before, after = twin_pair["end"] + 1.0, twin_pair["end"] + 1.1
+
+    assert client.get(repeat_url, params={"at_hour": before}).status_code == 404
+
+    part = client.get(part_url, params={"at_hour": before}).json()
+    assert part["status"] == "finished"
+    assert part["qc_result"] is None
+    assert part["twin_part_ids"] is None
+
+    part = client.get(part_url, params={"at_hour": after}).json()
+    repeat = client.get(repeat_url, params={"at_hour": after}).json()
+    assert part["qc_result"] is not None
+    assert part["twin_part_ids"] == [twin_pair["repeat"]]
+    assert repeat["twin_part_ids"] == [twin_pair["part"]]
+
+
+def test_inspection_queue_lists_each_part_once(client, service, twin_pair):
+    queue = client.get("/inspection-queue", params={"hours": 24, "limit": 50}).json()
+    listed = [item["part_id"] for item in queue["items"]]
+
+    assert twin_pair["part"] in listed
+    assert not service._repeat[service._row_of.get_indexer(listed)].any()
+    assert "parts_covered" not in queue
+    assert all("twin_part_ids" not in item for item in queue["items"])
+
+
+def test_batch_size_counts_parts_not_repeat_records(client, service, twin_pair):
+    row = service._row_of.get_loc(twin_pair["part"])
+    same_tick = service._start == service._start[row]
+
+    midway = (twin_pair["start"] + twin_pair["end"]) / 2
+    part = client.get(f"/parts/{twin_pair['part']}", params={"at_hour": midway}).json()
+
+    assert part["status"] == "in production"
+    assert part["twin_part_ids"] is None
+    assert part["batch_mates"]["batch_size"] == (same_tick & ~service._repeat).sum()
+    assert part["batch_mates"]["batch_size"] < same_tick.sum()
+
+
+def test_summary_counts_each_part_once(client, service):
+    at_end = client.get("/summary").json()
+
+    assert at_end["parts_finished"] == service._is_part.sum()
+    assert at_end["qc_results_known"] > at_end["parts_finished"]
+    assert "repeat tests" in at_end["note"]
 
 
 # ============================================================

@@ -83,7 +83,7 @@ Outputs go to `results/` (CSVs) and `results/plots/`. `results/random_split/` ke
 
 ## API (first version)
 
-A FastAPI service serves the evidence above. Every endpoint answers **as of** a production hour (`at_hour`: hours since the first timestamp; the data is anonymized, so there are no dates) and only uses what was known then: the stations a part had visited, and QC results already reported (1 hour after a part's last station). The risk model only scores parts it never trained on, and ranks each part against parts already scored at that time.
+A FastAPI service serves the evidence above. Every endpoint answers **as of** a production hour (`at_hour`: hours since the first timestamp; the data is anonymized, so there are no dates) and only uses what was known then: the stations a part had visited, and QC results already reported (1 hour after a part's last station). The risk model only scores parts it never trained on, and ranks each part against parts already scored at that time. Twin records, most likely repeat tests of one part, only appear once the part's QC result is reported; part counts and lists count each part once, while QC result counts and failure rates include every record.
 
 ```bash
 .venv/bin/python src/train_xgboost.py         # if models/ doesn't exist yet
@@ -95,15 +95,13 @@ A FastAPI service serves the evidence above. Every endpoint answers **as of** a 
 |---|---|
 | `GET /summary` | Factory counts so far and the model card (forward-in-time metrics) |
 | `GET /line/status` | Line monitor (recent QC failure rate vs. history) and the current entry-line campaign |
-| `GET /parts/{id}` | A part's route so far, status, QC result once reported, batch-mate status and risk |
+| `GET /parts/{id}` | A part's route so far, status, QC result once reported, batch-mate status, risk, and its twin records once the QC result is reported |
 | `GET /parts/{id}/risk` | Risk score, percentile and the top SHAP contributions |
-| `GET /inspection-queue` | Parts that just reached their last station, riskiest first. Twin records (identical records, most likely repeat tests of one part) are listed once |
+| `GET /inspection-queue` | Parts that just reached their last station, riskiest first, each listed once |
 | `GET /alerts/batch-mates` | Parts in production whose entry batch-mate already failed final QC |
 | `GET /stations`, `GET /stations/{id}` | Visits, failure rate, risk lift and timing per station |
 
-[`factory_service.py`](src/factory_service.py) holds the logic and returns plain dicts, so the planned AI-assistant tools can reuse it; [`api.py`](src/api.py) is a thin FastAPI layer with typed response schemas. The tests in [`tests/`](tests/test_api.py) run against the real serving data (`.venv/bin/python -m pytest`) and mostly check that no answer uses information from the future.
-
-Known issue: the API shows a part's twin records as soon as it reaches its last station. Since twins are most likely repeat tests, that reveals a retest before the part's QC result is reported. To be fixed.
+[`factory_service.py`](src/factory_service.py) holds the logic and returns plain dicts, so the AI-assistant tools below reuse it; [`api.py`](src/api.py) is a thin FastAPI layer with typed response schemas. The tests in [`tests/`](tests/test_api.py) run against the real serving data (`.venv/bin/python -m pytest`) and mostly check that no answer uses information from the future.
 
 ## AI-assistant tools (first version)
 

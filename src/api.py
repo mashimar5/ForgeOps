@@ -47,6 +47,7 @@ class Summary(BaseModel):
     qc_results_known: int
     qc_failure_rate_pct: float | None
     model: ModelCard
+    note: str
 
 
 class LineStatus(BaseModel):
@@ -123,7 +124,6 @@ class PartRisk(RiskSummary):
 
 class QueueItem(BaseModel):
     part_id: int
-    twin_part_ids: list[int]
     entry_line: str
     finished_hour: float
     risk_score: float
@@ -136,7 +136,6 @@ class InspectionQueue(BaseModel):
     window_hours: float
     parts_finished_in_window: int
     parts_scored_in_window: int
-    parts_covered: int
     items: list[QueueItem]
     note: str
 
@@ -195,14 +194,16 @@ async def lifespan(app):
 
 app = FastAPI(
     title="ForgeOps API",
-    version="0.1.0",
+    version="0.2.0",
     description=(
         "Evidence about the Bosch production line, answered **as of** a production hour "
         "(hours since the first timestamp in the data; the data is anonymized, so there are "
         "no calendar dates). Each answer only uses what was known at that hour: stations a "
         "part had visited and QC results already reported, 1 hour after a part's last "
-        "station. The risk model only scores parts it never trained on. Risk scores rank "
-        "parts for inspection; they are not calibrated probabilities."
+        "station. Twin records (identical measurements and timestamps, most likely repeat "
+        "tests of one part) appear only once the part's QC result is reported. The risk "
+        "model only scores parts it never trained on. Risk scores rank parts for "
+        "inspection; they are not calibrated probabilities."
     ),
     lifespan=lifespan,
 )

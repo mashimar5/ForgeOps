@@ -50,6 +50,10 @@ tests, about 4 days before their own final QC.
 - The line monitor indicates long high-failure stretches, with a lag; it is not \
 reliable day to day.
 - Station failure rates are associations, not causes.
+- About 2% of parts have more than one record (twin records: identical measurements \
+and timestamps, most likely repeat tests of the part). A repeat record only appears \
+once the part's QC result is reported. Part counts and lists count each part once; QC \
+result counts and failure rates include every record.
 - Measurement names are anonymized (L3_S32_F3850 = line 3, station 32, feature 3850). \
 Don't guess what they physically measure.
 """
@@ -58,7 +62,7 @@ server = MCPServer(
     name="forgeops",
     title="ForgeOps factory evidence",
     instructions=INSTRUCTIONS,
-    version="0.1.0",
+    version="0.2.0",
 )
 
 READ_ONLY = ToolAnnotations(readOnlyHint=True, idempotentHint=True, openWorldHint=False)
@@ -125,8 +129,9 @@ def get_line_status(at_hour: AtHour = None) -> dict[str, Any]:
 def get_part(part_id: PartId, at_hour: AtHour = None) -> dict[str, Any]:
     """One part's history at a production hour: entry line, route so far (stations
     with hours), status (in production or finished), QC result once reported,
-    batch-mate alert status while in production, twin parts once finished (parts
-    with an identical measurement record that entered and finished with it), and
+    batch-mate alert status while in production, twin records once the QC result
+    is reported (other records with identical measurements and timestamps, most
+    likely repeat tests of the same part; the lowest Id is the first test), and
     whether a risk score exists.
 
     Call this when the user asks about a specific part Id. Fails if the part had
@@ -168,10 +173,8 @@ def get_inspection_queue(
     limit: Annotated[int, Field(ge=1, le=100, description="Most parts to return")] = 20,
 ) -> dict[str, Any]:
     """Parts that reached their last station in the last `hours`, riskiest first,
-    with risk scores and percentiles. Twin records (separate parts with identical
-    measurements that entered and finished together, so they score the same) are
-    listed once, with the other parts in twin_part_ids; parts_covered counts every
-    physical part in the list.
+    with risk scores and percentiles. Each part is listed once (repeat test records
+    are left out).
 
     Call this for "which parts should we inspect?" or "what are the highest-risk
     parts right now?". Only parts that finished after hour 13565.6 can be scored.

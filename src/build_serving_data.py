@@ -143,8 +143,8 @@ print(f"Scorable parts: {len(scoring_rows):,} ({y[scorable].sum():,} failures)")
 #
 # About 4% of records share every measurement and timestamp with
 # another record. They are most likely repeat records of one part
-# (see twin_feature.py). Their risk scores are identical, so the
-# API lists each group once.
+# (see twin_feature.py). The API treats each group's first record
+# as the part and shows the rest only once its QC result is reported.
 # ============================================================
 
 twin_group = twin_groups(numeric[feature_names], start)

@@ -7,6 +7,13 @@ already reported (LABEL_DELAY_HOURS after a part's last station). The
 model only scores parts it never trained on, and ranks a part only
 against parts already scored at that time.
 
+Twin records (identical measurements and timestamps) are most likely
+repeat tests of one part (see twin_feature.py). A group's first record
+(lowest Id) is the part; later "repeat records" only appear once the
+part's QC result is reported, since a failed test is what usually leads
+to a repeat. Part counts and lists count each part once; QC result
+counts and failure rates include every record.
+
 Times are production hours since the first timestamp in the data. The
 data is anonymized, so there are no calendar dates.
 
@@ -77,6 +84,12 @@ RISK_NOTE = (
     "probabilities. Percentiles rank a part against parts already scored at this time."
 )
 
+REPEAT_NOTE = (
+    "About 2% of parts have more than one record (twin records: identical measurements and "
+    "timestamps, most likely repeat tests), shown once the part's QC result is reported. "
+    "Part counts count each part once; QC result counts and failure rates include every record."
+)
+
 
 class NotFound(Exception):
     """A part or station that can't be shown at this time."""
@@ -109,14 +122,8 @@ class FactoryService:
         self._risk_score = parts["risk_score"].to_numpy()
         self._scorable = self._scoring_row >= 0
 
-        # Twin records: parts with identical measurement records (see
-        # build_serving_data.py), and the rows in each twin group
-        self._twin_group = parts["twin_group"].to_numpy()
-
-        twin_rows = np.flatnonzero(self._twin_group >= 0)
-        twin_rows = twin_rows[np.argsort(self._twin_group[twin_rows], kind="stable")]
-        groups, first, size = np.unique(self._twin_group[twin_rows], return_index=True, return_counts=True)
-        self._twin_members = {int(g): twin_rows[f:f + n] for g, f, n in zip(groups, first, size)}
+        # Rows are in Id order; twin groups below rely on it
+        assert (np.diff(self._part_id) > 0).all()
 
         # All times are integer 6-minute ticks; NEVER = no timestamps
         dated = parts["start"].notna().to_numpy()
@@ -127,6 +134,27 @@ class FactoryService:
         self._end = np.full(len(parts), NEVER, dtype=np.int64)
         self._start[dated] = to_ticks(start_units[dated])
         self._end[dated] = to_ticks(end_units[dated])
+        self._delay = hours_to_ticks(LABEL_DELAY_HOURS)
+
+        # Twin records (see build_serving_data.py) and the rows in each
+        # twin group, lowest Id first
+        self._twin_group = parts["twin_group"].to_numpy()
+
+        twin_rows = np.flatnonzero(self._twin_group >= 0)
+        twin_rows = twin_rows[np.argsort(self._twin_group[twin_rows], kind="stable")]
+        groups, first, size = np.unique(self._twin_group[twin_rows], return_index=True, return_counts=True)
+        self._twin_members = {int(g): twin_rows[f:f + n] for g, f, n in zip(groups, first, size)}
+
+        # A group's first record is the part; the rest are repeat records.
+        # A part can be seen once it enters production, a repeat record
+        # only once the part's QC result is reported (same tick as
+        # _qc_known), because the repeat usually follows a failed test.
+        self._repeat = np.zeros(len(parts), dtype=bool)
+        self._repeat[np.delete(twin_rows, first)] = True
+        self._is_part = dated & ~self._repeat
+
+        self._visible_from = self._start.copy()
+        self._visible_from[self._repeat] = self._end[self._repeat] + self._delay + 1
 
         # When each station was first visited. Column-major, because
         # station metrics read whole columns.
@@ -140,15 +168,19 @@ class FactoryService:
 
         self._scoring_features = np.load(serving_dir / "scoring_features.npy", mmap_mode="r")
 
-        # QC results, ordered by when each became known
+        # QC results, ordered by when each became known. Repeat records'
+        # results are reported together with their part's own.
         self._qc = QCStream(start_units[dated], end_units[dated], self._response[dated], LABEL_DELAY_HOURS)
-        self._delay = hours_to_ticks(LABEL_DELAY_HOURS)
 
         self._first_batch_failure = np.full(len(parts), NEVER, dtype=np.int64)
         self._first_batch_failure[dated] = self._qc.first_batch_failure_known(start_units[dated])
 
-        self._batch_size = np.zeros(len(parts), dtype=np.int64)
-        self._batch_size[dated] = self._qc.batch_size(start_units[dated])
+        # Parts that entered in the same tick (repeat records aren't parts)
+        part_entries = np.sort(self._start[self._is_part])
+        self._batch_size = (
+            np.searchsorted(part_entries, self._start, "right")
+            - np.searchsorted(part_entries, self._start, "left")
+        )
 
         model = XGBClassifier()
         model.load_model(model_path)
@@ -184,8 +216,9 @@ class FactoryService:
         except KeyError:
             row = None
 
-        # A future part is reported exactly like an unknown one
-        if row is None or self._start[row] > tick:
+        # A future part (or a repeat record not yet shown) is reported
+        # exactly like an unknown one
+        if row is None or self._visible_from[row] > tick:
             raise NotFound(f"Part {part_id} is not known at hour {self._hours(tick):.1f}.")
 
         return row
@@ -195,10 +228,15 @@ class FactoryService:
 
         return self._end < tick - self._delay
 
+    def _scored(self, tick):
+        """Parts with a risk score by `tick` (repeat records left out)."""
+
+        return self._scorable & self._is_part & (self._end <= tick)
+
     def _percentile(self, score, tick):
         """Rank a score against parts already scored by `tick` (100 = highest)."""
 
-        reference = self._risk_score[self._scorable & (self._end <= tick)]
+        reference = self._risk_score[self._scored(tick)]
 
         if len(reference) < MIN_REFERENCE_PARTS:
             return None
@@ -246,7 +284,7 @@ class FactoryService:
         ]
 
     def _twins(self, row):
-        """Part Ids of the other parts with an identical record (empty if none)."""
+        """Ids of the other records in this record's twin group (empty if none)."""
 
         group = int(self._twin_group[row])
 
@@ -286,8 +324,8 @@ class FactoryService:
     def summary(self, at_hour=None):
         tick = self._tick(at_hour)
 
-        entered = self._start <= tick
-        finished = self._end <= tick
+        entered = self._is_part & (self._start <= tick)
+        finished = self._is_part & (self._end <= tick)
         known = self._qc_known(tick)
 
         return {
@@ -300,6 +338,7 @@ class FactoryService:
             "qc_results_known": int(known.sum()),
             "qc_failure_rate_pct": rounded(self._response[known].mean() * 100, 3) if known.any() else None,
             "model": self.model_card(),
+            "note": REPEAT_NOTE,
         }
 
     def line_status(self, at_hour=None):
@@ -311,7 +350,7 @@ class FactoryService:
         ratio = rounded(rate / history, 2) if results > 0 and history > 0 else None
 
         # Which entry lines fed production over the last week
-        recent = (self._start > tick - hours_to_ticks(CAMPAIGN_WINDOW_HOURS)) & (self._start <= tick)
+        recent = self._is_part & (self._start > tick - hours_to_ticks(CAMPAIGN_WINDOW_HOURS)) & (self._start <= tick)
         entered = {line: int((recent & (self._entry_line == line)).sum()) for line in ["L0", "L1"]}
         total = entered["L0"] + entered["L1"]
         l1_share = entered["L1"] / total if total else None
@@ -323,7 +362,7 @@ class FactoryService:
         else:
             campaign = "L0 only"
 
-        in_production = (self._start <= tick) & (self._end > tick)
+        in_production = self._is_part & (self._start <= tick) & (self._end > tick)
 
         return {
             "at_hour": self._hours(tick),
@@ -379,9 +418,8 @@ class FactoryService:
             "route_so_far": self._route(row, tick),
             "qc_result": ("failed" if self._response[row] == 1 else "passed") if qc_known else None,
             "batch_mates": batch_mates,
-            # Records can only be compared once complete; twins always
-            # finish together, so none is shown while in production
-            "twin_part_ids": self._twins(row) if finished else None,
+            # Repeat records only exist once the QC result is reported
+            "twin_part_ids": self._twins(row) if qc_known else None,
             "risk": self._risk_summary(row, tick),
         }
 
@@ -434,37 +472,23 @@ class FactoryService:
         tick = self._tick(at_hour)
         window_start = tick - hours_to_ticks(hours)
 
-        just_finished = (self._end > window_start) & (self._end <= tick)
+        # Each part once: repeat records are later tests of a listed part
+        just_finished = self._is_part & (self._end > window_start) & (self._end <= tick)
         rows = np.flatnonzero(just_finished & self._scorable)
-        rows = rows[np.argsort(-self._risk_score[rows], kind="stable")]
+        rows = rows[np.argsort(-self._risk_score[rows], kind="stable")][:limit]
 
-        reference = np.sort(self._risk_score[self._scorable & (self._end <= tick)])
+        reference = np.sort(self._risk_score[self._scored(tick)])
         enough = len(reference) >= MIN_REFERENCE_PARTS
 
-        # Twins have identical records and scores, so each group is listed
-        # once (under its lowest part Id; ties keep Id order) with the
-        # other parts in twin_part_ids
         items = []
-        listed_groups = set()
 
         for row in rows:
-            if len(items) == limit:
-                break
-
-            group = int(self._twin_group[row])
-
-            if group >= 0:
-                if group in listed_groups:
-                    continue
-                listed_groups.add(group)
-
             score = float(self._risk_score[row])
             percentile = rounded(np.searchsorted(reference, score, "left") / len(reference) * 100, 2) if enough else None
 
             items.append(
                 {
                     "part_id": int(self._part_id[row]),
-                    "twin_part_ids": self._twins(row),
                     "entry_line": str(self._entry_line[row]),
                     "finished_hour": self._hours(self._end[row]),
                     "risk_score": rounded(score, 4),
@@ -480,12 +504,10 @@ class FactoryService:
             "window_hours": hours,
             "parts_finished_in_window": int(just_finished.sum()),
             "parts_scored_in_window": int((just_finished & self._scorable).sum()),
-            "parts_covered": sum(1 + len(item["twin_part_ids"]) for item in items),
             "items": items,
             "note": (
-                f"{RISK_NOTE} Twin records (identical measurements; the parts entered and finished "
-                f"together) are listed once, with the other parts in twin_part_ids. The model scores "
-                f"parts that finished after hour {cutoff:.1f}."
+                f"{RISK_NOTE} Each part is listed once; repeat test records (twin records) are "
+                f"left out. The model scores parts that finished after hour {cutoff:.1f}."
             ),
         }
 
@@ -494,7 +516,7 @@ class FactoryService:
 
         tick = self._tick(at_hour)
 
-        in_production = (self._start <= tick) & (self._end > tick)
+        in_production = self._is_part & (self._start <= tick) & (self._end > tick)
         flagged = np.flatnonzero(in_production & (self._first_batch_failure < tick))
 
         # Most recent flags first
@@ -555,8 +577,10 @@ class FactoryService:
     def _station_metrics(self, j, tick, known, overall_rate):
         ticks = self._station_tick[:, j]
 
-        visited = ticks <= tick
-        visited_known = visited & known
+        # QC results include repeat records (known => already shown);
+        # part counts and timing don't
+        visited_known = (ticks <= tick) & known
+        visited = self._is_part & (ticks <= tick)
         visited_finished = visited & (self._end <= tick)
 
         rate = self._response[visited_known].mean() if visited_known.any() else None
