@@ -14,3 +14,9 @@ models/
 
 # Old plot exports in the project root
 /Figure_*.png
+
+# API serving data (regenerate with src/build_serving_data.py)
+serving/
+
+# Test cache
+.pytest_cache/

@@ -7,3 +7,13 @@ scipy==1.18.1
 xgboost==3.4.1
 shap==0.52.0
 matplotlib==3.11.2
+
+# API
+fastapi==0.142.2
+pydantic==2.13.5
+uvicorn==0.54.0
+pyarrow==25.0.1
+
+# Tests
+pytest==9.1.1
+httpx==0.28.1

@@ -75,8 +75,30 @@ Shared code: [`production_data.py`](src/production_data.py) (loaders, station he
 
 Outputs go to `results/` (CSVs) and `results/plots/`. `results/random_split/` keeps the original random-split outputs for comparison.
 
+## API (first version)
+
+A FastAPI service serves the evidence above. Every endpoint answers **as of** a production hour (`at_hour`: hours since the first timestamp; the data is anonymized, so there are no dates) and only uses what was known then: the stations a part had visited, and QC results already reported (1 hour after a part's last station). The risk model only scores parts it never trained on, and ranks each part against parts already scored at that time.
+
+```bash
+.venv/bin/python src/train_xgboost.py         # if models/ doesn't exist yet
+.venv/bin/python src/build_serving_data.py    # ~1 min; writes serving/ (~1.2 GB)
+.venv/bin/uvicorn api:app --app-dir src       # then open http://127.0.0.1:8000/docs
+```
+
+| Endpoint | Returns |
+|---|---|
+| `GET /summary` | Factory counts so far and the model card (forward-in-time metrics) |
+| `GET /line/status` | Line monitor (recent QC failure rate vs. history) and the current entry-line campaign |
+| `GET /parts/{id}` | A part's route so far, status, QC result once reported, batch-mate status and risk |
+| `GET /parts/{id}/risk` | Risk score, percentile and the top SHAP contributions |
+| `GET /inspection-queue` | Parts that just reached their last station, riskiest first |
+| `GET /alerts/batch-mates` | Parts in production whose entry batch-mate already failed final QC |
+| `GET /stations`, `GET /stations/{id}` | Visits, failure rate, risk lift and timing per station |
+
+[`factory_service.py`](src/factory_service.py) holds the logic and returns plain dicts, so the planned AI-assistant tools can reuse it; [`api.py`](src/api.py) is a thin FastAPI layer with typed response schemas. The tests in [`tests/`](tests/test_api.py) run against the real serving data (`.venv/bin/python -m pytest`) and mostly check that no answer uses information from the future.
+
 ## Status
 
-Done: decoding the data, forward-in-time evaluation, the final-QC model with SHAP explanations, and the early-warning, burst-monitoring and campaign analyses.
+Done: decoding the data, forward-in-time evaluation, the final-QC model with SHAP explanations, the early-warning, burst-monitoring and campaign analyses, and a first version of the API.
 
-Planned, not built yet: a station-drift monitor, an API layer, and an operations dashboard.
+Planned, not built yet: a station-drift monitor, AI-assistant tools on top of the API, and an operations dashboard.
