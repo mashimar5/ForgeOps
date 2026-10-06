@@ -17,6 +17,7 @@ Every result below is measured **forward in time**: models train only on parts w
 | **Early warning from measurements** | **None.** Measurements taken before the final line (L3) predict nothing about future parts. The usable signal arrives at L3, in a part's last ~18 minutes on the line. |
 | **Batch-mate alert** | When a part fails final QC, the parts that entered production with it and are still on the line fail more often. Flagging them marks **1.7% of production at 2.9× the average failure rate** and catches 4.9% of failures about **4 days** before final QC. Late flags are stronger while entry line L1 is running, but a cutoff tuned only on past data raises this to just 3.3× (the 4.6× seen in hindsight doesn't hold up). |
 | **Production campaigns** | The factory alternates between two entry lines, L0 and L1. Failure rates on both rise and fall together (r = 0.64), and the model ranks L1-entry parts about twice as well (14× vs 6× lift). |
+| **A leak that passes a forward split** | About 4% of records share every measurement and timestamp with another record. "Has a twin" raises lift from 7.4× to 9.2× in every test period, but it leaks the QC result: twins are most likely repeat tests of one part, made after a failed test. Not used (see [Evaluation](#evaluation)). |
 
 ![When does the failure signal become available?](results/plots/early_warning_curve.png)
 
@@ -44,6 +45,10 @@ The headline numbers above use all 1.18M parts. The first 500k rows turned out t
 
 `forward_folds()` in [`src/production_data.py`](src/production_data.py) cuts the timeline into five equal blocks and tests on blocks 2–5, each time training on parts that finished before the block began. PR-AUC lift is PR-AUC divided by the failure rate, which is what random ranking would score. Model outputs are **risk scores for ranking**, not calibrated probabilities.
 
+A forward split doesn't catch every leak. About 4% of records are "twins": they share every measurement and timestamp with another record, and they fail 7.5× as often as other records. Adding "has a twin" to the model raises lift from 7.4× to 9.2× and top-1% recall from 14% to 17%, in every test period and with every random seed. But within a twin group the failures sit on the first record: in pairs with one failure, the failing record has the lower Id 95% of the time. Twins are most likely repeat tests of one part, logged with a copy of its production record, and a failed test makes a repeat far more likely. The copied timestamps only make the repeat look simultaneous, so "has a twin" isn't known when a part is first tested. [`twin_feature.py`](src/twin_feature.py) has the details; the feature is not used.
+
+!["Has a twin" looks like a strong feature, but it leaks the QC result](results/plots/twin_feature.png)
+
 ## Setup
 
 ```bash
@@ -67,11 +72,12 @@ Run from the project root, for example `.venv/bin/python src/train_xgboost.py`.
 | [`monitor_model.py`](src/monitor_model.py) | Whether monitor features improve the model; the batch-mate alert by when its flag fires | ~3 min |
 | [`batch_alert_cutoff.py`](src/batch_alert_cutoff.py) | Honest check of the batch-mate alert's cutoff: chosen on past data only, scored on each later period | ~30 s |
 | [`campaign_analysis.py`](src/campaign_analysis.py) | L0/L1 entry-line campaigns and the model by entry line | ~2 min |
+| [`twin_feature.py`](src/twin_feature.py) | Tests "has a twin" as a model feature, and why it leaks: twin records are most likely repeat tests of one part | ~6 min |
 | [`eda.py`](src/eda.py) | First exploration on a 10k-row sample; reads `train_numeric.csv` from the current directory | — |
 
-Runtimes are from a Mac with 18 CPU cores and 64 GB of RAM. `train_xgboost.py` uses all 1.18M parts and peaks at about 26 GB of RAM (set `NUM_ROWS = 500_000` in the script to use less). The other model scripts use the first 500k rows; analyses that only need timestamps use all 1.18M.
+Runtimes are from a Mac with 18 CPU cores and 64 GB of RAM. `train_xgboost.py` and `twin_feature.py` use all 1.18M parts and peak at about 26 GB of RAM (set `NUM_ROWS = 500_000` in `train_xgboost.py` to use less). The other model scripts use the first 500k rows; analyses that only need timestamps use all 1.18M.
 
-Shared code: [`production_data.py`](src/production_data.py) (loaders, station helpers, forward-in-time folds) and [`qc_monitor.py`](src/qc_monitor.py) (which QC results were known at a given time).
+Shared code: [`production_data.py`](src/production_data.py) (loaders, station helpers, twin records, forward-in-time folds) and [`qc_monitor.py`](src/qc_monitor.py) (which QC results were known at a given time).
 
 Outputs go to `results/` (CSVs) and `results/plots/`. `results/random_split/` keeps the original random-split outputs for comparison.
 
@@ -91,11 +97,13 @@ A FastAPI service serves the evidence above. Every endpoint answers **as of** a 
 | `GET /line/status` | Line monitor (recent QC failure rate vs. history) and the current entry-line campaign |
 | `GET /parts/{id}` | A part's route so far, status, QC result once reported, batch-mate status and risk |
 | `GET /parts/{id}/risk` | Risk score, percentile and the top SHAP contributions |
-| `GET /inspection-queue` | Parts that just reached their last station, riskiest first. Twin records (separate parts with identical measurements, processed together) are listed once |
+| `GET /inspection-queue` | Parts that just reached their last station, riskiest first. Twin records (identical records, most likely repeat tests of one part) are listed once |
 | `GET /alerts/batch-mates` | Parts in production whose entry batch-mate already failed final QC |
 | `GET /stations`, `GET /stations/{id}` | Visits, failure rate, risk lift and timing per station |
 
 [`factory_service.py`](src/factory_service.py) holds the logic and returns plain dicts, so the planned AI-assistant tools can reuse it; [`api.py`](src/api.py) is a thin FastAPI layer with typed response schemas. The tests in [`tests/`](tests/test_api.py) run against the real serving data (`.venv/bin/python -m pytest`) and mostly check that no answer uses information from the future.
+
+Known issue: the API shows a part's twin records as soon as it reaches its last station. Since twins are most likely repeat tests, that reveals a retest before the part's QC result is reported. To be fixed.
 
 ## AI-assistant tools (first version)
 

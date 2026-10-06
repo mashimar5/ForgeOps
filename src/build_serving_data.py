@@ -37,6 +37,7 @@ from production_data import (
     load_dates,
     station_number,
     station_times,
+    twin_groups,
 )
 
 
@@ -140,31 +141,15 @@ print(f"Scorable parts: {len(scoring_rows):,} ({y[scorable].sum():,} failures)")
 # ============================================================
 # 4. TWIN RECORDS
 #
-# About 4% of parts have exactly the same measurement record as
-# another part. Twins always enter and finish together (same
-# entry and end tick) and ~96% of twin groups share their QC
-# result, so they look like separate parts processed together.
-# Their risk scores are identical, so the API lists each group
-# once.
+# About 4% of records share every measurement and timestamp with
+# another record. They are most likely repeat records of one part
+# (see twin_feature.py). Their risk scores are identical, so the
+# API lists each group once.
 # ============================================================
 
-dated = ~np.isnan(start)
-record_hash = pd.util.hash_pandas_object(numeric[feature_names], index=False).to_numpy()
+twin_group = twin_groups(numeric[feature_names], start)
 
-keys = pd.DataFrame({"record": record_hash[dated], "start": start[dated]})
-in_group = keys.groupby(["record", "start"])["record"].transform("size").to_numpy() > 1
-
-twin_group = np.full(len(ids), -1, dtype=np.int32)
-twin_group[np.flatnonzero(dated)[in_group]] = keys[in_group].groupby(["record", "start"]).ngroup().to_numpy()
-
-# Hashes could collide, so check every twin's record bit for bit
-# against the first member of its group
-members = np.flatnonzero(twin_group >= 0)
-bits = numeric.iloc[members][feature_names].to_numpy(np.float32).view(np.uint32)
-first_member = pd.Series(np.arange(len(members))).groupby(twin_group[members]).transform("first").to_numpy()
-assert (bits == bits[first_member]).all(), "different records share a twin group"
-
-print(f"Twin records: {len(members):,} parts in {twin_group.max() + 1:,} groups")
+print(f"Twin records: {(twin_group >= 0).sum():,} parts in {twin_group.max() + 1:,} groups")
 
 
 # ============================================================

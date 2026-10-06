@@ -130,6 +130,46 @@ def load_part_times(nrows):
 
 
 # ============================================================
+# TWIN RECORDS
+# ============================================================
+
+def twin_groups(features, start):
+    """
+    Group records with exactly the same measurements that entered in the
+    same tick ("twins", ~4% of records). Twins also share every timestamp.
+
+    They are most likely repeat records of ONE part (tested again, with its
+    production record copied): within a group, the failures sit on the
+    first record (lowest Id). A failed test makes a repeat far more likely,
+    so twin status isn't known when a part is first tested -- it leaks the
+    QC result and must not be a model feature (see twin_feature.py).
+
+    features: DataFrame of the numeric measurements (one row per record)
+    start:    when each record entered production (NaN = no timestamps)
+
+    Returns a twin-group id per record; -1 for records without a twin.
+    """
+
+    dated = ~np.isnan(start)
+    record_hash = pd.util.hash_pandas_object(features, index=False).to_numpy()
+
+    keys = pd.DataFrame({"record": record_hash[dated], "start": start[dated]})
+    in_group = keys.groupby(["record", "start"])["record"].transform("size").to_numpy() > 1
+
+    groups = np.full(len(features), -1, dtype=np.int32)
+    groups[np.flatnonzero(dated)[in_group]] = keys[in_group].groupby(["record", "start"]).ngroup().to_numpy()
+
+    # Hashes could collide, so check every twin's record bit for bit
+    # against the first member of its group
+    members = np.flatnonzero(groups >= 0)
+    bits = features.iloc[members].to_numpy(np.float32).view(np.uint32)
+    first_member = pd.Series(np.arange(len(members))).groupby(groups[members]).transform("first").to_numpy()
+    assert (bits == bits[first_member]).all(), "different records share a twin group"
+
+    return groups
+
+
+# ============================================================
 # EVALUATION SPLITS
 # ============================================================
 
