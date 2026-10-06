@@ -97,8 +97,27 @@ A FastAPI service serves the evidence above. Every endpoint answers **as of** a 
 
 [`factory_service.py`](src/factory_service.py) holds the logic and returns plain dicts, so the planned AI-assistant tools can reuse it; [`api.py`](src/api.py) is a thin FastAPI layer with typed response schemas. The tests in [`tests/`](tests/test_api.py) run against the real serving data (`.venv/bin/python -m pytest`) and mostly check that no answer uses information from the future.
 
+## AI-assistant tools (first version)
+
+[`mcp_server.py`](src/mcp_server.py) exposes the same evidence as 8 read-only [MCP](https://modelcontextprotocol.io) tools: factory summary, line status, part history, risk explanation, inspection queue, batch-mate alerts, and station metrics. Any MCP client can use them. Each tool's description says when to call it, and the server's instructions carry the caveats: risk scores aren't probabilities, the alerts' measured lift, and no calendar dates.
+
+Register it with Claude Code, from the project root:
+
+```bash
+claude mcp add forgeops -- "$PWD/.venv/bin/python" "$PWD/src/mcp_server.py"
+```
+
+[`assistant.py`](src/assistant.py) is a small command-line assistant on the same tools. It starts the MCP server, hands its tools to Claude (Claude Opus 5.5, through the Anthropic SDK's tool runner), and answers from the tool results. It needs Claude API credentials (`ant auth login`, or `ANTHROPIC_API_KEY`), and each question uses a few cents of API usage.
+
+```bash
+.venv/bin/python src/assistant.py "Which parts should we inspect now?"
+.venv/bin/python src/assistant.py    # interactive
+```
+
+The tests in [`tests/test_mcp_server.py`](tests/test_mcp_server.py) check the tools in process and over stdio, and that they convert into Claude tool definitions, without calling the Claude API.
+
 ## Status
 
-Done: decoding the data, forward-in-time evaluation, the final-QC model with SHAP explanations, the early-warning, burst-monitoring and campaign analyses, and a first version of the API.
+Done: decoding the data, forward-in-time evaluation, the final-QC model with SHAP explanations, the early-warning, burst-monitoring and campaign analyses, and first versions of the API and the AI-assistant tools.
 
-Planned, not built yet: a station-drift monitor, AI-assistant tools on top of the API, and an operations dashboard.
+Planned, not built yet: a station-drift monitor and an operations dashboard.
