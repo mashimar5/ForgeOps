@@ -13,7 +13,7 @@ Every result below is measured **forward in time**: models train only on parts w
 
 | | Result |
 |---|---|
-| **Final-QC triage** | XGBoost on the full measurement record, trained on up to 944k parts, reaches **7.3× PR-AUC lift** over random ranking on average (4.7–12.5× across four test periods). Inspecting the 1% highest-risk parts catches **14% of failures** (11–20%). |
+| **Final-QC triage** | XGBoost on the full measurement record, trained on up to 944k records, reaches **6.3× PR-AUC lift** over random ranking on average (4.3–10.5× across four test periods), counting each part once. Inspecting the 1% highest-risk parts catches **13% of failures** (10–17%). |
 | **Early warning from measurements** | **None.** Measurements taken before the final line (L3) predict nothing about future parts. The usable signal arrives at L3, in a part's last ~18 minutes on the line. |
 | **Batch-mate alert** | When a part fails final QC, the parts that entered production with it and are still on the line fail more often. Flagging them marks **1.7% of production at 2.9× the average failure rate** and catches 4.9% of failures about **4 days** before final QC. Late flags are stronger while entry line L1 is running, but a cutoff tuned only on past data raises this to just 3.3× (the 4.6× seen in hindsight doesn't hold up). |
 | **Production campaigns** | The factory alternates between two entry lines, L0 and L1. Failure rates on both rise and fall together (r = 0.64), and the model ranks L1-entry parts about twice as well (14× vs 6× lift). |
@@ -33,7 +33,7 @@ Every result below is measured **forward in time**: models train only on parts w
 
 ## Evaluation
 
-Failures come in bursts. If the part that entered just before a given part failed, that part fails about 6% of the time instead of 0.58%, and weekly failure rates range from 0.09% to 2.24%. Measurements also carry a fingerprint of when a part was made: a model can tell alternating 4-week periods apart with ROC-AUC 0.96–0.98. A random split therefore lets a model recognise bad weeks instead of bad parts. On the first 500k rows, with the same data for both splits:
+Failures come in bursts. If the part that entered just before a given part failed, that part fails about 6% of the time instead of 0.58%, and weekly failure rates range from 0.09% to 2.24%. Measurements also carry a fingerprint of when a part was made: a model can tell alternating 4-week periods apart with ROC-AUC 0.96–0.98. A random split therefore lets a model recognise bad weeks instead of bad parts. On the first 500k rows, with the same data for both splits (counting every record):
 
 | Final-QC model | Random split | Forward in time |
 |---|---|---|
@@ -41,7 +41,7 @@ Failures come in bursts. If the part that entered just before a given part faile
 | Failures caught in the top 1% | 26.6% | 15.0% |
 | …using only measurements from before L3 | 12.1% | 0.8% |
 
-The headline numbers above use all 1.18M parts. The first 500k rows turned out to be an easier test set than the rest: the same model scores about 9.9× lift on them versus 5.9× on the other parts, so numbers based on the first 500k rows run somewhat high.
+The headline numbers above use all 1.18M parts and count each part once, by its first test. About 4% of records are repeat tests of a part already in the data (see below). Counting them too gave 7.3× lift and 14% top-1% recall, because a model that ranks a failing part high also got credit for its retests ([`one_record_per_part.py`](src/one_record_per_part.py)). Leaving repeats out of training makes no difference, so the model still trains on every record. The first 500k rows also turned out to be an easier test set than the rest: the same model scores about 9.9× lift on them versus 5.9× on the other parts, so numbers based on the first 500k rows run somewhat high.
 
 `forward_folds()` in [`src/production_data.py`](src/production_data.py) cuts the timeline into five equal blocks and tests on blocks 2–5, each time training on parts that finished before the block began. PR-AUC lift is PR-AUC divided by the failure rate, which is what random ranking would score. Model outputs are **risk scores for ranking**, not calibrated probabilities.
 
@@ -59,15 +59,15 @@ python3 -m venv .venv
 brew install libomp    # macOS only, needed by XGBoost
 ```
 
-Download the competition data from Kaggle into `data/`: `train_numeric.csv` and `train_date.csv`, plus `test_numeric.csv` and `test_date.csv` for `kaggle_split_repeats.py` (the categorical files are not used yet). The data is not included here because the competition rules don't allow redistributing it.
+Download the competition data from Kaggle into `data/`: `train_numeric.csv`, `train_date.csv`, `test_numeric.csv` and `test_date.csv` (the test files are only used to find repeat tests across Kaggle's split; the categorical files are not used yet). The data is not included here because the competition rules don't allow redistributing it.
 
 ## Scripts
 
-Run from the project root, for example `.venv/bin/python src/train_xgboost.py`.
+Run from the project root, for example `.venv/bin/python src/train_xgboost.py`. Run `kaggle_split_repeats.py` once first: it writes `data/derived/twin_records.csv`, which marks the repeat tests that `train_xgboost.py` and `one_record_per_part.py` leave out of their test sets.
 
 | Script | What it does | Runtime |
 |---|---|---|
-| [`train_xgboost.py`](src/train_xgboost.py) | Main model: learning curve, final model, inspection-capacity table, results per test period, SHAP explanations; saves the model to `models/` | ~3 min |
+| [`train_xgboost.py`](src/train_xgboost.py) | Main model: learning curve, final model, inspection-capacity table, results per test period (each part counted once), SHAP explanations; saves the model to `models/` | ~3 min |
 | [`analyze_dates.py`](src/analyze_dates.py) | Decodes the timestamps: station order, time unit, timing per station, routes, weekly failure rates | ~20 s |
 | [`early_warning.py`](src/early_warning.py) | Trains the model on measurements up to each point in production; compares random split, forward in time and weekly retraining | ~12 min |
 | [`burst_monitoring.py`](src/burst_monitoring.py) | How long failure clustering lasts; a line-level QC monitor; the batch-mate alert | ~30 s |
@@ -76,9 +76,10 @@ Run from the project root, for example `.venv/bin/python src/train_xgboost.py`.
 | [`campaign_analysis.py`](src/campaign_analysis.py) | L0/L1 entry-line campaigns and the model by entry line | ~2 min |
 | [`twin_feature.py`](src/twin_feature.py) | Tests "has a twin" as a model feature, and why it leaks: twin records are most likely repeat tests of one part | ~6 min |
 | [`kaggle_split_repeats.py`](src/kaggle_split_repeats.py) | Matches twin records across Kaggle's train and test files: how the split cut twin groups, and an out-of-sample check of the repeat-test reading | ~5 min |
+| [`one_record_per_part.py`](src/one_record_per_part.py) | Re-scores the model counting each part once, with and without repeat tests in testing and in training (3 seeds) | ~4 min |
 | [`eda.py`](src/eda.py) | First exploration on a 10k-row sample; reads `train_numeric.csv` from the current directory | — |
 
-Runtimes are from a Mac with 18 CPU cores and 64 GB of RAM. `train_xgboost.py` and `twin_feature.py` use all 1.18M parts and peak at about 26 GB of RAM (set `NUM_ROWS = 500_000` in `train_xgboost.py` to use less); `kaggle_split_repeats.py` reads both Kaggle files (2.37M records, ~25 GB). The other model scripts use the first 500k rows; analyses that only need timestamps use all 1.18M.
+Runtimes are from a Mac with 18 CPU cores and 64 GB of RAM. `train_xgboost.py`, `twin_feature.py` and `one_record_per_part.py` use all 1.18M parts and peak at about 26 GB of RAM (set `NUM_ROWS = 500_000` in `train_xgboost.py` to use less); `kaggle_split_repeats.py` reads both Kaggle files (2.37M records, ~25 GB). The other model scripts use the first 500k rows; analyses that only need timestamps use all 1.18M.
 
 Shared code: [`production_data.py`](src/production_data.py) (loaders, station helpers, twin records, forward-in-time folds) and [`qc_monitor.py`](src/qc_monitor.py) (which QC results were known at a given time).
 
@@ -89,6 +90,7 @@ Outputs go to `results/` (CSVs) and `results/plots/`. `results/random_split/` ke
 A FastAPI service serves the evidence above. Every endpoint answers **as of** a production hour (`at_hour`: hours since the first timestamp; the data is anonymized, so there are no dates) and only uses what was known then: the stations a part had visited, and QC results already reported (1 hour after a part's last station). The risk model only scores parts it never trained on, and ranks each part against parts already scored at that time. Twin records, most likely repeat tests of one part, only appear once the part's QC result is reported; part counts and lists count each part once, while QC result counts and failure rates include every record.
 
 ```bash
+.venv/bin/python src/kaggle_split_repeats.py  # if data/derived/ doesn't exist yet
 .venv/bin/python src/train_xgboost.py         # if models/ doesn't exist yet
 .venv/bin/python src/build_serving_data.py    # ~1 min; writes serving/ (~1.2 GB)
 .venv/bin/uvicorn api:app --app-dir src       # then open http://127.0.0.1:8000/docs

@@ -22,6 +22,10 @@ DATA_DIR = PROJECT_ROOT / "data"
 RESULTS_DIR = PROJECT_ROOT / "results"
 PLOTS_DIR = RESULTS_DIR / "plots"
 
+# Twin records across both Kaggle files, written by kaggle_split_repeats.py.
+# Derived from the Kaggle data, so it stays in data/ (not in git).
+TWIN_RECORDS_PATH = DATA_DIR / "derived" / "twin_records.csv"
+
 # Bosch timestamps are anonymized. analyze_dates.py shows production activity
 # repeats every 2.4 units (one day) and every 16.8 units (one week), so:
 HOURS_PER_UNIT = 10.0
@@ -168,6 +172,21 @@ def twin_groups(features, start):
     assert (bits == bits[first_member]).all(), "different records share a twin group"
 
     return groups
+
+
+def load_repeat_tests():
+    """
+    Ids of repeat tests: the 2nd and later records (by Id) of every twin
+    group found across BOTH Kaggle files. One record per part = every
+    record except these. Written by kaggle_split_repeats.py.
+    """
+
+    if not TWIN_RECORDS_PATH.exists():
+        raise FileNotFoundError(f"{TWIN_RECORDS_PATH} is missing; run src/kaggle_split_repeats.py first")
+
+    twins = pd.read_csv(TWIN_RECORDS_PATH)
+
+    return twins.loc[twins["Order"] >= 2, "Id"].to_numpy()
 
 
 # ============================================================

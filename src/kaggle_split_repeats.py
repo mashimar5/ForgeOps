@@ -36,6 +36,7 @@ from production_data import (
     DATA_DIR,
     PLOTS_DIR,
     RESULTS_DIR,
+    TWIN_RECORDS_PATH,
     load_dates,
     twin_groups,
 )
@@ -179,6 +180,11 @@ del stamps, bits
 twins = records.iloc[members].copy()
 twins["Order"] = twins.groupby("Group")["Id"].rank(method="first").astype(int)
 twins["In Train"] = twins["File"] == "train"
+
+# For other scripts (production_data.load_repeat_tests). Derived from the
+# Kaggle data, so it stays in data/, out of git.
+TWIN_RECORDS_PATH.parent.mkdir(parents=True, exist_ok=True)
+twins[["Id", "File", "Group", "Order"]].sort_values("Id").to_csv(TWIN_RECORDS_PATH, index=False)
 
 groups = twins.groupby("Group").agg(Size=("Id", "size"), Train=("In Train", "sum"))
 groups["Test"] = groups["Size"] - groups["Train"]
@@ -415,3 +421,4 @@ print("  results/kaggle_split_groups.csv")
 print("  results/kaggle_split_train_roles.csv")
 print("  results/kaggle_split_one_record_per_part.csv")
 print("  results/plots/kaggle_split_repeats.png")
+print(f"  {TWIN_RECORDS_PATH.relative_to(DATA_DIR.parent)} (not in git)")

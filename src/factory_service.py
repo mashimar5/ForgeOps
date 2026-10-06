@@ -306,7 +306,7 @@ class FactoryService:
             ),
             "evaluation": (
                 "Forward in time: trained only on parts already through QC and tested on parts "
-                "produced later, over 4 test periods."
+                "produced later, over 4 test periods, counting each part once (its first test)."
             ),
             "training_parts": m["training_parts"],
             "training_cutoff_hour": m["training_cutoff_hour"],

@@ -18,6 +18,7 @@ from xgboost import XGBClassifier
 from production_data import (
     forward_folds,
     load_part_times,
+    load_repeat_tests,
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -45,7 +46,7 @@ DATA_PATH = PROJECT_ROOT / "data" / "train_numeric.csv"
 
 
 # ============================================================
-# HELPER FUNCTION
+# HELPER FUNCTIONS
 # ============================================================
 
 def create_model(y):
@@ -67,6 +68,24 @@ def create_model(y):
         eval_metric="aucpr",
         random_state=RANDOM_STATE,
     )
+
+
+def top_recall(actual, probabilities, share=0.01):
+    """% of failures caught by inspecting the riskiest `share` of parts."""
+
+    ranked = pd.DataFrame(
+        {
+            "actual": np.asarray(actual),
+            "probability": probabilities,
+        }
+    ).sort_values(
+        "probability",
+        ascending=False,
+    )
+
+    caught = ranked.head(int(len(ranked) * share))["actual"].sum()
+
+    return caught / ranked["actual"].sum() * 100
 
 
 # ============================================================
@@ -95,6 +114,11 @@ part_times = load_part_times(NUM_ROWS)
 
 # Both files are sorted by Id, so row i is the same part in both.
 assert (part_times["Id"].to_numpy() == df["Id"].to_numpy()).all()
+
+# About 4% of records are repeat tests of a part already in the data
+# (twin records found across both Kaggle files; see
+# one_record_per_part.py). Results are scored on first tests only.
+first_test = ~np.isin(df["Id"].to_numpy(), load_repeat_tests())
 
 
 # ============================================================
@@ -133,20 +157,27 @@ folds = forward_folds(
 )
 
 # The most recent period is the main test set.
-train_rows, test_rows = folds[-1]
+train_rows, block_rows = folds[-1]
+
+# Score one record per part, each part's first test: counting
+# repeat tests inflated the results (see one_record_per_part.py).
+# Training keeps every record; dropping repeats there made no
+# difference.
+test_rows = block_rows[first_test[block_rows]]
 
 X_train, X_test = X.iloc[train_rows], X.iloc[test_rows]
 y_train, y_test = y.iloc[train_rows], y.iloc[test_rows]
 
 print("\nTraining rows:", len(X_train))
-print("Test rows:", len(X_test))
+print("Repeat tests left out of the test period:", len(block_rows) - len(test_rows))
+print("Test rows (first tests):", len(X_test))
 print("Test failures:", y_test.sum())
 print(f"Training failure rate: {y_train.mean() * 100:.2f}%")
 print(f"Test failure rate: {y_test.mean() * 100:.2f}%")
 print(
     "Parts left out (no timestamps, or still in production "
     "when the test period began):",
-    len(X) - len(X_train) - len(X_test),
+    len(X) - len(X_train) - len(block_rows),
 )
 
 
@@ -381,6 +412,9 @@ for pct in [0.01, 0.02, 0.05, 0.10]:
 # split with each earlier period as the test set too, and
 # report the range. These are the numbers to quote.
 #
+# Scored on first tests (one record per part). The "All Records"
+# columns count repeat tests too, as reported before 2026-10-05.
+#
 # (The last period is the main test set above, so its row
 # repeats the final model's numbers.)
 # ============================================================
@@ -391,7 +425,7 @@ print("==============================")
 
 period_results = []
 
-for period, (period_train, period_test) in enumerate(folds, start=1):
+for period, (period_train, period_block) in enumerate(folds, start=1):
 
     period_model = create_model(y.iloc[period_train])
 
@@ -400,39 +434,35 @@ for period, (period_train, period_test) in enumerate(folds, start=1):
         y.iloc[period_train],
     )
 
-    period_probabilities = period_model.predict_proba(
-        X.iloc[period_test]
+    block_probabilities = period_model.predict_proba(
+        X.iloc[period_block]
     )[:, 1]
 
-    period_y = y.iloc[period_test]
+    block_y = y.iloc[period_block].to_numpy()
+
+    # First tests only
+    firsts = first_test[period_block]
+    period_y = block_y[firsts]
+    period_probabilities = block_probabilities[firsts]
 
     period_pr_auc = average_precision_score(
         period_y,
         period_probabilities,
     )
 
-    # Failures caught by inspecting the top 1%
-    ranked = pd.DataFrame(
-        {
-            "actual": period_y.to_numpy(),
-            "probability": period_probabilities,
-        }
-    ).sort_values(
-        "probability",
-        ascending=False,
-    )
-
-    caught = ranked.head(int(len(ranked) * 0.01))["actual"].sum()
-
     period_results.append(
         {
             "Test Period": period,
             "Training Rows": len(period_train),
-            "Test Rows": len(period_test),
+            "Test Rows": len(period_y),
             "Test Failure Rate (%)": period_y.mean() * 100,
             "PR-AUC": period_pr_auc,
             "Lift": period_pr_auc / period_y.mean(),
-            "Top 1% Recall (%)": caught / period_y.sum() * 100,
+            "Top 1% Recall (%)": top_recall(period_y, period_probabilities),
+            "Lift (All Records)": (
+                average_precision_score(block_y, block_probabilities) / block_y.mean()
+            ),
+            "Top 1% Recall, All Records (%)": top_recall(block_y, block_probabilities),
         }
     )
 
@@ -450,6 +480,10 @@ print(
     f"mean {period_df['Top 1% Recall (%)'].mean():.1f}%, "
     f"range {period_df['Top 1% Recall (%)'].min():.1f}% - "
     f"{period_df['Top 1% Recall (%)'].max():.1f}%"
+)
+print(
+    f"Counting every record instead: lift {period_df['Lift (All Records)'].mean():.1f}x, "
+    f"top 1% recall {period_df['Top 1% Recall, All Records (%)'].mean():.1f}%"
 )
 
 period_df.to_csv(
@@ -648,7 +682,8 @@ metadata = {
     "training_parts": len(X_train),
     "test_parts": len(X_test),
     # Date units; 1 unit = 10 hours (see production_data.py)
-    "test_period_start": float(part_times["start"].iloc[test_rows].min()),
+    "test_period_start": float(part_times["start"].iloc[block_rows].min()),
+    "evaluated_on": "first tests only (one record per part)",
     "pr_auc": float(pr_auc),
     "lift": float(pr_auc / baseline_pr_auc),
     "roc_auc": float(roc_auc),

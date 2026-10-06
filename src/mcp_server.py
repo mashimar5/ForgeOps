@@ -44,7 +44,7 @@ already visited, and QC results reported 1 hour after a part's last station.
 Reading the evidence:
 - Risk scores rank finished parts for final-QC inspection; they are not probabilities. \
 The model only scores parts that finished after hour 13565.6, because it trained on \
-the earlier ones. In forward tests, inspecting its top 1% caught about 14% of failures.
+the earlier ones. In forward tests, inspecting its top 1% caught about 13% of failures.
 - Batch-mate alerts flag parts that failed at about 2.9x the average rate in forward \
 tests, about 4 days before their own final QC.
 - The line monitor indicates long high-failure stretches, with a lag; it is not \

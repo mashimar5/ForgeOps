@@ -317,11 +317,13 @@ for seed in SEEDS:
 runs = pd.DataFrame(runs)
 runs.to_csv(RESULTS_DIR / "twin_feature_test.csv", index=False)
 
+# This script counts every record, like train_xgboost.py's "All Records"
+# columns (its headline counts first tests only)
 reference = pd.read_csv(RESULTS_DIR / "forward_test_periods.csv")
 same_setup = runs[(runs["Seed"] == 42) & (runs["Feature Set"] == "Measurements")]
 print(
-    "\nLargest lift difference from train_xgboost.py's results "
-    f"(same setup): {np.abs(same_setup['Lift'].to_numpy() - reference['Lift'].to_numpy()).max():.4f}"
+    "\nLargest lift difference from train_xgboost.py's all-records results "
+    f"(same setup): {np.abs(same_setup['Lift'].to_numpy() - reference['Lift (All Records)'].to_numpy()).max():.4f}"
 )
 
 mean_over_seeds = runs.groupby(["Feature Set", "Test Period"], sort=False)[METRICS].mean().reset_index()
