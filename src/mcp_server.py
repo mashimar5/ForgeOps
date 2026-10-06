@@ -45,7 +45,7 @@ Reading the evidence:
 - Risk scores rank finished parts for final-QC inspection; they are not probabilities. \
 The model only scores parts that finished after hour 13565.6, because it trained on \
 the earlier ones. In forward tests, inspecting its top 1% caught about 13% of failures.
-- Batch-mate alerts flag parts that failed at about 2.9x the average rate in forward \
+- Batch-mate alerts flag parts that failed at about 2.6x the average rate in forward \
 tests, about 4 days before their own final QC.
 - The line monitor indicates long high-failure stretches, with a lag; it is not \
 reliable day to day.
@@ -192,7 +192,7 @@ def get_batch_mate_alerts(
     same 6-minute tick) has already failed final QC, most recent flags first.
 
     Call this for early-warning questions: "which parts in production are at risk?",
-    "any alerts?". In forward tests flagged parts failed at about 2.9x the average
+    "any alerts?". In forward tests flagged parts failed at about 2.6x the average
     rate, about 4 days before their own final QC.
     """
 

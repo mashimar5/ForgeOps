@@ -32,6 +32,7 @@ from production_data import (
     line_of,
     load_dates,
     load_numeric,
+    load_repeat_tests,
     station_number,
     station_of,
     station_times,
@@ -513,6 +514,13 @@ y_in_time_order = y[has_dates][in_time_order]
 
 after_failure = y_in_time_order[1:][y_in_time_order[:-1] == 1].mean()
 
+# The same, counting each part once. A repeat test enters with its own
+# part, right after it in Id order, so every retest of a failed part
+# counts as "the part just before failed" (see
+# burst_one_record_per_part.py)
+y_first_tests = y_in_time_order[~np.isin(ids[has_dates][in_time_order], load_repeat_tests())]
+after_failure_first_tests = y_first_tests[1:][y_first_tests[:-1] == 1].mean()
+
 weekly = (
     pd.DataFrame(
         {
@@ -532,6 +540,10 @@ print("==============================")
 
 print(f"P(fail):                                          {baseline_rate * 100:.2f}%")
 print(f"P(fail | the part started just before it failed): {after_failure * 100:.2f}%")
+print(
+    f"  counting each part once (first tests only): {after_failure_first_tests * 100:.2f}%, "
+    f"vs. P(fail) {y_first_tests.mean() * 100:.2f}%"
+)
 print(
     f"Weekly failure rate across {len(busy_weeks)} weeks with >= 1,000 parts: "
     f"min {busy_weeks['Failure_Rate'].min():.2f}%, "

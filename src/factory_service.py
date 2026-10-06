@@ -69,8 +69,9 @@ NOT_VISITED = np.iinfo(np.int32).max
 
 BATCH_ALERT_NOTE = (
     "Parts still in production whose entry batch-mate (same 6-minute entry tick) already "
-    "failed final QC. In forward tests, flagged parts failed at about 2.9x the average rate "
-    "(1.7% of production flagged, 4.9% of failures caught, about 4 days before final QC). "
+    "failed final QC. In forward tests, flagged parts failed at about 2.6x the average rate "
+    "(1.7% of production flagged, 4.4% of failures caught, about 4 days before final QC; "
+    "each part counted once). "
     "The lead time comes from L1-entry campaigns."
 )
 

@@ -19,6 +19,9 @@ Selection rule, fixed before running:
 Compared against: no cutoff (any flag) and the hindsight 72 h cutoff.
 
 Only timestamps and Response are needed, so this uses all 1.18M parts.
+Each part is counted once: repeat tests (about 4% of records, see
+kaggle_split_repeats.py) are left out of the scored parts, while their
+QC results can still flag batch-mates, as in the API.
 
 Run from the project root:
 
@@ -35,6 +38,7 @@ from production_data import (
     RESULTS_DIR,
     forward_folds,
     load_part_times,
+    load_repeat_tests,
 )
 from qc_monitor import (
     TICKS_PER_HOUR,
@@ -77,6 +81,9 @@ has_dates = part_times["start"].notna().to_numpy()
 start = part_times["start"].to_numpy(np.float64)[has_dates]
 end = part_times["end"].to_numpy(np.float64)[has_dates]
 y = response["Response"].to_numpy()[has_dates]
+
+# Records that are a part's first test; only these are scored
+first_test = ~np.isin(part_times["Id"].to_numpy()[has_dates], load_repeat_tests())
 
 qc = QCStream(start, end, y, LABEL_DELAY_HOURS)
 
@@ -132,7 +139,10 @@ def score(rows, flag):
 # folds train on.
 # ============================================================
 
-folds = forward_folds(start, end, n_blocks=FORWARD_BLOCKS)
+folds = [
+    (history[first_test[history]], test[first_test[test]])
+    for history, test in forward_folds(start, end, n_blocks=FORWARD_BLOCKS)
+]
 
 history_rows = []
 period_rows = []

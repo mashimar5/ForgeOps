@@ -17,6 +17,11 @@ Only timestamps and Response are needed, so this uses all 1.18M labelled
 parts. Results are measured on the last 80% of the timeline -- the same
 four test periods as the forward-in-time folds.
 
+Each part is counted once: repeat tests (about 4% of records, see
+kaggle_split_repeats.py) are left out of everything that is scored,
+while their QC results still count as known results, as in the API.
+burst_one_record_per_part.py compares with counting every record.
+
 Run from the project root:
 
     .venv/bin/python src/burst_monitoring.py
@@ -39,6 +44,7 @@ from production_data import (
     RESULTS_DIR,
     forward_folds,
     load_part_times,
+    load_repeat_tests,
 )
 from qc_monitor import (
     TICKS_PER_HOUR,
@@ -127,11 +133,16 @@ start = part_times["start"].to_numpy(np.float64)[has_dates]
 end = part_times["end"].to_numpy(np.float64)[has_dates]
 y = response["Response"].to_numpy()[has_dates]
 
+# Records that are a part's first test. Repeat tests are left out of
+# every population below; their QC results stay in the QC stream.
+first_test = ~np.isin(part_times["Id"].to_numpy()[has_dates], load_repeat_tests())
+
 print("Parts with timestamps:", len(y))
+print(f"First tests: {first_test.sum():,} ({y[first_test].mean() * 100:.3f}% fail)")
 print(f"Failure rate: {y.mean() * 100:.3f}%")
 
 # Evaluate on the four forward test periods (the last 80% of the timeline)
-periods = [test_rows for _, test_rows in forward_folds(start, end, n_blocks=5)]
+periods = [test_rows[first_test[test_rows]] for _, test_rows in forward_folds(start, end, n_blocks=5)]
 evaluation = np.concatenate(periods)
 
 print(f"Evaluation parts: {len(evaluation):,} ({y[evaluation].sum():,} failures)")
@@ -161,10 +172,12 @@ def summarize_flag(rows, flagged):
 # by entry time and by final-QC time.
 #
 # This is descriptive (it uses hindsight). It tells us which
-# time scales a monitor could exploit.
+# time scales a monitor could exploit. First tests only: a repeat
+# enters with its own part, so it would count as a failing
+# neighbour of itself.
 # ============================================================
 
-def risk_after_failures(times):
+def risk_after_failures(times, y):
     ticks = to_ticks(times)
     order = np.argsort(ticks, kind="stable")
     ticks = ticks[order]
@@ -200,8 +213,8 @@ def risk_after_failures(times):
 lag_risk = pd.DataFrame(
     {
         "Window After A Failure": [label for label, _, _ in LAG_WINDOWS],
-        "Risk Ratio (by entry time)": risk_after_failures(start),
-        "Risk Ratio (by final-QC time)": risk_after_failures(end),
+        "Risk Ratio (by entry time)": risk_after_failures(start[first_test], y[first_test]),
+        "Risk Ratio (by final-QC time)": risk_after_failures(end[first_test], y[first_test]),
     }
 )
 
@@ -424,7 +437,7 @@ eval_days = np.unique(entry_day[evaluation])
 first_day, last_day = eval_days.min(), eval_days.max()
 
 daily = (
-    pd.DataFrame({"day": entry_day, "failed": y})
+    pd.DataFrame({"day": entry_day[first_test], "failed": y[first_test]})
     .groupby("day")["failed"]
     .agg(["sum", "size"])
     .reindex(np.arange(first_day, last_day + 1), fill_value=0)

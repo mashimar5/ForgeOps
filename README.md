@@ -15,7 +15,7 @@ Every result below is measured **forward in time**: models train only on parts w
 |---|---|
 | **Final-QC triage** | XGBoost on the full measurement record, trained on up to 944k records, reaches **6.3× PR-AUC lift** over random ranking on average (4.3–10.5× across four test periods), counting each part once. Inspecting the 1% highest-risk parts catches **13% of failures** (10–17%). |
 | **Early warning from measurements** | **None.** Measurements taken before the final line (L3) predict nothing about future parts. The usable signal arrives at L3, in a part's last ~18 minutes on the line. |
-| **Batch-mate alert** | When a part fails final QC, the parts that entered production with it and are still on the line fail more often. Flagging them marks **1.7% of production at 2.9× the average failure rate** and catches 4.9% of failures about **4 days** before final QC. Late flags are stronger while entry line L1 is running, but a cutoff tuned only on past data raises this to just 3.3× (the 4.6× seen in hindsight doesn't hold up). |
+| **Batch-mate alert** | When a part fails final QC, the parts that entered production with it and are still on the line fail more often. Flagging them marks **1.7% of production at 2.6× the average failure rate** and catches 4.4% of failures about **4 days** before final QC, counting each part once. Late flags are stronger while entry line L1 is running, but a cutoff tuned only on past data raises this to just 2.9× (the 4.0× seen in hindsight doesn't hold up). |
 | **Production campaigns** | The factory alternates between two entry lines, L0 and L1. Failure rates on both rise and fall together (r = 0.64), and the model ranks L1-entry parts about twice as well (14× vs 6× lift). |
 | **A leak that passes a forward split** | About 4% of train records share every measurement and timestamp with another record. "Has a twin" raises lift from 7.4× to 9.2× in every test period, but it leaks the QC result: twins are most likely repeat tests of one part, made after a failed test, and twins hidden in Kaggle's test file confirm it. Not used (see [Evaluation](#evaluation)). |
 
@@ -33,7 +33,7 @@ Every result below is measured **forward in time**: models train only on parts w
 
 ## Evaluation
 
-Failures come in bursts. If the part that entered just before a given part failed, that part fails about 6% of the time instead of 0.58%, and weekly failure rates range from 0.09% to 2.24%. Measurements also carry a fingerprint of when a part was made: a model can tell alternating 4-week periods apart with ROC-AUC 0.96–0.98. A random split therefore lets a model recognise bad weeks instead of bad parts. On the first 500k rows, with the same data for both splits (counting every record):
+Failures come in bursts. If the part that entered just before a given part failed, that part fails 1.9% of the time instead of 0.54%, and weekly failure rates range from 0.09% to 2.24%. Measurements also carry a fingerprint of when a part was made: a model can tell alternating 4-week periods apart with ROC-AUC 0.96–0.98. A random split therefore lets a model recognise bad weeks instead of bad parts. On the first 500k rows, with the same data for both splits (counting every record):
 
 | Final-QC model | Random split | Forward in time |
 |---|---|---|
@@ -41,7 +41,7 @@ Failures come in bursts. If the part that entered just before a given part faile
 | Failures caught in the top 1% | 26.6% | 15.0% |
 | …using only measurements from before L3 | 12.1% | 0.8% |
 
-The headline numbers above use all 1.18M parts and count each part once, by its first test. About 4% of records are repeat tests of a part already in the data (see below). Counting them too gave 7.3× lift and 14% top-1% recall, because a model that ranks a failing part high also got credit for its retests ([`one_record_per_part.py`](src/one_record_per_part.py)). Leaving repeats out of training makes no difference, so the model still trains on every record. The first 500k rows also turned out to be an easier test set than the rest: the same model scores about 9.9× lift on them versus 5.9× on the other parts, so numbers based on the first 500k rows run somewhat high.
+The headline numbers above use all 1.18M parts and count each part once, by its first test. About 4% of records are repeat tests of a part already in the data (see below). Counting them too gave 7.3× lift and 14% top-1% recall, because a model that ranks a failing part high also got credit for its retests ([`one_record_per_part.py`](src/one_record_per_part.py)). Leaving repeats out of training makes no difference, so the model still trains on every record. Repeats inflated the burst numbers even more: a retest enters production with its own part, so a failed part's retest looked like a failing neighbour. Counting every record, the part entering just after a failure seemed to fail 6.6% of the time, and the batch-mate alert seemed to flag at 2.9× ([`burst_one_record_per_part.py`](src/burst_one_record_per_part.py)). The first 500k rows also turned out to be an easier test set than the rest: the same model scores about 9.9× lift on them versus 5.9× on the other parts, so numbers based on the first 500k rows run somewhat high.
 
 `forward_folds()` in [`src/production_data.py`](src/production_data.py) cuts the timeline into five equal blocks and tests on blocks 2–5, each time training on parts that finished before the block began. PR-AUC lift is PR-AUC divided by the failure rate, which is what random ranking would score. Model outputs are **risk scores for ranking**, not calibrated probabilities.
 
@@ -72,6 +72,7 @@ Run from the project root, for example `.venv/bin/python src/train_xgboost.py`. 
 | [`early_warning.py`](src/early_warning.py) | Trains the model on measurements up to each point in production; compares random split, forward in time and weekly retraining | ~12 min |
 | [`burst_monitoring.py`](src/burst_monitoring.py) | How long failure clustering lasts; a line-level QC monitor; the batch-mate alert | ~30 s |
 | [`monitor_model.py`](src/monitor_model.py) | Whether monitor features improve the model; the batch-mate alert by when its flag fires | ~3 min |
+| [`burst_one_record_per_part.py`](src/burst_one_record_per_part.py) | Re-checks the burst and batch-mate alert numbers counting each part once, against counting every record | ~1 min |
 | [`batch_alert_cutoff.py`](src/batch_alert_cutoff.py) | Honest check of the batch-mate alert's cutoff: chosen on past data only, scored on each later period | ~30 s |
 | [`campaign_analysis.py`](src/campaign_analysis.py) | L0/L1 entry-line campaigns and the model by entry line | ~2 min |
 | [`twin_feature.py`](src/twin_feature.py) | Tests "has a twin" as a model feature, and why it leaks: twin records are most likely repeat tests of one part | ~6 min |
