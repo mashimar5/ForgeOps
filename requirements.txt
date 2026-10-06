@@ -21,3 +21,6 @@ httpx==0.28.1
 # AI-assistant tools
 anthropic[mcp]==1.11.0
 mcp==2.3.0
+
+# Spark ETL (needs Java 17, 21 or 25)
+pyspark==4.2.0

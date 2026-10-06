@@ -59,6 +59,8 @@ python3 -m venv .venv
 brew install libomp    # macOS only, needed by XGBoost
 ```
 
+The PySpark ETL also needs Java 17, 21 or 25 (for example Temurin).
+
 Download the competition data from Kaggle into `data/`: `train_numeric.csv`, `train_date.csv`, `test_numeric.csv` and `test_date.csv` (the test files are only used to find repeat tests across Kaggle's split; the categorical files are not used yet). The data is not included here because the competition rules don't allow redistributing it.
 
 ## Scripts
@@ -78,6 +80,8 @@ Run from the project root, for example `.venv/bin/python src/train_xgboost.py`. 
 | [`twin_feature.py`](src/twin_feature.py) | Tests "has a twin" as a model feature, and why it leaks: twin records are most likely repeat tests of one part | ~6 min |
 | [`kaggle_split_repeats.py`](src/kaggle_split_repeats.py) | Matches twin records across Kaggle's train and test files: how the split cut twin groups, and an out-of-sample check of the repeat-test reading | ~5 min |
 | [`one_record_per_part.py`](src/one_record_per_part.py) | Re-scores the model counting each part once, with and without repeat tests in testing and in training (3 seeds) | ~4 min |
+| [`spark_etl.py`](src/spark_etl.py) | PySpark version of the per-part ETL: raw CSVs to Parquet tables in `serving/etl/` (see below) | ~25 s |
+| [`check_spark_etl.py`](src/check_spark_etl.py) | Checks the PySpark output against the pandas build, value for value | ~10 s |
 | [`eda.py`](src/eda.py) | First exploration on a 10k-row sample; reads `train_numeric.csv` from the current directory | — |
 
 Runtimes are from a Mac with 18 CPU cores and 64 GB of RAM. `train_xgboost.py`, `twin_feature.py` and `one_record_per_part.py` use all 1.18M parts and peak at about 26 GB of RAM (set `NUM_ROWS = 500_000` in `train_xgboost.py` to use less); `kaggle_split_repeats.py` reads both Kaggle files (2.37M records, ~25 GB). The other model scripts use the first 500k rows; analyses that only need timestamps use all 1.18M.
@@ -85,6 +89,22 @@ Runtimes are from a Mac with 18 CPU cores and 64 GB of RAM. `train_xgboost.py`, 
 Shared code: [`production_data.py`](src/production_data.py) (loaders, station helpers, twin records, forward-in-time folds) and [`qc_monitor.py`](src/qc_monitor.py) (which QC results were known at a given time).
 
 Outputs go to `results/` (CSVs) and `results/plots/`. `results/random_split/` keeps the original random-split outputs for comparison.
+
+## PySpark ETL
+
+[`spark_etl.py`](src/spark_etl.py) is a PySpark version of the per-part transformations behind the API's data. It reads the raw Kaggle CSVs with explicit schemas and writes two Parquet tables to `serving/etl/`:
+
+- `parts.parquet`: one row per part, with its first and last timestamp, entry line, number of stations visited, whether it went through L2, its path through L3, its QC result and its twin group.
+- `station_first_seen.parquet`: when each part first reached each of the 52 stations, in production order.
+
+[`check_spark_etl.py`](src/check_spark_etl.py) compares the output with the pandas build ([`build_serving_data.py`](src/build_serving_data.py)): all 9 columns for all 1,183,747 parts and all 61.5M first-seen values match exactly, missing values included. Twin records get the same keys (every measurement, written out exactly) and the same group numbers.
+
+It runs locally (`local[*]`) in about 25 seconds on an 18-core Mac, against 46 seconds for the same steps in pandas, mostly because Spark parses the CSVs in parallel. At this size one machine is enough either way; the point is a job that would run unchanged on a cluster. Model scoring stays in Python.
+
+```bash
+.venv/bin/python src/spark_etl.py
+.venv/bin/python src/check_spark_etl.py    # after build_serving_data.py
+```
 
 ## API (first version)
 
@@ -144,6 +164,6 @@ The runner needs Claude API credentials, writes to `.claude/hillclimb/assistant/
 
 ## Status
 
-Done: decoding the data, forward-in-time evaluation, the final-QC model with SHAP explanations, the early-warning, burst-monitoring and campaign analyses, first versions of the API and the AI-assistant tools, and an eval for the assistant.
+Done: decoding the data, forward-in-time evaluation, the final-QC model with SHAP explanations, the early-warning, burst-monitoring and campaign analyses, first versions of the API and the AI-assistant tools, an eval for the assistant, and a PySpark version of the per-part ETL.
 
 Planned, not built yet: a station-drift monitor and an operations dashboard.

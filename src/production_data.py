@@ -164,9 +164,15 @@ def twin_groups(features, start):
     groups = np.full(len(features), -1, dtype=np.int32)
     groups[np.flatnonzero(dated)[in_group]] = keys[in_group].groupby(["record", "start"]).ngroup().to_numpy()
 
+    # Number groups by their first record (row order), not by hash order,
+    # so the labels don't depend on pandas' hash function (spark_etl.py
+    # reproduces them exactly)
+    members = np.flatnonzero(groups >= 0)
+    _, first_seen_at, label = np.unique(groups[members], return_index=True, return_inverse=True)
+    groups[members] = np.argsort(np.argsort(first_seen_at))[label]
+
     # Hashes could collide, so check every twin's record bit for bit
     # against the first member of its group
-    members = np.flatnonzero(groups >= 0)
     bits = features.iloc[members].to_numpy(np.float32).view(np.uint32)
     first_member = pd.Series(np.arange(len(members))).groupby(groups[members]).transform("first").to_numpy()
     assert (bits == bits[first_member]).all(), "different records share a twin group"
