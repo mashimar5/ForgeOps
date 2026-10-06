@@ -129,7 +129,8 @@ def get_line_status(at_hour: AtHour = None) -> dict[str, Any]:
 def get_part(part_id: PartId, at_hour: AtHour = None) -> dict[str, Any]:
     """One part's history at a production hour: entry line, route so far (stations
     with hours), status (in production or finished), QC result once reported,
-    batch-mate alert status while in production, twin records once the QC result
+    batch-mate alert status while in production (batch size and batch-mates count
+    parts, each once), twin records once the QC result
     is reported (other records with identical measurements and timestamps, most
     likely repeat tests of the same part; the lowest Id is the first test), and
     whether a risk score exists.

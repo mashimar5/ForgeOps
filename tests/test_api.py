@@ -259,6 +259,26 @@ def test_batch_size_counts_parts_not_repeat_records(client, service, twin_pair):
     assert part["batch_mates"]["batch_size"] < same_tick.sum()
 
 
+def test_batch_mates_count_each_part_once(client):
+    # Part 1119025's entry tick holds 21 parts but 22 records: one batch-mate
+    # was tested twice. That must not make it two batch-mates.
+    mates = client.get("/parts/1119025", params={"at_hour": 15000}).json()["batch_mates"]
+
+    assert mates["flagged"] is True
+    assert mates["batch_size"] == 21
+    assert (mates["batch_mates_failed_known"], mates["batch_mates_passed_known"]) == (1, 19)
+
+
+def test_flagged_parts_show_a_failed_batch_mate(client):
+    at = 15000
+    alerts = client.get("/alerts/batch-mates", params={"at_hour": at, "limit": 30}).json()
+
+    for item in alerts["items"]:
+        mates = client.get(f"/parts/{item['part_id']}", params={"at_hour": at}).json()["batch_mates"]
+        assert mates["batch_mates_failed_known"] >= 1
+        assert mates["batch_mates_failed_known"] + mates["batch_mates_passed_known"] <= mates["batch_size"] - 1
+
+
 def test_summary_counts_each_part_once(client, service):
     at_end = client.get("/summary").json()
 

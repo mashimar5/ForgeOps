@@ -179,12 +179,22 @@ class FactoryService:
         self._first_batch_failure = np.full(len(parts), NEVER, dtype=np.int64)
         self._first_batch_failure[dated] = self._qc.first_batch_failure_known(start_units[dated])
 
-        # Parts that entered in the same tick (repeat records aren't parts)
-        part_entries = np.sort(self._start[self._is_part])
+        # Batch-mates are the other parts that entered in the same tick
+        # (repeat records aren't parts). A part counts as failed if any of
+        # its QC results failed: its repeat records' results are reported
+        # together with its own.
+        parts_by_entry = np.flatnonzero(self._is_part)
+        self._parts_by_entry = parts_by_entry[np.argsort(self._start[parts_by_entry], kind="stable")]
+        self._entry_ticks = self._start[self._parts_by_entry]
         self._batch_size = (
-            np.searchsorted(part_entries, self._start, "right")
-            - np.searchsorted(part_entries, self._start, "left")
+            np.searchsorted(self._entry_ticks, self._start, "right")
+            - np.searchsorted(self._entry_ticks, self._start, "left")
         )
+
+        self._part_failed = self._response.astype(bool)
+        group_failed = np.zeros(self._twin_group.max() + 1, dtype=bool)
+        np.logical_or.at(group_failed, self._twin_group[twin_rows], self._part_failed[twin_rows])
+        self._part_failed[twin_rows] = group_failed[self._twin_group[twin_rows]]
 
         model = XGBClassifier()
         model.load_model(model_path)
@@ -396,18 +406,21 @@ class FactoryService:
         batch_mates = None
 
         if not finished:
-            failed, passed = self._qc.batch_mates_known(
-                np.array([self._start[row] / TICKS_PER_UNIT]),
-                np.array([tick / TICKS_PER_UNIT]),
-            )
+            # Batch-mates (parts) whose QC result was already reported
+            lo = np.searchsorted(self._entry_ticks, self._start[row], "left")
+            hi = np.searchsorted(self._entry_ticks, self._start[row], "right")
+            mates = self._parts_by_entry[lo:hi]
+            mates = mates[(mates != row) & (self._end[mates] < tick - self._delay)]
+            failed = int(self._part_failed[mates].sum())
+
             first_failure = self._first_batch_failure[row]
             flagged = first_failure < tick
 
             batch_mates = {
                 "flagged": bool(flagged),
                 "batch_size": int(self._batch_size[row]),
-                "batch_mates_failed_known": int(failed[0]),
-                "batch_mates_passed_known": int(passed[0]),
+                "batch_mates_failed_known": failed,
+                "batch_mates_passed_known": int(len(mates)) - failed,
                 "first_failure_known_hour": self._hours(first_failure) if flagged else None,
             }
 
