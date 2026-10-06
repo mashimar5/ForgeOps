@@ -197,6 +197,36 @@ def test_inspection_queue_is_empty_before_the_model_can_score(client):
 
 
 # ============================================================
+# TWIN RECORDS
+# ============================================================
+
+def test_twin_records_are_listed_once(client):
+    queue = client.get("/inspection-queue", params={"hours": 24, "limit": 50}).json()
+
+    listed = [item["part_id"] for item in queue["items"]]
+    twins = [part for item in queue["items"] for part in item["twin_part_ids"]]
+
+    assert not set(listed) & set(twins)
+    assert queue["parts_covered"] == len(listed) + len(twins)
+
+    # 280944 and 280945 have identical records (the assistant's first answer listed both)
+    pair = next(item for item in queue["items"] if item["part_id"] == 280944)
+    assert pair["twin_part_ids"] == [280945]
+
+
+def test_twins_are_shown_once_the_part_finishes(client, service):
+    row = service._row_of.get_loc(280944)
+    start, end = hours(service._start[row]), hours(service._end[row])
+
+    finished = client.get("/parts/280944", params={"at_hour": end}).json()
+    in_production = client.get("/parts/280944", params={"at_hour": (start + end) / 2}).json()
+
+    assert finished["twin_part_ids"] == [280945]
+    assert in_production["status"] == "in production"
+    assert in_production["twin_part_ids"] is None
+
+
+# ============================================================
 # LINE AND STATIONS
 # ============================================================
 

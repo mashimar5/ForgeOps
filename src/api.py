@@ -96,6 +96,7 @@ class Part(BaseModel):
     route_so_far: list[RouteStep]
     qc_result: Literal["passed", "failed"] | None
     batch_mates: BatchMates | None
+    twin_part_ids: list[int] | None
     risk: RiskSummary
 
 
@@ -122,6 +123,7 @@ class PartRisk(RiskSummary):
 
 class QueueItem(BaseModel):
     part_id: int
+    twin_part_ids: list[int]
     entry_line: str
     finished_hour: float
     risk_score: float
@@ -134,6 +136,7 @@ class InspectionQueue(BaseModel):
     window_hours: float
     parts_finished_in_window: int
     parts_scored_in_window: int
+    parts_covered: int
     items: list[QueueItem]
     note: str
 

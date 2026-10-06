@@ -91,7 +91,7 @@ A FastAPI service serves the evidence above. Every endpoint answers **as of** a 
 | `GET /line/status` | Line monitor (recent QC failure rate vs. history) and the current entry-line campaign |
 | `GET /parts/{id}` | A part's route so far, status, QC result once reported, batch-mate status and risk |
 | `GET /parts/{id}/risk` | Risk score, percentile and the top SHAP contributions |
-| `GET /inspection-queue` | Parts that just reached their last station, riskiest first |
+| `GET /inspection-queue` | Parts that just reached their last station, riskiest first. Twin records (separate parts with identical measurements, processed together) are listed once |
 | `GET /alerts/batch-mates` | Parts in production whose entry batch-mate already failed final QC |
 | `GET /stations`, `GET /stations/{id}` | Visits, failure rate, risk lift and timing per station |
 

@@ -125,7 +125,9 @@ def get_line_status(at_hour: AtHour = None) -> dict[str, Any]:
 def get_part(part_id: PartId, at_hour: AtHour = None) -> dict[str, Any]:
     """One part's history at a production hour: entry line, route so far (stations
     with hours), status (in production or finished), QC result once reported,
-    batch-mate alert status while in production, and whether a risk score exists.
+    batch-mate alert status while in production, twin parts once finished (parts
+    with an identical measurement record that entered and finished with it), and
+    whether a risk score exists.
 
     Call this when the user asks about a specific part Id. Fails if the part had
     not entered production by that hour.
@@ -166,7 +168,10 @@ def get_inspection_queue(
     limit: Annotated[int, Field(ge=1, le=100, description="Most parts to return")] = 20,
 ) -> dict[str, Any]:
     """Parts that reached their last station in the last `hours`, riskiest first,
-    with risk scores and percentiles.
+    with risk scores and percentiles. Twin records (separate parts with identical
+    measurements that entered and finished together, so they score the same) are
+    listed once, with the other parts in twin_part_ids; parts_covered counts every
+    physical part in the list.
 
     Call this for "which parts should we inspect?" or "what are the highest-risk
     parts right now?". Only parts that finished after hour 13565.6 can be scored.
