@@ -55,6 +55,10 @@ LINE_WINDOW_HOURS = 72
 LINE_ALERT_RATIO = 1.5
 MIN_MONITOR_PARTS = 300
 
+# Line history: week w starts at hour 168 * w
+HOURS_PER_WEEK = 168
+ENTRY_LINES = ["L0", "L1", "L2", "L3"]
+
 # Campaign status (see campaign_analysis.py)
 CAMPAIGN_WINDOW_HOURS = 168
 CAMPAIGN_L1_SHARE = 0.10
@@ -390,6 +394,51 @@ class FactoryService:
             "campaign": campaign,
             "parts_in_production": int(in_production.sum()),
             "note": LINE_STATUS_NOTE,
+        }
+
+    def line_history(self, at_hour=None):
+        """Week by week up to `at_hour`: QC results reported and parts entered."""
+
+        tick = self._tick(at_hour)
+        week_ticks = hours_to_ticks(HOURS_PER_WEEK)
+        weeks = tick // week_ticks + 1
+
+        # QC results (every record, as in failure rates) by the week they
+        # were reported: the first tick at which _qc_known includes them
+        dated = self._end < NEVER
+        reported = self._end[dated] + self._delay + 1
+        known = reported <= tick
+        week = reported[known] // week_ticks
+
+        results = np.bincount(week, minlength=weeks)
+        failures = np.bincount(week, weights=self._response[dated][known], minlength=weeks).round().astype(int)
+
+        # Parts (each once) by the week they entered, per entry line
+        entered = self._is_part & (self._start <= tick)
+        entries = {
+            line: np.bincount(self._start[entered & (self._entry_line == line)] // week_ticks, minlength=weeks)
+            for line in ENTRY_LINES
+        }
+
+        return {
+            "at_hour": self._hours(tick),
+            "weeks": [
+                {
+                    "week": w,
+                    "start_hour": self._hours(w * week_ticks),
+                    "hours_covered": self._hours(min(tick - w * week_ticks, week_ticks)),
+                    "qc_results": int(results[w]),
+                    "qc_failures": int(failures[w]),
+                    "qc_failure_rate_pct": rounded(failures[w] / results[w] * 100, 3) if results[w] else None,
+                    "parts_entered": {line: int(entries[line][w]) for line in ENTRY_LINES},
+                }
+                for w in range(weeks)
+            ],
+            "note": (
+                "QC results count every record, in the week each result was reported (1 hour after "
+                "the part's last station); parts count once, in the week they entered, by entry line. "
+                "The last week runs only up to the as-of hour."
+            ),
         }
 
     # ============================================================

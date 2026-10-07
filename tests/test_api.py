@@ -299,6 +299,38 @@ def test_line_status_sees_the_l1_campaign(client):
     assert status["l1_share_last_7_days_pct"] > 90
 
 
+def test_line_history_adds_up_to_the_summary(client):
+    at = 16000
+    weeks = client.get("/line/history", params={"at_hour": at}).json()["weeks"]
+    summary = client.get("/summary", params={"at_hour": at}).json()
+
+    assert len(weeks) == at // 168 + 1
+    assert weeks[-1]["hours_covered"] == pytest.approx(at - 168 * (at // 168))
+    assert sum(w["qc_results"] for w in weeks) == summary["qc_results_known"]
+    assert sum(sum(w["parts_entered"].values()) for w in weeks) == summary["parts_entered"]
+
+    failures = sum(w["qc_failures"] for w in weeks)
+    assert failures / summary["qc_results_known"] * 100 == pytest.approx(summary["qc_failure_rate_pct"], abs=1e-3)
+
+
+def test_line_history_only_uses_the_past(client):
+    # Complete weeks look the same from later on; the current week only grows
+    then = client.get("/line/history", params={"at_hour": 8000}).json()["weeks"]
+    later = client.get("/line/history").json()["weeks"]
+
+    assert then[:-1] == later[:len(then) - 1]
+    assert then[-1]["qc_results"] < later[len(then) - 1]["qc_results"]
+    assert then[-1]["hours_covered"] < 168
+
+
+def test_line_history_sees_the_l1_campaign(client):
+    # Weeks 42-47 ran L1 only (see campaign_analysis.py)
+    weeks = client.get("/line/history").json()["weeks"]
+
+    for w in weeks[42:48]:
+        assert w["parts_entered"]["L1"] / sum(w["parts_entered"].values()) > 0.99
+
+
 def test_station_ids(client):
     by_short_id = client.get("/stations/S32").json()
     by_full_id = client.get("/stations/l3_s32").json()

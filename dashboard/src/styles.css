@@ -1,0 +1,794 @@
+/* ============================================================
+   TOKENS
+   The dataviz reference palette's chrome and ink. Dark mode follows the
+   system unless the theme menu sets data-theme on <html>.
+   ============================================================ */
+
+:root {
+  color-scheme: light;
+  --plane: #f9f9f7;
+  --surface: #fcfcfb;
+  --surface-sunk: #f2f1ed;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.1);
+  --focus: #2a78d6;
+  --shadow: 0 1px 2px rgba(11, 11, 11, 0.05);
+
+  --good: #0ca30c;
+  --warning: #fab219;
+  --critical: #d03b3b;
+  --good-wash: rgba(12, 163, 12, 0.1);
+  --warning-wash: rgba(250, 178, 25, 0.16);
+  --critical-wash: rgba(208, 59, 59, 0.1);
+  --neutral-wash: rgba(11, 11, 11, 0.06);
+
+  --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --radius: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --plane: #0d0d0d;
+    --surface: #1a1a19;
+    --surface-sunk: #232321;
+    --ink: #ffffff;
+    --ink-2: #c3c2b7;
+    --muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.1);
+    --focus: #3987e5;
+    --shadow: none;
+    --good-wash: rgba(12, 163, 12, 0.16);
+    --warning-wash: rgba(250, 178, 25, 0.16);
+    --critical-wash: rgba(208, 59, 59, 0.2);
+    --neutral-wash: rgba(255, 255, 255, 0.08);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --plane: #0d0d0d;
+  --surface: #1a1a19;
+  --surface-sunk: #232321;
+  --ink: #ffffff;
+  --ink-2: #c3c2b7;
+  --muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.1);
+  --focus: #3987e5;
+  --shadow: none;
+  --good-wash: rgba(12, 163, 12, 0.16);
+  --warning-wash: rgba(250, 178, 25, 0.16);
+  --critical-wash: rgba(208, 59, 59, 0.2);
+  --neutral-wash: rgba(255, 255, 255, 0.08);
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--plane);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--axis);
+  text-underline-offset: 2px;
+}
+
+a:hover {
+  text-decoration-color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+h1,
+h2 {
+  margin: 0;
+  font-weight: 600;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 7px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: var(--neutral-wash);
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+button.primary {
+  background: var(--ink);
+  color: var(--plane);
+  border-color: var(--ink);
+}
+
+button.primary:hover:not(:disabled) {
+  background: var(--ink-2);
+}
+
+input,
+select {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 7px;
+  padding: 5px 9px;
+}
+
+.muted {
+  color: var(--ink-2);
+}
+
+.small {
+  font-size: 12px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+
+.app {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 24px 32px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 14px 0 10px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 650;
+  font-size: 16px;
+  text-decoration: none;
+}
+
+.brand svg {
+  width: 18px;
+  height: 18px;
+}
+
+.topbar nav {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+
+.topbar nav a {
+  padding: 6px 10px;
+  border-radius: 7px;
+  text-decoration: none;
+  color: var(--ink-2);
+}
+
+.topbar nav a:hover {
+  background: var(--neutral-wash);
+  color: var(--ink);
+}
+
+.topbar nav a[aria-current="page"] {
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow: inset 0 -2px 0 var(--ink);
+  border-radius: 7px 7px 0 0;
+}
+
+main {
+  margin-top: 16px;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* Tables of different lengths: each card keeps its own height */
+.grid-2.align-start {
+  align-items: start;
+}
+
+footer {
+  margin-top: 32px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.connecting {
+  margin-top: 32px;
+}
+
+/* ============================================================
+   TIME CONTROL (one row above everything it scopes)
+   ============================================================ */
+
+.asof {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--plane);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 0 12px;
+}
+
+.asof-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+
+.asof-hour {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.asof-hour label {
+  font-weight: 600;
+}
+
+.asof-hour input {
+  width: 92px;
+  font-variant-numeric: tabular-nums;
+}
+
+.asof-context {
+  color: var(--ink-2);
+}
+
+.asof-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.asof-range {
+  width: 100%;
+  margin: 10px 0 0;
+  accent-color: var(--ink);
+}
+
+.asof-hint {
+  margin: 6px 0 0;
+  color: var(--ink-2);
+  font-size: 12px;
+}
+
+/* ============================================================
+   STAT TILES
+   ============================================================ */
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.tile {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tile-hero {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.tile-label {
+  color: var(--ink-2);
+  font-size: 13px;
+}
+
+.tile-value {
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.tile-hero .tile-value {
+  font-size: 52px;
+  line-height: 1.05;
+  margin: 4px 0;
+}
+
+.tile-detail {
+  color: var(--ink-2);
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tile-badges {
+  display: flex;
+  gap: 6px;
+}
+
+.tile-note {
+  color: var(--muted);
+}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px 18px;
+  min-width: 0;
+}
+
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.card-head h2 {
+  font-size: 15px;
+}
+
+.card-sub {
+  margin: 2px 0 0;
+  color: var(--ink-2);
+  font-size: 13px;
+}
+
+.toggle {
+  font-size: 12px;
+  padding: 3px 9px;
+  white-space: nowrap;
+}
+
+.card-body {
+  transition: opacity 0.15s;
+}
+
+/* Refetch keeps the frame: the previous render stays, dimmed */
+.is-loading .card-body,
+.is-loading > .card-body,
+div.is-loading {
+  opacity: 0.55;
+}
+
+.card-note {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.placeholder {
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}
+
+.empty {
+  color: var(--ink-2);
+  padding: 12px 0;
+  margin: 0;
+}
+
+.error-text {
+  color: var(--ink);
+  background: var(--critical-wash);
+  border-radius: 7px;
+  padding: 8px 10px;
+  margin: 0;
+}
+
+/* ============================================================
+   LEGEND, TAGS, BADGES
+   ============================================================ */
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0 0 6px;
+  padding: 0;
+  list-style: none;
+  color: var(--ink-2);
+  font-size: 12px;
+}
+
+.legend li,
+.line-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-mark {
+  display: inline-block;
+  flex: none;
+}
+
+.legend-rect {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.legend-line {
+  width: 14px;
+  height: 2px;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px 2px 7px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  width: fit-content;
+}
+
+.badge-icon {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.badge-good {
+  background: var(--good-wash);
+}
+
+.badge-good .badge-icon {
+  stroke: var(--good);
+}
+
+.badge-warning {
+  background: var(--warning-wash);
+}
+
+.badge-warning .badge-icon {
+  stroke: var(--warning);
+}
+
+.badge-critical {
+  background: var(--critical-wash);
+}
+
+.badge-critical .badge-icon {
+  stroke: var(--critical);
+}
+
+.badge-neutral {
+  background: var(--neutral-wash);
+}
+
+.badge-neutral .badge-icon {
+  stroke: var(--ink-2);
+}
+
+/* ============================================================
+   TABLES
+   ============================================================ */
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--grid);
+  white-space: nowrap;
+}
+
+th:first-child,
+td:first-child {
+  padding-left: 0;
+}
+
+th {
+  color: var(--ink-2);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+th.num,
+td.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+th .sort {
+  border: none;
+  background: none;
+  padding: 0;
+  color: inherit;
+  font-weight: inherit;
+}
+
+tbody tr:hover {
+  background: var(--neutral-wash);
+}
+
+/* ============================================================
+   CHART TOOLTIP
+   ============================================================ */
+
+.tooltip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  padding: 8px 10px;
+  font-size: 12px;
+  min-width: 170px;
+}
+
+.tooltip-title {
+  color: var(--ink-2);
+  margin-bottom: 4px;
+}
+
+.tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tooltip-row strong {
+  font-variant-numeric: tabular-nums;
+}
+
+.tooltip-row span:last-child {
+  color: var(--ink-2);
+}
+
+.tooltip-key {
+  width: 10px;
+  height: 2px;
+  flex: none;
+}
+
+/* Recharts draws focus outlines on its SVG; the tooltip shows focus instead */
+.recharts-wrapper svg:focus,
+.recharts-surface:focus {
+  outline: none;
+}
+
+/* ============================================================
+   PART TRACE
+   ============================================================ */
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search label {
+  font-weight: 600;
+}
+
+.search input {
+  width: 160px;
+}
+
+.part-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin-bottom: 12px;
+}
+
+.part-head h1 {
+  font-size: 24px;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px 16px;
+  margin: 0 0 16px;
+}
+
+.fact dt {
+  color: var(--ink-2);
+  font-size: 12px;
+}
+
+.fact dd {
+  margin: 2px 0 0;
+  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+}
+
+.fact-detail {
+  font-weight: 400;
+  color: var(--ink-2);
+  font-size: 12px;
+}
+
+.risk-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 12px;
+  margin-bottom: 10px;
+}
+
+.risk-score {
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.notice {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+
+.notice p {
+  margin: 0 0 4px;
+}
+
+.api-down {
+  margin-top: 32px;
+  max-width: 640px;
+}
+
+.api-down pre {
+  background: var(--surface-sunk);
+  border-radius: 7px;
+  padding: 10px 12px;
+  overflow-x: auto;
+}
+
+/* ============================================================
+   NARROW SCREENS
+   ============================================================ */
+
+@media (max-width: 1080px) {
+  .tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .grid-2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .app {
+    padding: 0 16px 24px;
+  }
+
+  .topbar {
+    flex-wrap: wrap;
+    gap: 8px 16px;
+  }
+
+  .topbar nav {
+    order: 3;
+    flex-basis: 100%;
+  }
+
+  .tiles {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tile-hero {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .tile-hero .tile-value {
+    font-size: 44px;
+  }
+
+  .asof-steps {
+    margin-left: 0;
+  }
+
+  /* On a phone the time control would cover a third of the screen */
+  .asof {
+    position: static;
+  }
+}

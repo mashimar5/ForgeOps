@@ -59,7 +59,7 @@ python3 -m venv .venv
 brew install libomp    # macOS only, needed by XGBoost
 ```
 
-The PySpark ETL also needs Java 17, 21 or 25 (for example Temurin).
+The PySpark ETL also needs Java 17, 21 or 25 (for example Temurin), and the dashboard needs Node.js 20 or later.
 
 Download the competition data from Kaggle into `data/`: `train_numeric.csv`, `train_date.csv`, `test_numeric.csv` and `test_date.csv` (the test files are only used to find repeat tests across Kaggle's split; the categorical files are not used yet). The data is not included here because the competition rules don't allow redistributing it.
 
@@ -121,6 +121,7 @@ A FastAPI service serves the evidence above. Every endpoint answers **as of** a 
 |---|---|
 | `GET /summary` | Factory counts so far and the model card (forward-in-time metrics) |
 | `GET /line/status` | Line monitor (recent QC failure rate vs. history) and the current entry-line campaign |
+| `GET /line/history` | Week by week: QC results reported and their failure rate, and parts entered by entry line |
 | `GET /parts/{id}` | A part's route so far, status, QC result once reported, batch-mate status, risk, and its twin records once the QC result is reported |
 | `GET /parts/{id}/risk` | Risk score, percentile and the top SHAP contributions |
 | `GET /inspection-queue` | Parts that just reached their last station, riskiest first, each listed once |
@@ -128,6 +129,25 @@ A FastAPI service serves the evidence above. Every endpoint answers **as of** a 
 | `GET /stations`, `GET /stations/{id}` | Visits, failure rate, risk lift and timing per station |
 
 [`factory_service.py`](src/factory_service.py) holds the logic and returns plain dicts, so the AI-assistant tools below reuse it; [`api.py`](src/api.py) is a thin FastAPI layer with typed response schemas. The tests in [`tests/`](tests/test_api.py) run against the real serving data (`.venv/bin/python -m pytest`) and mostly check that no answer uses information from the future.
+
+## Operations dashboard (first version)
+
+[`dashboard/`](dashboard/) is a React + TypeScript app (Vite, Recharts) on the API. One control sets the production hour, and every page shows the factory as it was known at that hour, so you can replay the line week by week:
+
+- **Overview:** the line monitor's 72-hour failure rate against the rate so far, counts, batch-mate alerts, the inspection queue, and weekly charts of the QC failure rate and of parts entering by line (the L0/L1 campaigns are visible).
+- **Stations:** the failure rate of the parts that visited each of the 52 stations, with risk lift and timing.
+- **Part trace:** a part's route by hours after entry, its status and QC result once reported, its batch-mates, and its risk score with the SHAP contributions behind it.
+
+Risk scores are shown as ranks, never as failure probabilities, and station rates come labelled as associations. Every chart has a legend and a table view; colors follow a palette checked for color-vision deficiency in light and dark mode.
+
+![Dashboard overview at hour 15000](dashboard/screenshots/overview.png)
+
+```bash
+cd dashboard && npm install && npm run build   # once; the API then serves it
+.venv/bin/uvicorn api:app --app-dir src        # from the project root; open http://127.0.0.1:8000/dashboard/
+```
+
+For development, `npm run dev` in `dashboard/` serves it at http://localhost:5173 with hot reload and forwards API calls to port 8000. More in [`dashboard/README.md`](dashboard/README.md).
 
 ## AI-assistant tools (first version)
 
@@ -166,6 +186,6 @@ The runner needs Claude API credentials, writes to `.claude/hillclimb/assistant/
 
 ## Status
 
-Done: decoding the data, forward-in-time evaluation, the final-QC model with SHAP explanations, the early-warning, burst-monitoring and campaign analyses, first versions of the API and the AI-assistant tools, an eval for the assistant, and a PySpark version of the per-part ETL.
+Done: decoding the data, forward-in-time evaluation, the final-QC model with SHAP explanations, the early-warning, burst-monitoring and campaign analyses, first versions of the API, the AI-assistant tools and an operations dashboard, an eval for the assistant, and a PySpark version of the per-part ETL.
 
-Planned, not built yet: an operations dashboard, a flow simulation ("digital twin") of the four lines, and a station-drift monitor.
+Planned, not built yet: a flow simulation ("digital twin") of the four lines, an AI Analyst page for the dashboard, and a station-drift monitor.

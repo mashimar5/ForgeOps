@@ -27,3 +27,7 @@ serving/
 .claude/hillclimb/**/state.json
 .claude/hillclimb/**/trajectory/
 .claude/hillclimb/**/grader_history/
+
+# Dashboard: npm packages and the build (npm install / npm run build in dashboard/)
+dashboard/node_modules/
+dashboard/dist/

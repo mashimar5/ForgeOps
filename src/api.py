@@ -10,15 +10,20 @@ Build the serving data once, then run from the project root:
     .venv/bin/uvicorn api:app --app-dir src
 
 Interactive docs: http://127.0.0.1:8000/docs
+Dashboard, once built (dashboard/README.md): http://127.0.0.1:8000/dashboard/
 """
 
 from contextlib import asynccontextmanager
 from typing import Annotated, Literal
 
 from fastapi import Depends, FastAPI, HTTPException, Path, Query, Request
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from factory_service import FactoryService, NotFound
+from production_data import PROJECT_ROOT
+
+DASHBOARD_DIR = PROJECT_ROOT / "dashboard" / "dist"
 
 
 # ============================================================
@@ -61,6 +66,22 @@ class LineStatus(BaseModel):
     l1_share_last_7_days_pct: float | None
     campaign: str
     parts_in_production: int
+    note: str
+
+
+class Week(BaseModel):
+    week: int
+    start_hour: float
+    hours_covered: float
+    qc_results: int
+    qc_failures: int
+    qc_failure_rate_pct: float | None
+    parts_entered: dict[str, int]
+
+
+class LineHistory(BaseModel):
+    at_hour: float
+    weeks: list[Week]
     note: str
 
 
@@ -194,7 +215,7 @@ async def lifespan(app):
 
 app = FastAPI(
     title="ForgeOps API",
-    version="0.2.0",
+    version="0.3.0",
     description=(
         "Evidence about the Bosch production line, answered **as of** a production hour "
         "(hours since the first timestamp in the data; the data is anonymized, so there are "
@@ -244,6 +265,11 @@ def summary(service: Service, at_hour: AtHour = None):
 @app.get("/line/status", response_model=LineStatus, summary="Line monitor and current entry-line campaign")
 def line_status(service: Service, at_hour: AtHour = None):
     return service.line_status(at_hour)
+
+
+@app.get("/line/history", response_model=LineHistory, summary="Week by week: QC results reported and parts entered")
+def line_history(service: Service, at_hour: AtHour = None):
+    return service.line_history(at_hour)
 
 
 @app.get("/parts/{part_id}", response_model=Part, summary="A part's route, status and risk so far")
@@ -309,3 +335,14 @@ def station(
         return service.station(station_id, at_hour)
     except NotFound as error:
         raise not_found(error)
+
+
+# ============================================================
+# DASHBOARD
+#
+# The built dashboard (dashboard/, `npm run build`) is served from the
+# same origin as the API; in development Vite's dev server proxies to it.
+# ============================================================
+
+if DASHBOARD_DIR.is_dir():
+    app.mount("/dashboard", StaticFiles(directory=DASHBOARD_DIR, html=True), name="dashboard")
