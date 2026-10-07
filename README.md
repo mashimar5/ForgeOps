@@ -82,6 +82,7 @@ Run from the project root, for example `.venv/bin/python src/train_xgboost.py`. 
 | [`one_record_per_part.py`](src/one_record_per_part.py) | Re-scores the model counting each part once, with and without repeat tests in testing and in training (3 seeds) | ~4 min |
 | [`spark_etl.py`](src/spark_etl.py) | PySpark version of the per-part ETL: raw CSVs to Parquet tables in `serving/etl/` (see below) | ~25 s |
 | [`check_spark_etl.py`](src/check_spark_etl.py) | Checks the PySpark output against the pandas build, value for value | ~10 s |
+| [`twin_validate.py`](src/twin_validate.py) | Digital twin: calibrates [`digital_twin.py`](src/digital_twin.py) on weeks 1–61 and compares its run over the later weeks with the real line | ~40 s |
 | [`eda.py`](src/eda.py) | First exploration on a 10k-row sample; reads `train_numeric.csv` from the current directory | — |
 
 Runtimes are from a Mac with 18 CPU cores and 64 GB of RAM. `train_xgboost.py`, `twin_feature.py` and `one_record_per_part.py` use all 1.18M parts and peak at about 26 GB of RAM (set `NUM_ROWS = 500_000` in `train_xgboost.py` to use less); `kaggle_split_repeats.py` reads both Kaggle files (2.37M records, ~25 GB). The other model scripts use the first 500k rows; analyses that only need timestamps use all 1.18M.
@@ -149,6 +150,33 @@ cd dashboard && npm install && npm run build   # once; the API then serves it
 
 For development, `npm run dev` in `dashboard/` serves it at http://localhost:5173 with hot reload and forwards API calls to port 8000. More in [`dashboard/README.md`](dashboard/README.md).
 
+## Digital twin (flow simulation, in progress)
+
+[`digital_twin.py`](src/digital_twin.py) simulates the four lines, calibrated on the data. Batches enter every 6-minute tick in copies of real weeks, and each copies a real batch: its parts' routes and their time on lines 0–2 and inside line 3. Line 3 is the shared bottleneck. It runs in shifts at up to its peak rate and plans each week for the parts that will become ready, plus half the gap between its backlog and its usual level. It serves L0 work until the oldest L1 part has waited long enough for an L1 block that clears the L1 queue; the real line spends 78% of its running hours on L0 parts only and 22% on L1 parts only. Final QC fails at a route effect (stations visited, entry line) plus batch, hourly and daily line-3 effects, sized so simulated failures cluster like the real ones; repeat tests follow at the observed rates. It is flow only: no measurements, so it reproduces how parts move and how often they fail, not why.
+
+Building it showed that line 3 runs at about 100% of its scheduled hours (demand about 68 parts an hour, scheduled capacity about 67). Its queue, a median 2,700 parts, is where parts spend most of their time: L0 parts wait a median 21 hours for line 3, L1 parts 66 hours.
+
+[`twin_validate.py`](src/twin_validate.py) checks it forward in time: calibrated on weeks 1–61, run over the rest with the real arrivals and line-3 shift patterns as inputs, and compared on parts that entered in weeks 62–98 (3 seeds):
+
+| | Real | Twin |
+|---|---|---|
+| Parts finished per week | 10,950 | 10,910 |
+| Parts in production, mean / p90 | 5,150 / 15,340 | 7,040 / 16,630 |
+| Wait for line 3, median: L0 / L1 parts | 20 h / 68 h | 32 h / 71 h |
+| QC failure rate | 0.34% | 0.66% |
+| *Given the real failure level:* | | |
+| Batch-mate alert: parts flagged / their failure lift | 0.78% / 1.9× | 0.63% / 2.0× |
+| Line monitor: share of hours alerting | 13% | 16% |
+| Failure lift among parts in the same line-3 tick | 5.8× | 3.1× |
+
+Where it falls short. The real failure rate halved after week 61 (0.69% to 0.34%), which no calibration before then could know; the lower rows give the twin that one number. Later weeks' failures also clustered more than in any calibration week, so the twin underestimates clustering. L1 parts got faster after week 61, so the twin, copying calibration-era L1 routes, keeps them in production longer (p90 683 hours against 390). Its queue runs fuller than the real one (L0 waits 32 hours against 20) because line 3's usual backlog comes from the calibration weeks.
+
+```bash
+.venv/bin/python src/twin_validate.py    # ~40 s; the first run also builds serving/twin_history.npz (~20 s)
+```
+
+Next for the twin: what-if scenarios and monitor stress tests, a line-map page in the dashboard, and data at scale for the Spark ETL.
+
 ## AI-assistant tools (first version)
 
 [`mcp_server.py`](src/mcp_server.py) exposes the same evidence as 8 read-only [MCP](https://modelcontextprotocol.io) tools: factory summary, line status, part history, risk explanation, inspection queue, batch-mate alerts, and station metrics. Any MCP client can use them. Each tool's description says when to call it, and the server's instructions carry the caveats: risk scores aren't probabilities, the alerts' measured lift, and no calendar dates.
@@ -188,4 +216,4 @@ The runner needs Claude API credentials, writes to `.claude/hillclimb/assistant/
 
 Done: decoding the data, forward-in-time evaluation, the final-QC model with SHAP explanations, the early-warning, burst-monitoring and campaign analyses, first versions of the API, the AI-assistant tools and an operations dashboard, an eval for the assistant, and a PySpark version of the per-part ETL.
 
-Planned, not built yet: a flow simulation ("digital twin") of the four lines, an AI Analyst page for the dashboard, and a station-drift monitor.
+In progress: a flow simulation ("digital twin") of the four lines (simulator and forward check built). Planned, not built yet: an AI Analyst page for the dashboard and a station-drift monitor.
