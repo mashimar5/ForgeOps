@@ -236,6 +236,45 @@ export interface TwinScenarios {
   note: string;
 }
 
+export interface AnalystStatus {
+  available: boolean;
+  reason: string | null;
+  model: string;
+  effort: string;
+  max_tool_rounds: number;
+  tools: string[];
+  price_per_mtok: Record<string, number>;
+  note: string;
+}
+
+export interface AnalystUsage {
+  input_tokens: number;
+  output_tokens: number;
+  cache_read_input_tokens: number;
+  cache_creation_input_tokens: number;
+}
+
+/** The server-sent events of POST /analyst/ask, in the order they can arrive */
+export type AnalystEvent =
+  | { event: "start"; data: { conversation_id: string; at_hour: number | null; model: string } }
+  | { event: "text"; data: { turn: number; text: string } }
+  | { event: "tool_call"; data: { turn: number; id: string; name: string; input: Record<string, unknown> } }
+  | { event: "tool_result"; data: { id: string; is_error: boolean; chars: number; preview: string } }
+  | {
+      event: "done";
+      data: {
+        answer: string;
+        stop_reason: string | null;
+        kept: boolean;
+        models: string[];
+        usage: AnalystUsage;
+        cost_usd: number | null;
+        seconds: number;
+        tool_calls: number;
+      };
+    }
+  | { event: "error"; data: { message: string } };
+
 export type Params = Record<string, string | number | null | undefined>;
 
 export class ApiError extends Error {
@@ -269,4 +308,54 @@ export async function getJson<T>(path: string, params: Params = {}, signal?: Abo
   }
 
   return (await response.json()) as T;
+}
+
+/** POST a JSON body and read the response's server-sent events as they arrive. */
+export async function postEvents(
+  path: string,
+  body: unknown,
+  onEvent: (event: AnalystEvent) => void,
+  signal?: AbortSignal,
+): Promise<void> {
+  const response = await fetch(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    signal,
+  });
+
+  if (!response.ok || !response.body) {
+    let detail = `${response.status} ${response.statusText}`;
+    try {
+      const parsed = await response.json();
+      if (typeof parsed?.detail === "string") detail = parsed.detail;
+    } catch {
+      // keep the status text
+    }
+    throw new ApiError(response.status, detail);
+  }
+
+  const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
+  let buffer = "";
+
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += value;
+
+    // Events end with a blank line
+    let end: number;
+    while ((end = buffer.indexOf("\n\n")) >= 0) {
+      const chunk = buffer.slice(0, end);
+      buffer = buffer.slice(end + 2);
+
+      let event = "";
+      let data = "";
+      for (const line of chunk.split("\n")) {
+        if (line.startsWith("event: ")) event = line.slice(7);
+        else if (line.startsWith("data: ")) data += line.slice(6);
+      }
+      if (event && data) onEvent({ event, data: JSON.parse(data) } as AnalystEvent);
+    }
+  }
 }

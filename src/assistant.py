@@ -23,6 +23,7 @@ from pathlib import Path
 import anthropic
 from anthropic.lib.tools.mcp import async_mcp_tool
 from mcp import ClientSession
+from mcp.client import Client
 from mcp.client.stdio import StdioServerParameters, stdio_client
 
 
@@ -51,16 +52,66 @@ comparing several parts or stations.
 
 
 @asynccontextmanager
-async def connect():
-    """Start the MCP server; yield its tools (as Claude tools) and the system prompt."""
+async def connect(server=None):
+    """
+    Start the MCP server; yield its tools (as Claude tools) and the system prompt.
 
-    async with stdio_client(SERVER) as (read, write):
-        async with ClientSession(read, write) as session:
-            server_info = await session.initialize()
-            listed = await session.list_tools()
+    With `server` (mcp_server.server), connect to it in-process instead: the
+    API does this so the tools use the data it has already loaded.
+    """
 
-            tools = [async_mcp_tool(tool, session) for tool in listed.tools]
-            yield tools, f"{GUIDELINES}\nAbout the data and the tools:\n{server_info.instructions}"
+    if server is None:
+        async with stdio_client(SERVER) as (read, write):
+            async with ClientSession(read, write) as session:
+                server_info = await session.initialize()
+                yield await claude_tools(session, server_info.instructions)
+    else:
+        async with Client(server) as client:
+            yield await claude_tools(client.session, client.instructions)
+
+
+async def claude_tools(session, instructions):
+    listed = await session.list_tools()
+    tools = [async_mcp_tool(tool, session) for tool in listed.tools]
+    return tools, f"{GUIDELINES}\nAbout the data and the tools:\n{instructions}"
+
+
+def has_credentials(client):
+    return any(getattr(client, name, None) is not None for name in ("api_key", "auth_token", "credentials"))
+
+
+def request_params(tools, system, history, effort, model=MODEL):
+    """The tool runner's arguments, in one place so the CLI, the eval and the API's analyst ask alike."""
+
+    return dict(
+        model=model,
+        max_tokens=16000,
+        system=system,
+        tools=tools,
+        messages=list(history),
+        output_config={"effort": effort},
+        max_iterations=MAX_TOOL_ROUNDS,
+        # If the model declines, retry on the model Anthropic recommends for that case
+        betas=["server-side-fallback-2026-07-01"],
+        fallbacks="default",
+    )
+
+
+def final_text(final):
+    """The answer in a run's last message."""
+
+    if final is None:
+        return "(no response)"
+
+    if final.stop_reason == "refusal":
+        return "The model declined to answer this question."
+
+    text = "".join(block.text for block in final.content if block.type == "text")
+
+    if final.stop_reason == "max_tokens":
+        text += "\n\n(The answer was cut off at the token limit.)"
+
+    return text
 
 
 def describe_call(block):
@@ -78,18 +129,7 @@ async def answer(client, tools, system, history, question, effort, model=MODEL, 
 
     history.append({"role": "user", "content": question})
 
-    runner = client.beta.messages.tool_runner(
-        model=model,
-        max_tokens=16000,
-        system=system,
-        tools=tools,
-        messages=list(history),
-        output_config={"effort": effort},
-        max_iterations=MAX_TOOL_ROUNDS,
-        # If the model declines, retry on the model Anthropic recommends for that case
-        betas=["server-side-fallback-2026-07-01"],
-        fallbacks="default",
-    )
+    runner = client.beta.messages.tool_runner(**request_params(tools, system, history, effort, model))
 
     final = None
 
@@ -111,18 +151,7 @@ async def answer(client, tools, system, history, question, effort, model=MODEL, 
         if tool_results is not None:
             history.append(tool_results)
 
-    if final is None:
-        return "(no response)"
-
-    if final.stop_reason == "refusal":
-        return "The model declined to answer this question."
-
-    text = "".join(block.text for block in final.content if block.type == "text")
-
-    if final.stop_reason == "max_tokens":
-        text += "\n\n(The answer was cut off at the token limit.)"
-
-    return text
+    return final_text(final)
 
 
 async def main():
@@ -138,7 +167,7 @@ async def main():
 
     client = anthropic.AsyncAnthropic()
 
-    if all(getattr(client, name, None) is None for name in ("api_key", "auth_token", "credentials")):
+    if not has_credentials(client):
         sys.exit(
             "No Claude API credentials found. Run `ant auth login`, or set ANTHROPIC_API_KEY "
             "to a key from platform.claude.com, then try again."

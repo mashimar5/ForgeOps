@@ -133,6 +133,7 @@ A FastAPI service serves the evidence above. Every endpoint answers **as of** a 
 | `GET /inspection-queue` | Parts that just reached their last station, riskiest first, each listed once |
 | `GET /alerts/batch-mates` | Parts in production whose entry batch-mate already failed final QC |
 | `GET /stations`, `GET /stations/{id}` | Visits, failure rate, risk lift and timing per station |
+| `GET /analyst/status`, `POST /analyst/ask` | The AI analyst (below): whether it can answer, and a question's answer streamed as server-sent events, with every tool call. Each question calls the Claude API |
 
 [`factory_service.py`](src/factory_service.py) holds the logic and returns plain dicts, so the AI-assistant tools below reuse it; [`api.py`](src/api.py) is a thin FastAPI layer with typed response schemas. The tests in [`tests/`](tests/test_api.py) run against the real serving data (`.venv/bin/python -m pytest`) and mostly check that no answer uses information from the future.
 
@@ -144,6 +145,7 @@ A FastAPI service serves the evidence above. Every endpoint answers **as of** a 
 - **Line map:** where the parts in production are, station by station and in the queue for line 3, for the real line or a run of the digital twin (below), with play controls.
 - **Stations:** the failure rate of the parts that visited each of the 52 stations, with risk lift and timing.
 - **Part trace:** a part's route by hours after entry, its status and QC result once reported, its batch-mates, and its risk score with the SHAP contributions behind it.
+- **AI Analyst:** questions in plain language, answered by the AI assistant (below) as of the time control's hour, with every tool call it made and its result listed under the answer.
 
 **Illustrative names.** The data is anonymized, so to make the flow easier to follow the dashboard and the API ([`plant_names.py`](src/plant_names.py)) describe the plant as a factory for electronic control units, with names that fit how each line behaves in the data, not what it really does: L0, 24 stations cleared in about 20 minutes, is the *circuit-board line*; L1, whose sub-steps span days, the *potting & cure line*; L2, used by about 30% of parts, the *connector sub-assembly*; L3 is *final assembly* in two cells (S29–S38 and S39–S51). Stations are operation numbers in production order (L3_S32 is cell A, OP40). Products are route families: *Standard ECU* (circuit-board line, cell A: 64% of parts), *Potted ECU + connector* (20%), *ECU + connector* (9%), *Compact ECU* (cell B, 4%), *Potted ECU* (2%) and special variants (1%). The real codes stay next to every name, and the AI assistant's tools and its eval use the codes only.
 
@@ -247,6 +249,10 @@ claude mcp add forgeops -- "$PWD/.venv/bin/python" "$PWD/src/mcp_server.py"
 
 The tests in [`tests/test_mcp_server.py`](tests/test_mcp_server.py) check the tools in process and over stdio, and that they convert into Claude tool definitions, without calling the Claude API.
 
+### The AI Analyst page
+
+The dashboard's AI Analyst page puts the same assistant behind the API ([`analyst.py`](src/analyst.py)): the same model, system prompt, tools and settings, with the MCP server connected in-process so it uses the data the API has already loaded. The answer streams back as server-sent events (`POST /analyst/ask`): the text as Claude writes it, and every tool call with its input and result, which the page lists under the answer so each number can be checked. A conversation answers as of the hour the time control was at when it started. Before the end of the data, the tools answer as of that hour when Claude gives none and refuse later hours, and the system prompt says so; at the end of the data the page asks exactly as the eval does. Follow-up questions work until the API restarts; Stop cancels the run, and a stopped or failed question is dropped from the conversation. Each question is billed to the Claude API account the API server is signed in with, and the page shows its token counts and an estimated cost. The tests in [`tests/test_analyst.py`](tests/test_analyst.py) drive the endpoints with a fake Claude client and the real tools, without calling the Claude API.
+
 ### Evaluating the assistant
 
 [`evals/assistant/`](evals/assistant/) holds a 46-question eval for the assistant. Each question goes through the assistant's real entry point, and Claude Sonnet 5.5 grades the answer against facts computed from the serving data with the same code the tools call, so the expected answers come from the data, not from a model. An answer passes if it states every required fact, makes none of the case's forbidden claims (such as calling a risk score a probability, giving a calendar date or using data from the future), contains the exact part Ids and names, and every number in it traces back to a tool result. A third of the first 25 questions test limits: unknown or not-yet-entered parts, QC results not reported yet, root-cause and cost questions the data can't answer. The other 21 (tagged `hard`) need counting, sorting or arithmetic over long tool outputs, such as 100 flagged parts or all 52 stations.
@@ -265,6 +271,6 @@ The runner needs Claude API credentials, writes to `.claude/hillclimb/assistant/
 
 ## Status
 
-Done: decoding the data, forward-in-time evaluation, the final-QC model with SHAP explanations, the early-warning, burst-monitoring and campaign analyses, first versions of the API, the AI-assistant tools and an operations dashboard, an eval for the assistant, and a PySpark version of the per-part ETL.
+Done: decoding the data, forward-in-time evaluation, the final-QC model with SHAP explanations, the early-warning, burst-monitoring and campaign analyses, first versions of the API, the AI-assistant tools and an operations dashboard with an AI Analyst page, an eval for the assistant, and a PySpark version of the per-part ETL.
 
-Also built: a flow simulation ("digital twin") of the four lines, checked forward in time, with what-ifs, monitor stress tests, a line map and data at scale for Spark. Planned, not built yet: an AI Analyst page for the dashboard and a station-drift monitor.
+Also built: a flow simulation ("digital twin") of the four lines, checked forward in time, with what-ifs, monitor stress tests, a line map and data at scale for Spark. Planned, not built yet: a station-drift monitor.

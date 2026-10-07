@@ -10,6 +10,7 @@ A React + TypeScript app (Vite, Recharts) on the ForgeOps API ([`src/api.py`](..
 | Line map | A schematic of the four lines: parts at each of the 52 stations and in the queue for line 3, what line 3 is serving, final QC. Shows the real line or a saved run of the digital twin (side by side if you like), and plays forward an hour, 6 hours or a day at a time | `/line/map`, `/twin/scenarios`, `/twin/map/{run}` |
 | Stations | Failure rate of the parts that visited each station, risk lift, timing, sortable | `/stations` |
 | Part trace | Route by hours after entry, status, QC result once reported, batch-mates, risk score with SHAP contributions | `/parts/{id}`, `/parts/{id}/risk` |
+| AI Analyst | Questions in plain language, answered by the AI assistant as of the time control's hour; the answer streams in, with every tool call and its result listed under it. A conversation keeps its hour; Stop cancels a run. Each question is billed to the Claude API account the API server is signed in with | `/analyst/status`, `/analyst/ask` |
 
 Lines, stations and products carry illustrative names from `GET /plant` (an ECU plant whose lines behave like the real ones; see the main README), always next to the real codes; the footer says they are illustrative. The twin runs on the line map are simulated parts from `src/twin_scenarios.py` (saved to `serving/twin/`); the page says so and shows each run's description.
 
@@ -37,9 +38,10 @@ For development, `npm run dev` serves the app at http://localhost:5173 with hot 
 ```text
 src/api.ts            response types (mirror src/api.py) and the fetch helper
 src/hooks.ts          useApi (keeps the previous data while reloading), URL routing, theme
+src/analyst.ts        the analyst conversation (kept outside the page, so an answer keeps streaming on other pages)
 src/theme.ts          chart colors for light and dark mode
-src/components/       time control, cards, tables, badges, the four charts
-src/pages/            Overview, Line map, Stations, Part trace
+src/components/       time control, cards, tables, badges, the charts, a small Markdown renderer for answers
+src/pages/            Overview, Line map, Stations, Part trace, AI Analyst
 ```
 
 ## Charts

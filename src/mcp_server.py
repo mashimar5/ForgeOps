@@ -94,6 +94,13 @@ def service():
     return _service
 
 
+def use_service(loaded):
+    """Serve an already-loaded FactoryService (the API runs this server in-process)."""
+
+    global _service
+    _service = loaded
+
+
 # ============================================================
 # TOOLS
 # ============================================================

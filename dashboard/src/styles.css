@@ -801,6 +801,264 @@ tbody tr:hover {
 }
 
 /* ============================================================
+   AI ANALYST
+   ============================================================ */
+
+.analyst {
+  max-width: 920px;
+}
+
+.analyst-meta {
+  margin: 0;
+}
+
+.analyst-moved {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  background: var(--warning-wash);
+}
+
+.analyst-moved p {
+  margin: 0;
+}
+
+.analyst-thread {
+  display: grid;
+  gap: 16px;
+}
+
+.suggestions ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.suggestions button {
+  border-radius: 999px;
+  padding: 6px 12px;
+  text-align: left;
+}
+
+.exchange {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  scroll-margin-top: 120px;
+}
+
+.exchange > *,
+.evidence li {
+  min-width: 0;
+}
+
+.exchange-question {
+  justify-self: end;
+  max-width: 85%;
+  margin: 0;
+  padding: 9px 13px;
+  border-radius: 12px 12px 2px 12px;
+  background: var(--surface-sunk);
+  white-space: pre-wrap;
+}
+
+.evidence {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  padding: 10px 14px;
+}
+
+.evidence h3 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.evidence ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+}
+
+.evidence-note {
+  color: var(--ink-2);
+  font-style: italic;
+  font-size: 13px;
+  white-space: pre-wrap;
+}
+
+.tool-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  min-height: 28px;
+}
+
+.tool-label {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.tool-call {
+  font-size: 12px;
+  color: var(--ink-2);
+  overflow-wrap: anywhere;
+  flex: 1 1 220px;
+}
+
+.tool-row a {
+  font-size: 12px;
+}
+
+.tool-result {
+  margin: 4px 0 8px;
+  max-height: 320px;
+  overflow: auto;
+  background: var(--surface-sunk);
+  border-radius: 7px;
+  padding: 8px 10px;
+  font-size: 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.answer {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 14px 18px;
+}
+
+.working {
+  margin: 0;
+}
+
+.exchange-meta {
+  margin: -4px 0 0;
+}
+
+.analyst-composer {
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  gap: 8px;
+  padding: 12px 0 16px;
+  background: var(--plane);
+  border-top: 1px solid var(--border);
+}
+
+.analyst-composer textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 56px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 7px;
+  padding: 8px 10px;
+  font: inherit;
+  color: inherit;
+}
+
+.analyst-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.analyst-actions .muted {
+  margin-right: auto;
+}
+
+/* Markdown answers */
+.md > :first-child {
+  margin-top: 0;
+}
+
+.md > :last-child {
+  margin-bottom: 0;
+}
+
+.md p,
+.md ul,
+.md ol,
+.md pre,
+.md blockquote,
+.md .table-wrap {
+  margin: 0 0 10px;
+}
+
+.md h3,
+.md h4 {
+  margin: 14px 0 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.md ul,
+.md ol {
+  padding-left: 22px;
+}
+
+.md li + li {
+  margin-top: 3px;
+}
+
+.md li > ul,
+.md li > ol {
+  margin: 3px 0 0;
+}
+
+.md code,
+.tool-call,
+.tool-result {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+.md code {
+  font-size: 12.5px;
+  background: var(--surface-sunk);
+  border-radius: 4px;
+  padding: 1px 4px;
+}
+
+.md pre {
+  background: var(--surface-sunk);
+  border-radius: 7px;
+  padding: 8px 10px;
+  overflow-x: auto;
+  font-size: 12px;
+}
+
+.md blockquote {
+  border-left: 3px solid var(--axis);
+  padding-left: 10px;
+  color: var(--ink-2);
+}
+
+.md hr {
+  border: none;
+  border-top: 1px solid var(--grid);
+  margin: 12px 0;
+}
+
+.md td {
+  white-space: normal;
+}
+
+/* ============================================================
    NARROW SCREENS
    ============================================================ */
 
@@ -848,8 +1106,13 @@ tbody tr:hover {
     margin-left: 0;
   }
 
-  /* On a phone the time control would cover a third of the screen */
-  .asof {
+  /* On a phone the time control would cover a third of the screen, the analyst's question box a quarter */
+  .asof,
+  .analyst-composer {
     position: static;
+  }
+
+  .exchange-question {
+    max-width: 100%;
   }
 }

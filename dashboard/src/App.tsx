@@ -4,6 +4,7 @@ import type { Plant, Summary } from "./api";
 import { AsOfBar } from "./components/AsOfBar";
 import { ApiDown } from "./components/Status";
 import { toHash, useApi, useRoute, useTheme, type Page, type ThemeChoice } from "./hooks";
+import { AnalystPage } from "./pages/Analyst";
 import { LineMapPage } from "./pages/LineMapPage";
 import { Overview } from "./pages/Overview";
 import { PartTrace } from "./pages/PartTrace";
@@ -16,6 +17,7 @@ const TABS: { page: Page; label: string }[] = [
   { page: "map", label: "Line map" },
   { page: "stations", label: "Stations" },
   { page: "parts", label: "Part trace" },
+  { page: "analyst", label: "AI Analyst" },
 ];
 
 export default function App() {
@@ -89,6 +91,7 @@ export default function App() {
                   onOpen={(id) => navigate({ page: "parts", partId: id })}
                 />
               )}
+              {route.page === "analyst" && <AnalystPage at={at} lastHour={end.data.data_last_hour} />}
             </main>
           </>
         )}

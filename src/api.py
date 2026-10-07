@@ -11,15 +11,23 @@ Build the serving data once, then run from the project root:
 
 Interactive docs: http://127.0.0.1:8000/docs
 Dashboard, once built (dashboard/README.md): http://127.0.0.1:8000/dashboard/
+
+The AI analyst endpoints (/analyst/...) call the Claude API with the
+credentials of the shell that starts the server (`ant auth login`, or
+ANTHROPIC_API_KEY); each question is billed to that account.
 """
 
 from contextlib import asynccontextmanager
 from typing import Annotated, Literal
 
 from fastapi import Depends, FastAPI, HTTPException, Path, Query, Request
+from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
+import assistant
+import mcp_server
+from analyst import Analyst, Busy, Mismatch
 from factory_service import FactoryService, NotFound
 from line_map import TwinRuns
 from production_data import PROJECT_ROOT
@@ -287,6 +295,25 @@ class Stations(BaseModel):
     stations: list[StationMetrics]
 
 
+class AnalystStatus(BaseModel):
+    available: bool
+    reason: str | None
+    model: str
+    effort: str
+    max_tool_rounds: int
+    tools: list[str]
+    price_per_mtok: dict[str, float]
+    note: str
+
+
+class AnalystQuestion(BaseModel):
+    question: str = Field(min_length=1, max_length=2000)
+    at_hour: float | None = Field(
+        None, ge=0, description="The hour to answer as of; it stays fixed for the conversation. Defaults to the end of the data."
+    )
+    conversation_id: str | None = Field(None, description="Continue this conversation; omit to start a new one.")
+
+
 # ============================================================
 # APP
 # ============================================================
@@ -295,12 +322,17 @@ class Stations(BaseModel):
 async def lifespan(app):
     app.state.service = FactoryService()
     app.state.twin = TwinRuns()
-    yield
+
+    # The AI analyst: the assistant's MCP tools, connected in-process to the data loaded above
+    mcp_server.use_service(app.state.service)
+    async with assistant.connect(mcp_server.server) as (tools, system):
+        app.state.analyst = Analyst(tools, system, app.state.service.last_hour)
+        yield
 
 
 app = FastAPI(
     title="ForgeOps API",
-    version="0.3.0",
+    version="0.4.0",
     description=(
         "Evidence about the Bosch production line, answered **as of** a production hour "
         "(hours since the first timestamp in the data; the data is anonymized, so there are "
@@ -309,7 +341,9 @@ app = FastAPI(
         "station. Twin records (identical measurements and timestamps, most likely repeat "
         "tests of one part) appear only once the part's QC result is reported. The risk "
         "model only scores parts it never trained on. Risk scores rank parts for "
-        "inspection; they are not calibrated probabilities."
+        "inspection; they are not calibrated probabilities. The AI analyst (/analyst/ask) answers "
+        "questions with Claude from the same evidence, and each question is billed to the Claude API "
+        "account the server is signed in with."
     ),
     lifespan=lifespan,
 )
@@ -475,6 +509,52 @@ def station(
         return service.station(station_id, at_hour)
     except NotFound as error:
         raise not_found(error)
+
+
+# ============================================================
+# AI ANALYST
+#
+# The assistant (assistant.py) behind the dashboard's AI Analyst page; see
+# analyst.py. Each question calls the Claude API and is billed to the
+# account the server is signed in with.
+# ============================================================
+
+@app.get("/analyst/status", response_model=AnalystStatus, summary="Whether the AI analyst can answer, and how")
+async def analyst_status(request: Request):
+    return await request.app.state.analyst.status()
+
+
+@app.post(
+    "/analyst/ask",
+    summary="Ask the AI analyst; the answer streams back as server-sent events",
+    response_class=StreamingResponse,
+    responses={
+        200: {
+            "content": {"text/event-stream": {}},
+            "description": (
+                "Events: start, text (as it is written), tool_call, tool_result, then done (the answer, "
+                "token usage, estimated cost) or error. Each question is billed to the Claude API "
+                "account the server is signed in with."
+            ),
+        },
+        404: {"description": "The conversation has ended"},
+        409: {"description": "Busy, or a follow-up as of a different hour"},
+    },
+)
+async def analyst_ask(request: Request, body: AnalystQuestion):
+    analyst = request.app.state.analyst
+    try:
+        conversation = analyst.open(body.conversation_id, body.at_hour)
+    except LookupError as error:
+        raise HTTPException(status_code=404, detail=str(error))
+    except (Busy, Mismatch) as error:
+        raise HTTPException(status_code=409, detail=str(error))
+
+    return StreamingResponse(
+        analyst.events(conversation, body.question.strip()),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 
 # ============================================================
