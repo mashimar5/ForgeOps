@@ -33,6 +33,7 @@ import pandas as pd
 import shap
 from xgboost import XGBClassifier
 
+from line_map import snapshot
 from production_data import PROJECT_ROOT, line_of, station_number, station_of
 from qc_monitor import (
     NEVER,
@@ -211,6 +212,17 @@ class FactoryService:
             self._station_index[s.split("_")[1]] = j
 
         self._features_per_station = Counter(station_of(f) for f in self.feature_names)
+
+        # For the line map: each part's last station before line 3 (its entry
+        # if it has none) and its first station on line 3
+        before_l3 = np.array([station_number(s) < 29 for s in self.stations])
+        pre = self._station_tick[:, before_l3]
+        pre_last = np.where(pre == NOT_VISITED, -1, pre).max(axis=1).astype(np.int64)
+        self._pre_done = np.where(pre_last < 0, self._start, pre_last)
+        l3_first = self._station_tick[:, ~before_l3].min(axis=1).astype(np.int64)
+        self._l3_first = np.where(l3_first == NOT_VISITED, NEVER, l3_first)
+        self._map_start = np.where(self._is_part, self._start, NEVER)     # parts only
+        del pre
 
     # ============================================================
     # HELPERS
@@ -440,6 +452,13 @@ class FactoryService:
                 "The last week runs only up to the as-of hour."
             ),
         }
+
+    def line_map(self, at_hour=None):
+        """Where the parts in production are at this hour (line_map.py)."""
+
+        tick = self._tick(at_hour)
+        return {"source": "real", **snapshot(tick, self.stations, self._map_start, self._end, self._l3_first,
+                                             self._pre_done, self._entry_line, self._station_tick, self._part_failed)}
 
     # ============================================================
     # PARTS

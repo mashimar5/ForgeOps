@@ -21,6 +21,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from factory_service import FactoryService, NotFound
+from line_map import TwinRuns
 from production_data import PROJECT_ROOT
 
 DASHBOARD_DIR = PROJECT_ROOT / "dashboard" / "dist"
@@ -82,6 +83,40 @@ class Week(BaseModel):
 class LineHistory(BaseModel):
     at_hour: float
     weeks: list[Week]
+    note: str
+
+
+class MapStation(BaseModel):
+    station: str
+    line: str
+    parts: int
+
+
+class LineMap(BaseModel):
+    source: str
+    at_hour: float
+    in_production: int
+    stations: list[MapStation]
+    waiting_for_line3: dict[str, int]
+    line3_serving: str
+    line3_started_last_hour: dict[str, int]
+    entered_last_hour: dict[str, int]
+    finished_last_hour: int
+    qc_reported_last_24h: int
+    qc_failed_last_24h: int
+    note: str
+
+
+class TwinScenario(BaseModel):
+    id: str
+    label: str
+    description: str
+    first_hour: float
+    last_hour: float
+
+
+class TwinScenarios(BaseModel):
+    scenarios: list[TwinScenario]
     note: str
 
 
@@ -210,6 +245,7 @@ class Stations(BaseModel):
 @asynccontextmanager
 async def lifespan(app):
     app.state.service = FactoryService()
+    app.state.twin = TwinRuns()
     yield
 
 
@@ -270,6 +306,41 @@ def line_status(service: Service, at_hour: AtHour = None):
 @app.get("/line/history", response_model=LineHistory, summary="Week by week: QC results reported and parts entered")
 def line_history(service: Service, at_hour: AtHour = None):
     return service.line_history(at_hour)
+
+
+@app.get("/line/map", response_model=LineMap, summary="Where the parts in production are: each station and the queue for line 3")
+def line_map(service: Service, at_hour: AtHour = None):
+    return service.line_map(at_hour)
+
+
+TWIN_NOTE = (
+    "Saved runs of the digital twin (src/digital_twin.py): a flow simulation calibrated on the real "
+    "line, replaying weeks 62-98. Simulated parts, not real ones; it reproduces how parts move and how "
+    "often they fail, not why. Write them with src/twin_scenarios.py."
+)
+
+
+@app.get("/twin/scenarios", response_model=TwinScenarios, summary="The digital twin's saved runs")
+def twin_scenarios(request: Request):
+    return {"scenarios": request.app.state.twin.scenarios, "note": TWIN_NOTE}
+
+
+@app.get("/twin/map/{scenario}", response_model=LineMap, summary="Line map of a digital-twin run")
+def twin_map(
+    request: Request,
+    service: Service,
+    scenario: Annotated[str, Path(description="A run id from /twin/scenarios")],
+    at_hour: AtHour = None,
+):
+    info, result = request.app.state.twin.snapshot(scenario, at_hour, service.stations)
+    if info is None:
+        raise HTTPException(status_code=404, detail=f"No saved twin run {scenario!r}; see /twin/scenarios.")
+    if not info["first_hour"] <= result["at_hour"] <= info["last_hour"]:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Twin run {scenario!r} covers hours {info['first_hour']:.0f}-{info['last_hour']:.0f}.",
+        )
+    return {"source": f"twin:{scenario}", **result}
 
 
 @app.get("/parts/{part_id}", response_model=Part, summary="A part's route, status and risk so far")

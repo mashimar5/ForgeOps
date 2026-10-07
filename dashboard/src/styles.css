@@ -740,6 +740,61 @@ tbody tr:hover {
 }
 
 /* ============================================================
+   LINE MAP
+   ============================================================ */
+
+.map-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 20px;
+}
+
+.map-controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.map-controls .check {
+  font-weight: 400;
+}
+
+.map-controls .play {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.map-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 24px;
+  color: var(--ink-2);
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.map-stats .line-tag {
+  margin-right: 8px;
+}
+
+/* The schematic keeps a readable size; on narrow screens it scrolls inside its card */
+.map-scroll {
+  overflow-x: auto;
+}
+
+.line-map {
+  width: 100%;
+  min-width: 760px;
+  height: auto;
+  display: block;
+  font-family: var(--font);
+}
+
+/* ============================================================
    NARROW SCREENS
    ============================================================ */
 

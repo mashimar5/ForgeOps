@@ -17,6 +17,19 @@ export interface Colors {
   /** SHAP contributions: toward failure / toward passing */
   towardFail: string;
   towardPass: string;
+  /** Line map: one blue ramp for part counts (COUNT_BINS), text that reads on each step, and "none" */
+  ramp: string[];
+  rampText: string[];
+  empty: string;
+}
+
+/** Part-count bands for the line map: [1, 10), [10, 50), ... [5000, inf) */
+export const COUNT_BINS = [1, 10, 50, 200, 1000, 5000];
+
+export function countStep(count: number): number {
+  let step = -1;
+  for (const [i, lower] of COUNT_BINS.entries()) if (count >= lower) step = i;
+  return step;
 }
 
 // The dataviz skill's reference palette. Lines take categorical slots 1-4
@@ -36,6 +49,10 @@ export const PALETTE: Record<"light" | "dark", Colors> = {
     total: "#4a3aa7",
     towardFail: "#e34948",
     towardPass: "#2a78d6",
+    // Sequential blue steps 100-600, light to dark
+    ramp: ["#cde2fb", "#9ec5f4", "#6da7ec", "#3987e5", "#256abf", "#184f95"],
+    rampText: ["#0b0b0b", "#0b0b0b", "#0b0b0b", "#ffffff", "#ffffff", "#ffffff"],
+    empty: "#f2f1ed",
   },
   dark: {
     surface: "#1a1a19",
@@ -48,6 +65,10 @@ export const PALETTE: Record<"light" | "dark", Colors> = {
     total: "#9085e9",
     towardFail: "#e66767",
     towardPass: "#3987e5",
+    // The same steps reversed: on the dark surface more parts read lighter
+    ramp: ["#184f95", "#256abf", "#3987e5", "#6da7ec", "#9ec5f4", "#cde2fb"],
+    rampText: ["#ffffff", "#ffffff", "#ffffff", "#0b0b0b", "#0b0b0b", "#0b0b0b"],
+    empty: "#232321",
   },
 };
 

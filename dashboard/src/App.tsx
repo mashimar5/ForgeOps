@@ -1,7 +1,10 @@
+import { useCallback } from "react";
+
 import type { Summary } from "./api";
 import { AsOfBar } from "./components/AsOfBar";
 import { ApiDown } from "./components/Status";
 import { toHash, useApi, useRoute, useTheme, type Page, type ThemeChoice } from "./hooks";
+import { LineMapPage } from "./pages/LineMapPage";
 import { Overview } from "./pages/Overview";
 import { PartTrace } from "./pages/PartTrace";
 import { StationsPage } from "./pages/Stations";
@@ -9,6 +12,7 @@ import { ColorsContext, PALETTE } from "./theme";
 
 const TABS: { page: Page; label: string }[] = [
   { page: "overview", label: "Overview" },
+  { page: "map", label: "Line map" },
   { page: "stations", label: "Stations" },
   { page: "parts", label: "Part trace" },
 ];
@@ -23,6 +27,7 @@ export default function App() {
   const lastHour = end.data?.data_last_hour;
   const at = route.at !== null && lastHour !== undefined && route.at >= lastHour ? null : route.at;
   const partLink = (id: number) => toHash({ page: "parts", partId: id, at });
+  const setAt = useCallback((next: number | null) => navigate({ at: next }, { replace: true }), [navigate]);
 
   return (
     <ColorsContext.Provider value={PALETTE[theme.mode]}>
@@ -67,10 +72,11 @@ export default function App() {
               at={at}
               lastHour={end.data.data_last_hour}
               trainingCutoff={end.data.model.training_cutoff_hour}
-              onChange={(next) => navigate({ at: next }, { replace: true })}
+              onChange={setAt}
             />
             <main>
               {route.page === "overview" && <Overview at={at} partLink={partLink} />}
+              {route.page === "map" && <LineMapPage at={at} lastHour={end.data.data_last_hour} onTime={setAt} />}
               {route.page === "stations" && <StationsPage at={at} />}
               {route.page === "parts" && (
                 <PartTrace

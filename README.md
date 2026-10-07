@@ -83,6 +83,8 @@ Run from the project root, for example `.venv/bin/python src/train_xgboost.py`. 
 | [`spark_etl.py`](src/spark_etl.py) | PySpark version of the per-part ETL: raw CSVs to Parquet tables in `serving/etl/` (see below) | ~25 s |
 | [`check_spark_etl.py`](src/check_spark_etl.py) | Checks the PySpark output against the pandas build, value for value | ~10 s |
 | [`twin_validate.py`](src/twin_validate.py) | Digital twin: calibrates [`digital_twin.py`](src/digital_twin.py) on weeks 1–61 and compares its run over the later weeks with the real line | ~40 s |
+| [`twin_scenarios.py`](src/twin_scenarios.py) | Digital twin: what-if scenarios and monitor stress tests; saves the line map's twin runs | ~70 s |
+| [`twin_scale_data.py`](src/twin_scale_data.py) | Digital twin: the dataset at N times its volume in the Kaggle CSV format, for the Spark ETL | ~2 min at 10x |
 | [`eda.py`](src/eda.py) | First exploration on a 10k-row sample; reads `train_numeric.csv` from the current directory | — |
 
 Runtimes are from a Mac with 18 CPU cores and 64 GB of RAM. `train_xgboost.py`, `twin_feature.py` and `one_record_per_part.py` use all 1.18M parts and peak at about 26 GB of RAM (set `NUM_ROWS = 500_000` in `train_xgboost.py` to use less); `kaggle_split_repeats.py` reads both Kaggle files (2.37M records, ~25 GB). The other model scripts use the first 500k rows; analyses that only need timestamps use all 1.18M.
@@ -100,7 +102,7 @@ Outputs go to `results/` (CSVs) and `results/plots/`. `results/random_split/` ke
 
 [`check_spark_etl.py`](src/check_spark_etl.py) compares the output with the pandas build ([`build_serving_data.py`](src/build_serving_data.py)): all 9 columns for all 1,183,747 parts and all 61.5M first-seen values match exactly, missing values included. Twin records get the same keys (every measurement, written out exactly) and the same group numbers.
 
-It runs locally (`local[*]`) in about 25 seconds on an 18-core Mac, against 46 seconds for the same steps in pandas, mostly because Spark parses the CSVs in parallel. At this size one machine is enough either way; the point is a job that would run unchanged on a cluster. Model scoring stays in Python.
+It runs locally (`local[*]`) in about 25 seconds on an 18-core Mac, against 46 seconds for the same steps in pandas, mostly because Spark parses the CSVs in parallel. At this size one machine is enough either way; the point is a job that would run unchanged on a cluster. At ten times the size (the digital twin's data, below) it takes 51 seconds, where pandas would need about three times this machine's memory. Model scoring stays in Python.
 
 ```bash
 .venv/bin/python src/spark_etl.py
@@ -123,6 +125,8 @@ A FastAPI service serves the evidence above. Every endpoint answers **as of** a 
 | `GET /summary` | Factory counts so far and the model card (forward-in-time metrics) |
 | `GET /line/status` | Line monitor (recent QC failure rate vs. history) and the current entry-line campaign |
 | `GET /line/history` | Week by week: QC results reported and their failure rate, and parts entered by entry line |
+| `GET /line/map` | Where the parts in production are: at each station, or waiting for line 3 |
+| `GET /twin/scenarios`, `GET /twin/map/{run}` | The digital twin's saved runs, and the same map for one of them |
 | `GET /parts/{id}` | A part's route so far, status, QC result once reported, batch-mate status, risk, and its twin records once the QC result is reported |
 | `GET /parts/{id}/risk` | Risk score, percentile and the top SHAP contributions |
 | `GET /inspection-queue` | Parts that just reached their last station, riskiest first, each listed once |
@@ -136,6 +140,7 @@ A FastAPI service serves the evidence above. Every endpoint answers **as of** a 
 [`dashboard/`](dashboard/) is a React + TypeScript app (Vite, Recharts) on the API. One control sets the production hour, and every page shows the factory as it was known at that hour, so you can replay the line week by week:
 
 - **Overview:** the line monitor's 72-hour failure rate against the rate so far, counts, batch-mate alerts, the inspection queue, and weekly charts of the QC failure rate and of parts entering by line (the L0/L1 campaigns are visible).
+- **Line map:** where the parts in production are, station by station and in the queue for line 3, for the real line or a run of the digital twin (below), with play controls.
 - **Stations:** the failure rate of the parts that visited each of the 52 stations, with risk lift and timing.
 - **Part trace:** a part's route by hours after entry, its status and QC result once reported, its batch-mates, and its risk score with the SHAP contributions behind it.
 
@@ -150,32 +155,75 @@ cd dashboard && npm install && npm run build   # once; the API then serves it
 
 For development, `npm run dev` in `dashboard/` serves it at http://localhost:5173 with hot reload and forwards API calls to port 8000. More in [`dashboard/README.md`](dashboard/README.md).
 
-## Digital twin (flow simulation, in progress)
+## Digital twin (flow simulation)
 
-[`digital_twin.py`](src/digital_twin.py) simulates the four lines, calibrated on the data. Batches enter every 6-minute tick in copies of real weeks, and each copies a real batch: its parts' routes and their time on lines 0–2 and inside line 3. Line 3 is the shared bottleneck. It runs in shifts at up to its peak rate and plans each week for the parts that will become ready, plus half the gap between its backlog and its usual level. It serves L0 work until the oldest L1 part has waited long enough for an L1 block that clears the L1 queue; the real line spends 78% of its running hours on L0 parts only and 22% on L1 parts only. Final QC fails at a route effect (stations visited, entry line) plus batch, hourly and daily line-3 effects, sized so simulated failures cluster like the real ones; repeat tests follow at the observed rates. It is flow only: no measurements, so it reproduces how parts move and how often they fail, not why.
+[`digital_twin.py`](src/digital_twin.py) simulates the four lines, calibrated on the data. Batches enter every 6-minute tick in copies of real weeks, and each copies a real batch: its parts' routes and their time on lines 0–2 and inside line 3. Line 3 is the shared bottleneck. Each week it plans for the parts that will become ready plus half the gap between its backlog and its usual level: it runs the copied week's shifts, somewhat faster when busy (up to its busiest real weeks' rate), and beyond that adds hours at its usual rate of about 144 parts an hour, up to 123 hours a week; the real line's weekly output follows its hours (correlation 0.96) more than its rate (0.76). It serves L0 work until the oldest L1 part has waited long enough for an L1 block that clears the L1 queue; the real line spends 78% of its running hours on L0 parts only and 22% on L1 parts only. Final QC fails at a route effect (stations visited, entry line) plus batch, hourly and daily line-3 effects, sized so simulated failures cluster like the real ones; repeat tests follow at the observed rates. It is flow only: no measurements, so it reproduces how parts move and how often they fail, not why.
 
 Building it showed that line 3 runs at about 100% of its scheduled hours (demand about 68 parts an hour, scheduled capacity about 67). Its queue, a median 2,700 parts, is where parts spend most of their time: L0 parts wait a median 21 hours for line 3, L1 parts 66 hours.
 
-[`twin_validate.py`](src/twin_validate.py) checks it forward in time: calibrated on weeks 1–61, run over the rest with the real arrivals and line-3 shift patterns as inputs, and compared on parts that entered in weeks 62–98 (3 seeds):
+### Checked forward in time
+
+[`twin_validate.py`](src/twin_validate.py): calibrated on weeks 1–61, run over the rest with the real arrivals and line-3 shift patterns as inputs, and compared on parts that entered in weeks 62–98 (3 seeds):
 
 | | Real | Twin |
 |---|---|---|
 | Parts finished per week | 10,950 | 10,910 |
-| Parts in production, mean / p90 | 5,150 / 15,340 | 7,040 / 16,630 |
-| Wait for line 3, median: L0 / L1 parts | 20 h / 68 h | 32 h / 71 h |
-| QC failure rate | 0.34% | 0.66% |
+| Parts in production, mean / p90 | 5,150 / 15,340 | 7,250 / 16,520 |
+| Wait for line 3, median: L0 / L1 parts | 20 h / 68 h | 37 h / 70 h |
+| QC failure rate | 0.34% | 0.65% |
 | *Given the real failure level:* | | |
-| Batch-mate alert: parts flagged / their failure lift | 0.78% / 1.9× | 0.63% / 2.0× |
-| Line monitor: share of hours alerting | 13% | 16% |
-| Failure lift among parts in the same line-3 tick | 5.8× | 3.1× |
+| Batch-mate alert: parts flagged / their failure lift | 0.78% / 1.9× | 0.61% / 2.2× |
+| Line monitor: share of hours alerting | 14% | 17% |
+| Failure lift among parts in the same line-3 tick | 5.8× | 3.3× |
 
-Where it falls short. The real failure rate halved after week 61 (0.69% to 0.34%), which no calibration before then could know; the lower rows give the twin that one number. Later weeks' failures also clustered more than in any calibration week, so the twin underestimates clustering. L1 parts got faster after week 61, so the twin, copying calibration-era L1 routes, keeps them in production longer (p90 683 hours against 390). Its queue runs fuller than the real one (L0 waits 32 hours against 20) because line 3's usual backlog comes from the calibration weeks.
+Where it falls short. The real failure rate halved after week 61 (0.69% to 0.34%), which no calibration before then could know; the lower rows give the twin that one number. Later weeks' failures also clustered more than in any calibration week, so the twin underestimates clustering. L1 parts got faster after week 61, so the twin, copying calibration-era L1 routes, keeps them in production longer (p90 694 hours against 390). Its queue runs fuller than the real one (L0 waits 37 hours against 20) because line 3's usual backlog comes from the calibration weeks. Its failure level also drifts like the real one: a single two-year run can sit well above or below the long-run rate.
+
+### What-ifs and monitor stress tests
+
+[`twin_scenarios.py`](src/twin_scenarios.py) uses the twin calibrated on the latest weeks (62–98), replays those weeks, and compares each scenario with the twin's own baseline (3 seeds), so the twin's gaps against the real line largely cancel. Parts that entered in weeks 66–96:
+
+| Scenario | Line-3 hours a week | Line-3 queue, mean / p90 | L0 wait for line 3, median | Parts in production |
+|---|---|---|---|---|
+| Today | 81 | 3,140 / 5,220 | 27 h | 5,280 |
+| Volume +10% | 85 | 3,920 / 7,590 | 39 h | 6,310 |
+| Volume +20% | 89 | 5,740 / 14,790 | 45 h | 8,340 |
+| Volume +30% | 94 | 8,110 / 21,570 | 61 h | 10,930 |
+| Volume +20%, line 3 up to 140 hours a week | 91 | 3,410 / 6,380 | 25 h | 6,010 |
+| Line 3 capped at 80 hours a week | 80 | 3,750 / 6,700 | 39 h | 5,880 |
+| Line 3 10% slower | 85 | 3,880 / 7,510 | 44 h | 6,010 |
+| An L1 campaign in weeks 72–79 instead of L0 only | 89 | 3,110 / 5,590 | 29 h | 7,360 |
+
+Line 3's average hours barely move with volume, but its busiest weeks hit the 123-hour ceiling: at +20% the queue's peaks nearly triple, and allowing 140 hours in those weeks keeps it near today's. An L1 campaign raises parts in production by 40% because L1 parts take about 12 days.
+
+The stress tests inject a quality problem at 20 random times and compare each run with the same seed undisturbed, so every extra failure is known to come from it (an assumed extra risk, not a cause the data shows):
+
+| Injected problem | Extra failures | Line monitor: new alert in time / median hours to it | Batch-mate alert: problem's failures flagged before their QC |
+|---|---|---|---|
+| Line 3, all parts, 72 h at 2× risk | 20 | 85% / 29 h | 3% |
+| Line 3, all parts, 72 h at 3× | 37 | 100% / 28 h | 3% |
+| Station L3_S32 only (2% of parts), 72 h at 10× | 12 | 80% / 33 h | 9% |
+| Bad material: parts entering in 72 h, 3× | 36 | 65% / 71 h | 2% |
+| Bad lots on L0: 20 entry batches at 30× | 29 | 80% / 113 h | 3% |
+| Bad lots on L1 during an L1 campaign: 20 batches at 30× | 10 | 15% / 472 h | 17% |
+
+The line monitor (which alerts in about 23% of hours anyway) catches line-wide problems within about a day. The batch-mate alert almost never flags a problem's failures early on L0, where batch-mates go through line 3 together, but flags 17% of bad L1 lots during a campaign, where batch-mates finish days apart: the twin shows why the real alert's lead time comes from L1 campaigns.
+
+### Line map
+
+The dashboard's Line map page shows where the parts in production are: at each of the 52 stations, in the queue for line 3 (by entry line), what line 3 is serving, and final QC, for the real line (`GET /line/map`) or a saved twin run (`GET /twin/map/{run}`), side by side, playing forward an hour, 6 hours or a day at a time. Below, the real line during an L1 campaign: 12,089 L1 parts at L1_S24, 8,071 waiting for line 3, line 3 off shift.
+
+![Line map at hour 7500](dashboard/screenshots/line-map.png)
+
+### Data at scale for Spark
+
+[`twin_scale_data.py`](src/twin_scale_data.py) runs the twin over the real production plan ten times end to end (about 19 years), then has Spark copy each simulated part's template timestamps (all 1,156 date columns), shifted to its simulated times, into the Kaggle CSV format: 11.2M parts (9.7× the real data), 27.7 GB of CSV, in 108 seconds. Its routes match the real data's (L1 entries 22.4% against 22.3%, through L2 30.3% against 30.2%, 12.1 stations visited). On it, [`spark_etl.py`](src/spark_etl.py) builds the per-part tables in 51 seconds with Spark's memory capped at 24 GB. The same date steps in pandas take 29 seconds and 18 GB of memory on the real data, so ten times the data would need about 180 GB, almost three times this machine's 64 GB.
 
 ```bash
-.venv/bin/python src/twin_validate.py    # ~40 s; the first run also builds serving/twin_history.npz (~20 s)
+.venv/bin/python src/twin_validate.py     # ~40 s; the first run also builds serving/twin_history.npz (~20 s)
+.venv/bin/python src/twin_scenarios.py    # ~70 s; also saves the line map's twin runs to serving/twin/
+.venv/bin/python src/twin_scale_data.py --scale 10   # ~2 min, ~28 GB in data/twin_scale/
+.venv/bin/python src/spark_etl.py --data data/twin_scale --out serving/etl_scale --files 32 --memory 24g
 ```
-
-Next for the twin: what-if scenarios and monitor stress tests, a line-map page in the dashboard, and data at scale for the Spark ETL.
 
 ## AI-assistant tools (first version)
 
@@ -216,4 +264,4 @@ The runner needs Claude API credentials, writes to `.claude/hillclimb/assistant/
 
 Done: decoding the data, forward-in-time evaluation, the final-QC model with SHAP explanations, the early-warning, burst-monitoring and campaign analyses, first versions of the API, the AI-assistant tools and an operations dashboard, an eval for the assistant, and a PySpark version of the per-part ETL.
 
-In progress: a flow simulation ("digital twin") of the four lines (simulator and forward check built). Planned, not built yet: an AI Analyst page for the dashboard and a station-drift monitor.
+Also built: a flow simulation ("digital twin") of the four lines, checked forward in time, with what-ifs, monitor stress tests, a line map and data at scale for Spark. Planned, not built yet: an AI Analyst page for the dashboard and a station-drift monitor.

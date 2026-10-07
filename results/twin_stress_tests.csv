@@ -1,0 +1,121 @@
+problem,trial,parts hit,extra failures,line monitor: new alert,line monitor: hours to first new alert,line monitor: baseline alerting in the window,batch-mate alert: extra failures flagged before their QC,batch-mate alert: extra parts flagged
+"line 3, all parts, 72 h at 2x",0,7769,36,True,21.0,0.6041666666666666,0.08333333333333333,35
+"line 3, all parts, 72 h at 2x",1,9242,63,True,16.0,0.8819444444444444,0.047619047619047616,15
+"line 3, all parts, 72 h at 2x",2,4748,19,True,9.0,0.06944444444444445,0.0,9
+"line 3, all parts, 72 h at 2x",3,4522,15,True,128.0,0.09722222222222222,0.0,80
+"line 3, all parts, 72 h at 2x",4,791,1,True,74.0,0.0,0.0,2
+"line 3, all parts, 72 h at 2x",5,1352,5,True,67.0,0.0,0.0,2
+"line 3, all parts, 72 h at 2x",6,3808,5,True,35.0,0.3541666666666667,0.4,0
+"line 3, all parts, 72 h at 2x",7,7004,7,False,,0.0,0.0,4
+"line 3, all parts, 72 h at 2x",8,5174,6,True,114.0,0.0,0.0,17
+"line 3, all parts, 72 h at 2x",9,12464,17,True,26.0,0.0,0.0,4
+"line 3, all parts, 72 h at 2x",10,2408,15,True,3.0,0.13194444444444445,0.0,3
+"line 3, all parts, 72 h at 2x",11,4311,10,True,42.0,0.8819444444444444,0.0,5
+"line 3, all parts, 72 h at 2x",12,8229,18,False,,0.0,0.0,46
+"line 3, all parts, 72 h at 2x",13,1516,4,True,64.0,0.0,0.0,11
+"line 3, all parts, 72 h at 2x",14,2168,23,True,29.0,0.1736111111111111,0.043478260869565216,31
+"line 3, all parts, 72 h at 2x",15,1324,3,False,,0.0,0.0,0
+"line 3, all parts, 72 h at 2x",16,10395,105,True,12.0,0.8333333333333334,0.02857142857142857,72
+"line 3, all parts, 72 h at 2x",17,4625,15,True,20.0,0.06944444444444445,0.0,13
+"line 3, all parts, 72 h at 2x",18,3109,18,True,18.0,0.4791666666666667,0.0,25
+"line 3, all parts, 72 h at 2x",19,8546,17,True,79.0,0.027777777777777776,0.058823529411764705,9
+"line 3, all parts, 72 h at 3x",0,7769,80,True,8.0,0.6041666666666666,0.075,96
+"line 3, all parts, 72 h at 3x",1,9242,116,True,16.0,0.8819444444444444,0.02586206896551724,39
+"line 3, all parts, 72 h at 3x",2,4748,36,True,7.0,0.06944444444444445,0.027777777777777776,31
+"line 3, all parts, 72 h at 3x",3,4522,22,True,23.0,0.09722222222222222,0.0,149
+"line 3, all parts, 72 h at 3x",4,791,4,True,52.0,0.0,0.0,2
+"line 3, all parts, 72 h at 3x",5,1352,7,True,67.0,0.0,0.0,3
+"line 3, all parts, 72 h at 3x",6,3808,12,True,33.0,0.3541666666666667,0.16666666666666666,17
+"line 3, all parts, 72 h at 3x",7,7004,12,True,84.0,0.0,0.0,57
+"line 3, all parts, 72 h at 3x",8,5174,15,True,88.0,0.0,0.0,36
+"line 3, all parts, 72 h at 3x",9,12464,41,True,11.0,0.0,0.0,36
+"line 3, all parts, 72 h at 3x",10,2408,28,True,3.0,0.13194444444444445,0.0,4
+"line 3, all parts, 72 h at 3x",11,4311,20,True,42.0,0.8819444444444444,0.0,11
+"line 3, all parts, 72 h at 3x",12,8229,27,True,41.0,0.0,0.037037037037037035,56
+"line 3, all parts, 72 h at 3x",13,1516,5,True,62.0,0.0,0.0,12
+"line 3, all parts, 72 h at 3x",14,2168,36,True,14.0,0.1736111111111111,0.08333333333333333,37
+"line 3, all parts, 72 h at 3x",15,1324,9,True,67.0,0.0,0.0,0
+"line 3, all parts, 72 h at 3x",16,10395,180,True,8.0,0.8333333333333334,0.016666666666666666,114
+"line 3, all parts, 72 h at 3x",17,4625,27,True,16.0,0.06944444444444445,0.0,15
+"line 3, all parts, 72 h at 3x",18,3109,30,True,16.0,0.4791666666666667,0.06666666666666667,50
+"line 3, all parts, 72 h at 3x",19,8546,36,True,37.0,0.027777777777777776,0.027777777777777776,25
+"station L3_S32 only, 72 h at 10x",0,186,23,True,32.0,0.6041666666666666,0.13043478260869565,39
+"station L3_S32 only, 72 h at 10x",1,234,38,True,16.0,0.8819444444444444,0.13157894736842105,18
+"station L3_S32 only, 72 h at 10x",2,110,9,True,29.0,0.06944444444444445,0.0,4
+"station L3_S32 only, 72 h at 10x",3,100,7,True,128.0,0.09722222222222222,0.0,27
+"station L3_S32 only, 72 h at 10x",4,16,0,False,,0.0,,0
+"station L3_S32 only, 72 h at 10x",5,35,6,True,67.0,0.0,0.0,2
+"station L3_S32 only, 72 h at 10x",6,72,6,True,34.0,0.3541666666666667,0.3333333333333333,1
+"station L3_S32 only, 72 h at 10x",7,138,6,True,113.0,0.0,0.0,5
+"station L3_S32 only, 72 h at 10x",8,124,6,False,,0.0,0.0,15
+"station L3_S32 only, 72 h at 10x",9,329,23,True,27.0,0.0,0.08695652173913043,19
+"station L3_S32 only, 72 h at 10x",10,75,3,True,17.0,0.13194444444444445,0.0,4
+"station L3_S32 only, 72 h at 10x",11,127,6,True,42.0,0.8819444444444444,0.16666666666666666,3
+"station L3_S32 only, 72 h at 10x",12,205,17,False,,0.0,0.058823529411764705,28
+"station L3_S32 only, 72 h at 10x",13,29,4,True,64.0,0.0,0.0,1
+"station L3_S32 only, 72 h at 10x",14,59,11,True,38.0,0.1736111111111111,0.18181818181818182,3
+"station L3_S32 only, 72 h at 10x",15,31,3,False,,0.0,0.3333333333333333,0
+"station L3_S32 only, 72 h at 10x",16,275,34,True,12.0,0.8333333333333334,0.0,35
+"station L3_S32 only, 72 h at 10x",17,108,14,True,24.0,0.06944444444444445,0.0,14
+"station L3_S32 only, 72 h at 10x",18,96,20,True,17.0,0.4791666666666667,0.25,20
+"station L3_S32 only, 72 h at 10x",19,197,11,True,82.0,0.027777777777777776,0.09090909090909091,31
+"bad material: parts entering in 72 h, 3x",0,6815,65,True,32.0,0.5132743362831859,0.03076923076923077,81
+"bad material: parts entering in 72 h, 3x",1,10476,146,True,27.0,0.6105769230769231,0.0684931506849315,52
+"bad material: parts entering in 72 h, 3x",2,6286,15,False,,0.05235602094240838,0.0,17
+"bad material: parts entering in 72 h, 3x",3,5982,40,True,126.0,0.06404391582799634,0.05,94
+"bad material: parts entering in 72 h, 3x",4,151,1,False,,0.0,0.0,0
+"bad material: parts entering in 72 h, 3x",5,279,5,True,108.0,0.0,0.0,2
+"bad material: parts entering in 72 h, 3x",6,11,0,False,,0.13513513513513514,,0
+"bad material: parts entering in 72 h, 3x",7,6288,30,True,90.0,0.15765765765765766,0.03333333333333333,63
+"bad material: parts entering in 72 h, 3x",8,5875,16,True,107.0,0.0,0.0,51
+"bad material: parts entering in 72 h, 3x",9,10149,24,False,,0.0,0.0,14
+"bad material: parts entering in 72 h, 3x",10,4394,24,True,38.0,0.08333333333333333,0.0,8
+"bad material: parts entering in 72 h, 3x",11,4193,35,True,42.0,0.8719512195121951,0.0,43
+"bad material: parts entering in 72 h, 3x",12,6942,27,False,,0.0,0.037037037037037035,24
+"bad material: parts entering in 72 h, 3x",13,2,0,False,,0.3395784543325527,,0
+"bad material: parts entering in 72 h, 3x",14,1452,11,True,117.0,0.13157894736842105,0.0,6
+"bad material: parts entering in 72 h, 3x",15,1361,4,False,,0.0,0.0,18
+"bad material: parts entering in 72 h, 3x",16,10941,151,True,140.0,0.7484662576687117,0.006622516556291391,87
+"bad material: parts entering in 72 h, 3x",17,3541,16,True,57.0,0.06172839506172839,0.0,14
+"bad material: parts entering in 72 h, 3x",18,2233,61,True,71.0,0.6527777777777778,0.08196721311475409,44
+"bad material: parts entering in 72 h, 3x",19,10445,49,True,63.0,0.0196078431372549,0.02040816326530612,62
+bad lots on L0: 20 entry batches at 30x,0,528,35,True,117.0,0.48249027237354086,0.02857142857142857,29
+bad lots on L0: 20 entry batches at 30x,1,390,26,True,18.0,0.508,0.0,9
+bad lots on L0: 20 entry batches at 30x,2,520,12,False,,0.028901734104046242,0.08333333333333333,31
+bad lots on L0: 20 entry batches at 30x,3,0,0,False,,0.2916666666666667,,0
+bad lots on L0: 20 entry batches at 30x,4,444,23,True,92.0,0.0,0.0,9
+bad lots on L0: 20 entry batches at 30x,5,359,47,True,108.0,0.2823779193205945,0.0,2
+bad lots on L0: 20 entry batches at 30x,6,473,13,True,118.0,0.18478260869565216,0.0,4
+bad lots on L0: 20 entry batches at 30x,7,434,17,True,154.0,0.2608695652173913,0.0,7
+bad lots on L0: 20 entry batches at 30x,8,362,11,True,128.0,0.0,0.0,2
+bad lots on L0: 20 entry batches at 30x,9,624,28,False,,0.0,0.0,41
+bad lots on L0: 20 entry batches at 30x,10,425,12,True,47.0,0.06666666666666667,0.0,15
+bad lots on L0: 20 entry batches at 30x,11,674,67,True,73.0,0.6542056074766355,0.0,6
+bad lots on L0: 20 entry batches at 30x,12,398,8,False,,0.0,0.0,0
+bad lots on L0: 20 entry batches at 30x,13,411,17,True,139.0,0.2896825396825397,0.0,7
+bad lots on L0: 20 entry batches at 30x,14,348,44,True,121.0,0.08620689655172414,0.022727272727272728,10
+bad lots on L0: 20 entry batches at 30x,15,390,31,True,127.0,0.04234527687296417,0.1935483870967742,23
+bad lots on L0: 20 entry batches at 30x,16,379,27,True,140.0,0.6044776119402985,0.07407407407407407,29
+bad lots on L0: 20 entry batches at 30x,17,507,46,True,76.0,0.3,0.021739130434782608,37
+bad lots on L0: 20 entry batches at 30x,18,480,104,True,71.0,0.7302158273381295,0.0673076923076923,18
+bad lots on L0: 20 entry batches at 30x,19,555,10,True,95.0,0.015444015444015444,0.0,5
+bad lots on L1 in an L1 campaign: 20 entry batches at 30x,0,324,27,False,,,0.07407407407407407,36
+bad lots on L1 in an L1 campaign: 20 entry batches at 30x,1,0,0,False,,0.025,,0
+bad lots on L1 in an L1 campaign: 20 entry batches at 30x,2,0,0,False,,0.0,,0
+bad lots on L1 in an L1 campaign: 20 entry batches at 30x,3,376,24,False,,,0.5416666666666666,82
+bad lots on L1 in an L1 campaign: 20 entry batches at 30x,4,317,28,True,129.0,0.0,0.03571428571428571,20
+bad lots on L1 in an L1 campaign: 20 entry batches at 30x,5,12,0,False,,0.09191176470588236,,0
+bad lots on L1 in an L1 campaign: 20 entry batches at 30x,6,451,40,False,,,0.0,23
+bad lots on L1 in an L1 campaign: 20 entry batches at 30x,7,325,38,False,,,0.34210526315789475,56
+bad lots on L1 in an L1 campaign: 20 entry batches at 30x,8,12,3,True,472.0,0.19750889679715303,0.0,0
+bad lots on L1 in an L1 campaign: 20 entry batches at 30x,9,0,0,False,,0.15833333333333333,,0
+bad lots on L1 in an L1 campaign: 20 entry batches at 30x,10,0,0,False,,0.0,,0
+bad lots on L1 in an L1 campaign: 20 entry batches at 30x,11,0,0,False,,0.075,,0
+bad lots on L1 in an L1 campaign: 20 entry batches at 30x,12,0,0,False,,0.0,,0
+bad lots on L1 in an L1 campaign: 20 entry batches at 30x,13,0,0,False,,0.0,,0
+bad lots on L1 in an L1 campaign: 20 entry batches at 30x,14,335,28,False,,,0.5357142857142857,34
+bad lots on L1 in an L1 campaign: 20 entry batches at 30x,15,12,3,True,909.0,0.05419766206163656,0.0,0
+bad lots on L1 in an L1 campaign: 20 entry batches at 30x,16,0,0,False,,0.25,,0
+bad lots on L1 in an L1 campaign: 20 entry batches at 30x,17,0,0,False,,0.4041666666666667,,0
+bad lots on L1 in an L1 campaign: 20 entry batches at 30x,18,12,1,False,,0.3058608058608059,0.0,0
+bad lots on L1 in an L1 campaign: 20 entry batches at 30x,19,0,0,False,,0.025,,0

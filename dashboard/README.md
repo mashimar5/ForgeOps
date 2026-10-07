@@ -7,8 +7,11 @@ A React + TypeScript app (Vite, Recharts) on the ForgeOps API ([`src/api.py`](..
 | Page | What it shows | API |
 |---|---|---|
 | Overview | The line monitor's 72-hour QC failure rate, counts, weekly charts of the failure rate and of parts entering by line, the inspection queue, batch-mate alerts | `/summary`, `/line/status`, `/line/history`, `/inspection-queue`, `/alerts/batch-mates` |
+| Line map | A schematic of the four lines: parts at each of the 52 stations and in the queue for line 3, what line 3 is serving, final QC. Shows the real line or a saved run of the digital twin (side by side if you like), and plays forward an hour, 6 hours or a day at a time | `/line/map`, `/twin/scenarios`, `/twin/map/{run}` |
 | Stations | Failure rate of the parts that visited each station, risk lift, timing, sortable | `/stations` |
 | Part trace | Route by hours after entry, status, QC result once reported, batch-mates, risk score with SHAP contributions | `/parts/{id}`, `/parts/{id}/risk` |
+
+The twin runs on the line map are simulated parts from `src/twin_scenarios.py` (saved to `serving/twin/`); the page says so and shows each run's description.
 
 Left out on purpose: "predicted failures" (risk scores rank parts; they aren't probabilities), and measurement distributions or anomaly flags (the station-drift monitor isn't built yet).
 
@@ -36,7 +39,7 @@ src/api.ts            response types (mirror src/api.py) and the fetch helper
 src/hooks.ts          useApi (keeps the previous data while reloading), URL routing, theme
 src/theme.ts          chart colors for light and dark mode
 src/components/       time control, cards, tables, badges, the four charts
-src/pages/            Overview, Stations, Part trace
+src/pages/            Overview, Line map, Stations, Part trace
 ```
 
 ## Charts

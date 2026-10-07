@@ -10,10 +10,11 @@ factory does:
     routes     each simulated batch copies a real batch: its parts' routes,
                their time on lines 0-2 and their time inside line 3.
     line 3     the shared bottleneck: two queues (L1 parts, everything
-               else) served in shifts at up to its measured peak rate.
-               Each week line 3 plans enough starts for the parts that will
-               become ready, plus half the gap between its backlog and its
-               usual level. Hours serve one line: L0 work, until the oldest
+               else). Each week line 3 plans enough running hours, at its
+               usual rate (~144 parts an hour), for the parts that will
+               become ready plus half the gap between its backlog and its
+               usual level; the real line's weekly output follows its
+               hours (correlation 0.96). Hours serve one line: L0 work, until the oldest
                L1 part has waited long enough for an L1 block that clears
                the L1 queue. Waits come out of the queues, so they respond
                to load instead of being copied.
@@ -218,6 +219,46 @@ def rate_by(index, values, min_count):
     return rate, count
 
 
+def batch_alert(start, end, response, repeats_failed):
+    """
+    The batch-mate alert (factory_service.py) for every part: the tick it
+    was flagged, i.e. when a part that entered in the same tick had a
+    failed QC result reported while this one was still in production;
+    NEVER if it never was. Repeat tests' failures count, as in the API.
+    """
+
+    failed = (response > 0) | (repeats_failed > 0)
+    known = np.where(failed, end + QC_DELAY, NEVER)
+    batch = dense_ids(start)
+    first = np.full(batch.max() + 1, NEVER, np.int64)
+    np.minimum.at(first, batch, known)
+    flag = first[batch]
+    return np.where(flag < end, flag, NEVER)
+
+
+def line_monitor(end, response, repeats, repeats_failed, lo, hi, window_hours=72, ratio=1.5, minimum=300):
+    """
+    The line monitor (factory_service.py), hour by hour in [lo, hi) ticks:
+    True when the QC failure rate of results reported in the last 72 hours
+    is at least 1.5x the rate of all results reported before, with at
+    least 300 recent results. Repeat tests count as results.
+    """
+
+    rows = np.repeat(np.arange(len(end)), repeats)
+    nth = np.arange(len(rows)) - np.repeat(np.cumsum(repeats) - repeats, repeats)   # which repeat of its part
+    known = np.r_[end, end[rows]] + QC_DELAY
+    failed = np.r_[response > 0, nth < repeats_failed[rows]]
+    order = np.argsort(known, kind="stable")
+    k, cum = known[order], np.r_[0, np.cumsum(failed[order])]
+    check = np.arange(lo, hi, TICKS_PER_HOUR_INT)
+    n_now = np.searchsorted(k, check, "left")
+    n_then = np.searchsorted(k, check - window_hours * TICKS_PER_HOUR_INT, "left")
+    recent_n, recent_f = n_now - n_then, cum[n_now] - cum[n_then]
+    history = cum[n_now] / np.maximum(n_now, 1)
+    rate = recent_f / np.maximum(recent_n, 1)
+    return (recent_n >= minimum) & (rate >= ratio * np.maximum(history, 1e-12))
+
+
 def lag1(series):
     a, b = series[:-1], series[1:]
     ok = ~np.isnan(a) & ~np.isnan(b)
@@ -237,6 +278,7 @@ class Calibration:
     until: int                    # calibrated on parts that entered and finished before this tick
     stations: list
     # Template parts (real parts of the calibration window), by row
+    tpl_row: np.ndarray           # row in History
     tpl_line: np.ndarray
     tpl_pre: np.ndarray           # int32 (parts, pre-line-3 stations): ticks after entry
     tpl_l3: np.ndarray            # int32 (parts, line-3 stations): ticks after line-3 start
@@ -249,7 +291,8 @@ class Calibration:
     weeks: list
     capacity: np.ndarray          # parts started per running line-3 hour, when busy
     l1_trigger: float             # hours the oldest L1 part waits before line 3 runs an L1 block
-    plan: dict                    # line 3's weekly plan: usual backlog, correction gain, hourly maximum
+    plan: dict                    # line 3's weekly plan: usual backlog, correction gain, rate per running hour,
+                                  # most hours per week, how often each hour of the week runs
     order_noise: np.ndarray       # hours, per queue (non-L1, L1)
     failure: dict                 # random-effect sizes and the intercept shift
     repeat_p: np.ndarray          # P(repeat test | first test passed / failed)
@@ -365,8 +408,20 @@ def calibrate(h, until_week, first_week=1, fit_effects=True, seed=0, verbose=Tru
     busy = (started > 0) & (np.r_[0, backlog[:-1]] > BUSY_BACKLOG) & (window >= lo // 10) & (window < until // 10)
     capacity = started[busy]
     week_starts = np.arange(lo // 10, until // 10, HOURS_PER_WEEK)
-    plan = {"backlog": float(np.median(backlog[week_starts])), "gain": 0.5,
-            "hourly_max": float(np.percentile(started[(window >= lo // 10) & (window < until // 10) & (started > 0)], 99.5))}
+    by_week = started[lo // 10:until // 10].reshape(-1, HOURS_PER_WEEK)
+    running = by_week > 0
+    active = running.any(axis=1)
+    weekly_rate = by_week.sum(axis=1)[active] / running.sum(axis=1)[active]
+    plan = {
+        "backlog": float(np.median(backlog[week_starts])),        # usual queue at the start of a week
+        "gain": 0.5,                                               # share of the excess backlog planned away each period
+        "period": HOURS_PER_WEEK,                                  # hours planned at a time
+        "rate": float(np.median(weekly_rate)),                     # usual parts per running hour
+        "rate_max": float(np.percentile(weekly_rate, 90)),         # the busiest weeks' rate
+        "hourly_max": float(np.percentile(by_week[running], 99.5)),
+        "max_hours": int(running.sum(axis=1).max()),               # the most hours line 3 ran in a week
+        "hour_preference": running.mean(axis=0),                   # how often each hour of the week runs
+    }
 
     # How loosely each queue keeps first-in-first-out order (hours of noise on the ready time)
     in_window = (h.start >= lo) & (h.end < until)
@@ -387,6 +442,7 @@ def calibrate(h, until_week, first_week=1, fit_effects=True, seed=0, verbose=Tru
     cal = Calibration(
         until=until,
         stations=h.stations,
+        tpl_row=rows,
         tpl_line=h.line[rows],
         tpl_pre=pre,
         tpl_l3=l3,
@@ -494,13 +550,19 @@ def fit_failure_effects(cal, h, rows, route, draws=3, seed=0, verbose=True):
 
 @dataclass
 class Disturbance:
-    """Extra log-odds of failing for parts that start line 3 inside a window (a what-if or a test)."""
+    """
+    Extra log-odds of failing for parts inside a time window (a stress test):
+    by="line3" hits parts that start line 3 in the window (a problem on
+    line 3), by="entry" parts that entered production in it (a bad lot of
+    material, say).
+    """
 
     start_hour: float
     hours: float
     log_odds: float
     station: str | None = None     # only parts that visit this station
     line: str | None = None        # only parts from this entry line
+    by: str = "line3"
 
 
 @dataclass
@@ -516,6 +578,7 @@ class Run:
     end: np.ndarray
     response: np.ndarray
     probability: np.ndarray
+    disturbed: np.ndarray          # hit by a Disturbance
     repeats: np.ndarray
     repeats_failed: np.ndarray
     horizon: tuple                 # (first tick, last tick) simulated
@@ -554,18 +617,18 @@ def plan_weeks(cal, kinds, rng):
     return [by_kind[kind][rng.integers(len(by_kind[kind]))] for kind in kinds]
 
 
-def simulate(cal, weeks, start_week, seed=0, volume=1.0, capacity_scale=1.0, l3_profile=None,
+def simulate(cal, weeks, start_week, seed=0, volume=1.0, capacity_scale=1.0, max_hours=None,
              level_shift=0.0, disturbances=(), waiting=None):
     """
     Run the twin over `weeks` (real or planned Week patterns), placed one
     after another from `start_week`.
 
     volume          multiplies the size of every arriving batch
-    capacity_scale  multiplies line 3's maximum starts per hour
-    l3_profile      overrides when line 3 runs: relative weight of each hour
-                    (default: the hourly pattern of the real week each
-                    simulated week copies). Line 3 plans each week's starts
-                    from the coming workload and its backlog (serve_line3).
+    capacity_scale  multiplies line 3's rate per running hour
+    max_hours       the most hours line 3 may run in a week (default: the
+                    most it ran in a calibration week). Line 3 plans each
+                    week's hours from the coming workload and its backlog,
+                    preferring the copied week's own shifts (serve_line3).
     level_shift     log-odds added to every part's chance of failing (a
                     different overall quality level)
     disturbances    extra failure log-odds in time windows (Disturbance)
@@ -593,6 +656,9 @@ def simulate(cal, weeks, start_week, seed=0, volume=1.0, capacity_scale=1.0, l3_
     for code in range(len(LINES)):
         m = line == code
         firsts, sizes = cal.batches[code]
+        if len(firsts) == 0:
+            # No batch of this entry line in the calibration window: copy L0 batches
+            firsts, sizes = cal.batches[0]
         pick = rng.integers(0, len(firsts), m.sum())
         tpl_first[m], tpl_size[m] = firsts[pick], sizes[pick]
 
@@ -606,8 +672,10 @@ def simulate(cal, weeks, start_week, seed=0, volume=1.0, capacity_scale=1.0, l3_
     ready = start + cal.tpl_ready[template]
 
     # ---- Line 3: two queues (L1 parts, everything else), served by the hour
-    profile = np.concatenate([w.l3_capacity for w in weeks]).astype(float) if l3_profile is None else np.asarray(l3_profile, float)
-    plan = dict(cal.plan, hourly_max=cal.plan["hourly_max"] * capacity_scale)
+    profile = np.concatenate([w.l3_capacity for w in weeks]).astype(float)
+    plan = dict(cal.plan, rate=cal.plan["rate"] * capacity_scale, rate_max=cal.plan["rate_max"] * capacity_scale,
+                hourly_max=cal.plan["hourly_max"] * capacity_scale,
+                max_hours=cal.plan["max_hours"] if max_hours is None else max_hours)
     n_new = len(ready)
     if waiting is not None:
         ready_all = np.r_[ready, waiting["ready"]]
@@ -634,8 +702,11 @@ def simulate(cal, weeks, start_week, seed=0, volume=1.0, capacity_scale=1.0, l3_
              + drift[day])
 
     numbers = [station_number(s) for s in cal.stations]
+    disturbed = np.zeros(len(batch), bool)
     for d in disturbances:
-        hit = (hour >= d.start_hour - t0 // TICKS_PER_HOUR_INT) & (hour < d.start_hour - t0 // TICKS_PER_HOUR_INT + d.hours)
+        # Production hours, to the tick: a 0.1-hour window hits one entry batch
+        when = (start if d.by == "entry" else np.where(done, l3_start, 0)) / TICKS_PER_HOUR_INT
+        hit = (when >= d.start_hour) & (when < d.start_hour + d.hours) & done
         if d.line is not None:
             hit &= part_line == LINES.index(d.line)
         if d.station is not None:
@@ -643,6 +714,7 @@ def simulate(cal, weeks, start_week, seed=0, volume=1.0, capacity_scale=1.0, l3_
             block, col = (cal.tpl_pre, j) if numbers[j] < 29 else (cal.tpl_l3, j - sum(n < 29 for n in numbers))
             hit &= block[template, col] != NOT_VISITED
         logit = logit + d.log_odds * hit
+        disturbed |= hit
 
     probability = 1 / (1 + np.exp(-logit))
     response = (rng.random(len(batch)) < probability).astype(np.int8)
@@ -656,6 +728,7 @@ def simulate(cal, weeks, start_week, seed=0, volume=1.0, capacity_scale=1.0, l3_
     return Run(
         line=part_line[pick], batch=batch[pick], template=template[pick], start=start[pick], ready=ready[pick],
         l3_start=l3_start[pick], end=end[pick], response=response[pick], probability=probability[pick].astype(np.float32),
+        disturbed=disturbed[pick],
         repeats=repeats[pick], repeats_failed=repeats_failed[pick], horizon=(t0, last_tick),
         l3_hours=schedule, l3_capacity=capacity, unfinished=int((~done).sum()),
     )
@@ -666,12 +739,15 @@ def serve_line3(ready, is_l1, batch, profile, t0, plan, noise_hours, l1_trigger_
     Line 3's start tick for every part (NEVER if it isn't served in time),
     and what line 3 did each hour (0 off, 1 non-L1 work, 2 L1 work).
 
-    Line 3 plans each week: enough starts for the parts that become ready
-    that week, plus plan["gain"] times the gap between the backlog and its
-    usual level, spread over the week's running hours by `profile` and
-    capped at plan["hourly_max"]. (The real line's weekly starts track the
-    week's workload with correlation 0.93, and its backlog stays near a
-    steady level.) Each hour, line 3 starts up to its planned capacity. It works on L0
+    Line 3 plans each week for the parts that become ready that week plus
+    plan["gain"] times the gap between the backlog and its usual level.
+    It runs the copied week's shifts, following that week's real hourly
+    output (`profile`) scaled to the plan, at an average of at most
+    plan["rate_max"] per running hour (the busiest real weeks). Beyond
+    that it adds hours at plan["rate"], the most common hours of the week
+    first, up to plan["max_hours"]. (The real line's weekly output follows
+    its running hours, correlation 0.96, more than its rate, 0.76; its
+    backlog stays near a steady level.) It works on L0
     parts (and the few that entered on L2 or L3) until the oldest waiting
     L1 part has waited l1_trigger_hours; then it runs an L1 block until no
     L1 part is waiting. The real line works the same way: 78% of its
@@ -701,9 +777,10 @@ def serve_line3(ready, is_l1, batch, profile, t0, plan, noise_hours, l1_trigger_
     capacity = np.zeros(hours, np.int64)
     in_block = False
 
-    # Parts becoming ready in each week of the run
-    weeks = (hours + HOURS_PER_WEEK - 1) // HOURS_PER_WEEK
-    workload = np.bincount(np.clip((ready - t0) // TICKS_PER_WEEK, 0, weeks - 1), minlength=weeks)
+    # Parts becoming ready in each planning period of the run
+    period = int(plan["period"])
+    periods = (hours + period - 1) // period
+    workload = np.bincount(np.clip((ready - t0) // (period * TICKS_PER_HOUR_INT), 0, periods - 1), minlength=periods)
     workload[0] += int(np.sum(ready < t0))
 
     for k in range(hours):
@@ -715,15 +792,24 @@ def serve_line3(ready, is_l1, batch, profile, t0, plan, noise_hours, l1_trigger_
                 heapq.heappush(q["heap"], (q["key"][i], q["idx"][i]))
             q["next"] = stop
 
-        if k % HOURS_PER_WEEK == 0:
-            # This week's plan: the coming workload plus part of the excess backlog
+        if k % period == 0:
+            # This period's plan: the coming workload plus part of the excess backlog
             backlog = sum(q["next"] for q in queues) - int(served.sum())
-            w = k // HOURS_PER_WEEK
-            target = workload[w] + plan["gain"] * (backlog - plan["backlog"])
-            shape = profile[k:k + HOURS_PER_WEEK]
-            planned = shape / shape.sum() * max(target, 0) if shape.sum() > 0 else np.zeros(len(shape))
-            planned = np.minimum(planned, plan["hourly_max"])
-            capacity[k:k + len(shape)] = np.floor(planned) + (rng.random(len(shape)) < planned % 1)
+            target = workload[k // period] + plan["gain"] * (backlog - plan["backlog"])
+            target = max(target, 0.0)
+            shape = profile[k:k + period]
+            own = shape > 0
+            # The week's own shifts, following its real hourly output, up to the busiest weeks' rate
+            from_shifts = min(target, own.sum() * plan["rate_max"])
+            rate = np.minimum(shape / shape.sum() * from_shifts, plan["hourly_max"]) if own.any() else np.zeros(len(shape))
+            # More work than that: extra hours at the usual rate, the most common hours first
+            extra_hours = int(np.ceil((target - rate.sum()) / plan["rate"])) if target > rate.sum() + 1 else 0
+            extra_hours = min(extra_hours, max(0, int(plan["max_hours"] * period / HOURS_PER_WEEK) - int(own.sum())))
+            if extra_hours:
+                week_hour = (np.arange(k, k + len(shape)) + first_hour) % HOURS_PER_WEEK
+                off = np.flatnonzero(~own)
+                rate[off[np.argsort(-plan["hour_preference"][week_hour[off]], kind="stable")[:extra_hours]]] = plan["rate"]
+            capacity[k:k + len(shape)] = np.floor(rate) + (rng.random(len(shape)) < rate % 1)
 
         budget = int(capacity[k])
         if budget <= 0:

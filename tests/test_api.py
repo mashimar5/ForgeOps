@@ -331,6 +331,40 @@ def test_line_history_sees_the_l1_campaign(client):
         assert w["parts_entered"]["L1"] / sum(w["parts_entered"].values()) > 0.99
 
 
+def test_line_map_places_every_part_in_production(client):
+    for at in (7500, 15000):
+        line_map = client.get("/line/map", params={"at_hour": at}).json()
+        summary = client.get("/summary", params={"at_hour": at}).json()
+
+        at_stations = sum(s["parts"] for s in line_map["stations"])
+        assert line_map["in_production"] == summary["parts_in_production"]
+        assert at_stations + line_map["waiting_for_line3"]["total"] == line_map["in_production"]
+        assert len(line_map["stations"]) == 52
+
+
+def test_line_map_sees_the_l1_campaign(client):
+    # Hour 7500 is in an L1-only campaign: L1 parts pile up at L1_S24 and in the queue for line 3
+    line_map = client.get("/line/map", params={"at_hour": 7500}).json()
+    by_station = {s["station"]: s["parts"] for s in line_map["stations"]}
+
+    assert by_station["L1_S24"] > 10_000
+    assert line_map["waiting_for_line3"]["L1"] > line_map["waiting_for_line3"]["L0"]
+
+
+def test_twin_map_stays_inside_its_run(client):
+    scenarios = client.get("/twin/scenarios").json()["scenarios"]
+    if not scenarios:
+        pytest.skip("No saved twin runs; run src/twin_scenarios.py")
+
+    run = scenarios[0]
+    inside = client.get(f"/twin/map/{run['id']}", params={"at_hour": run["first_hour"] + 100})
+    assert inside.status_code == 200
+    assert inside.json()["source"] == f"twin:{run['id']}"
+
+    assert client.get(f"/twin/map/{run['id']}", params={"at_hour": run["first_hour"] - 100}).status_code == 404
+    assert client.get("/twin/map/no-such-run").status_code == 404
+
+
 def test_station_ids(client):
     by_short_id = client.get("/stations/S32").json()
     by_full_id = client.get("/stations/l3_s32").json()

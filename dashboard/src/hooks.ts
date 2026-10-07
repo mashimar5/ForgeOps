@@ -51,7 +51,7 @@ export function useApi<T>(path: string | null, params: Params = {}): Loaded<T> {
 // (#/parts/272133?at=16000), so every view can be linked to.
 // ============================================================
 
-export type Page = "overview" | "stations" | "parts";
+export type Page = "overview" | "map" | "stations" | "parts";
 
 export interface Route {
   page: Page;
@@ -60,7 +60,7 @@ export interface Route {
   at: number | null;
 }
 
-const PAGES: Page[] = ["overview", "stations", "parts"];
+const PAGES: Page[] = ["overview", "map", "stations", "parts"];
 
 export function parseHash(hash: string): Route {
   const [path, query = ""] = hash.replace(/^#\/?/, "").split("?");

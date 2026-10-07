@@ -38,13 +38,15 @@ import numpy as np
 import pandas as pd
 
 from digital_twin import (
+    NEVER,
     NOT_VISITED,
-    QC_DELAY,
     TICKS_PER_HOUR_INT,
     TICKS_PER_WEEK,
+    batch_alert,
     calibrate,
     dense_ids,
     fit_line3_policy,
+    line_monitor,
     load_history,
     observed_lift,
     plan_weeks,
@@ -59,10 +61,6 @@ CALIBRATE_UNTIL = 62     # weeks 1-61
 WARM_UP_FROM = 50
 COMPARE = (62, 99)       # parts that entered in weeks 62-98
 SEEDS = (0, 1, 2)
-
-# The line monitor (factory_service.py)
-MONITOR_HOURS, MONITOR_RATIO, MONITOR_MIN = 72, 1.5, 300
-
 
 # ============================================================
 # MEASURES (the same code for the real line and the twin)
@@ -119,34 +117,13 @@ def measure(p, visited, s32):
     out["lift, same entry batch"] = observed_lift(y[inside], dense_ids(p["start"][inside]))
     out["lift, same line-3 tick"] = observed_lift(y[inside], dense_ids(p["l3_start"][inside]))
 
-    # Batch-mate alert: flagged while in production once a batch-mate's
-    # failure (any of its QC records) is known
-    failed_any = (p["response"] > 0) | (p["repeats_failed"] > 0)
-    known = np.where(failed_any, p["end"] + QC_DELAY, np.iinfo(np.int64).max)
-    batch = dense_ids(p["start"])
-    first_known = np.full(batch.max() + 1, np.iinfo(np.int64).max)
-    np.minimum.at(first_known, batch, known)
-    flagged = (first_known[batch] < p["end"]) & inside
+    # The batch-mate alert and the line monitor, as the API computes them
+    flagged = (batch_alert(p["start"], p["end"], p["response"], p["repeats_failed"]) != NEVER) & inside
     out["alert: share of parts flagged"] = flagged.sum() / inside.sum()
     out["alert: failure lift of flagged parts"] = y[flagged].mean() / y[inside].mean()
     out["alert: share of failures flagged"] = y[flagged].sum() / y[inside].sum()
-
-    # Line monitor: hours whose 72-hour QC failure rate is >= 1.5x the rate so far
-    records = np.repeat(np.arange(len(y)), 1 + p["repeats"])
-    record_failed = np.r_[p["response"], p["repeats_failed"]]   # first tests, then repeat outcomes
-    repeat_rows = np.repeat(np.arange(len(y)), p["repeats"])
-    known_tick = np.r_[p["end"], p["end"][repeat_rows]] + QC_DELAY
-    order = np.argsort(known_tick, kind="stable")
-    k, f = known_tick[order], np.cumsum(record_failed[order])
-    check = np.arange(lo, hi, TICKS_PER_HOUR_INT)
-    n_now = np.searchsorted(k, check, "left")
-    n_then = np.searchsorted(k, check - MONITOR_HOURS * TICKS_PER_HOUR_INT, "left")
-    fails = lambda n: np.where(n > 0, f[np.maximum(n - 1, 0)], 0)
-    recent_n, recent_f = n_now - n_then, fails(n_now) - fails(n_then)
-    history = fails(n_now) / np.maximum(n_now, 1)
-    ratio = (recent_f / np.maximum(recent_n, 1)) / np.maximum(history, 1e-9)
-    out["line monitor: share of hours alerting"] = ((recent_n >= MONITOR_MIN) & (ratio >= MONITOR_RATIO)).mean()
-    del records
+    alerts = line_monitor(p["end"], p["response"], p["repeats"], p["repeats_failed"], lo, hi)
+    out["line monitor: share of hours alerting"] = alerts.mean()
 
     return out, weekly, wip, rates
 

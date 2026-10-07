@@ -24,12 +24,18 @@ Needs Java 17, 21 or 25. Run from the project root:
 
     .venv/bin/python src/spark_etl.py
 
-Takes about 25 seconds.
+Takes about 25 seconds. --data and --out run it on other inputs in the same
+format, such as the digital twin's data at scale (twin_scale_data.py), whose
+CSVs are folders of part files and carry no measurements (so no twin groups):
+
+    .venv/bin/python src/spark_etl.py --data data/twin_scale --out serving/etl_scale
 """
 
+import argparse
 import operator
 import time
 import warnings
+from pathlib import Path
 from functools import reduce
 
 from pyspark.sql import SparkSession, Window
@@ -68,13 +74,24 @@ def highest(columns):
 def read_csv(spark, name, column_type):
     """A Kaggle CSV with an explicit schema (no inference pass over 1,000 columns)."""
 
-    path = DATA_DIR / name
-    with open(path) as f:
+    path = DATA / name
+    if not path.exists():
+        path = DATA / name.removesuffix(".csv")       # a folder of CSV part files
+    first = path if path.is_file() else sorted(path.glob("part-*.csv"))[0]
+    with open(first) as f:
         header = f.readline().strip().split(",")
 
     schema = T.StructType([T.StructField(c, column_type(c), True) for c in header])
     return spark.read.csv(str(path), header=True, schema=schema), header
 
+
+parser = argparse.ArgumentParser(description="Per-part ETL in PySpark")
+parser.add_argument("--data", type=Path, default=DATA_DIR, help="folder with train_date and train_numeric")
+parser.add_argument("--out", type=Path, default=ETL_DIR, help="folder for the Parquet output")
+parser.add_argument("--memory", default="16g", help="Spark driver memory")
+parser.add_argument("--files", type=int, default=1, help="Parquet files per table")
+args = parser.parse_args()
+DATA, ETL_DIR = args.data.resolve(), args.out.resolve()
 
 started = time.time()
 
@@ -82,7 +99,7 @@ spark = (
     SparkSession.builder
     .master("local[*]")
     .appName("forgeops-etl")
-    .config("spark.driver.memory", "16g")
+    .config("spark.driver.memory", args.memory)
     .config("spark.sql.shuffle.partitions", "64")
     .config("spark.ui.enabled", "false")
     .config("spark.ui.showConsoleProgress", "false")
@@ -165,10 +182,11 @@ routes = station_times.select(
 
 features = [c for c in numeric_columns if c.startswith("L")]
 
+# Without measurements (the twin's data) records can't be compared: no twin groups
 record_key = F.sha2(
     F.concat_ws("|", *[F.coalesce(F.col(c).cast("float").cast("string"), F.lit("")) for c in features]),
     256,
-)
+) if features else F.col("Id").cast("string")
 
 parts = routes.join(
     numeric.select(
@@ -202,7 +220,7 @@ parts = (
 # ============================================================
 
 def write(frame, name):
-    frame.orderBy("part_id").coalesce(1).write.mode("overwrite").parquet(str(ETL_DIR / name))
+    frame.orderBy("part_id").coalesce(args.files).write.mode("overwrite").parquet(str(ETL_DIR / name))
 
 
 write(parts, "parts.parquet")

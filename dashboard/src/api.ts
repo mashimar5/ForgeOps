@@ -171,6 +171,41 @@ export interface Stations {
   stations: StationMetrics[];
 }
 
+export interface MapStation {
+  station: string;
+  line: string;
+  parts: number;
+}
+
+/** Where the parts in production are at one hour (real line or a twin run) */
+export interface LineMap {
+  source: string;
+  at_hour: number;
+  in_production: number;
+  stations: MapStation[];
+  waiting_for_line3: Record<"L0" | "L1" | "other" | "total", number>;
+  line3_serving: string;
+  line3_started_last_hour: Record<string, number>;
+  entered_last_hour: Record<string, number>;
+  finished_last_hour: number;
+  qc_reported_last_24h: number;
+  qc_failed_last_24h: number;
+  note: string;
+}
+
+export interface TwinScenario {
+  id: string;
+  label: string;
+  description: string;
+  first_hour: number;
+  last_hour: number;
+}
+
+export interface TwinScenarios {
+  scenarios: TwinScenario[];
+  note: string;
+}
+
 export type Params = Record<string, string | number | null | undefined>;
 
 export class ApiError extends Error {
