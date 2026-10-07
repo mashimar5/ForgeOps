@@ -28,6 +28,24 @@
       "id": "grounded",
       "label": "Grounded",
       "kind": "binary"
+    },
+    {
+      "id": "worked_out",
+      "label": "Worked-out values",
+      "kind": "float",
+      "better": "lower"
+    },
+    {
+      "id": "worked_out_unasked",
+      "label": "Worked out, not asked",
+      "kind": "float",
+      "better": "lower"
+    },
+    {
+      "id": "worked_out_wrong",
+      "label": "Worked out, wrong",
+      "kind": "float",
+      "better": "lower"
     }
   ],
   "perf_fields": [
@@ -58,5 +76,23 @@
     }
   },
   "harness_paths": [],
-  "harness_sha": "051b8c52d5ffad7eebb839c753f7448860f7213aa7d0f3acaa82149a0a6518ae"
+  "harness_sha": "9b9303b6b7face1e07b201aa64a178b2e8de9967866d54f395909672a8751cf3",
+  "goal": {
+    "target": "worked_out_unasked",
+    "direction": "lower",
+    "hold": [
+      "pass",
+      "facts"
+    ]
+  },
+  "current_round": 1,
+  "reps": 3,
+  "approve_each_round": true,
+  "split": "none: 46 cases, all scored every round (a small set); results are directional",
+  "best": {
+    "round": 1,
+    "worked_out_unasked": 1.18,
+    "pass": 0.949,
+    "note": "kept by the user on 2026-10-07; no held-out split, so directional"
+  }
 }

@@ -42,6 +42,7 @@ DASHBOARD_DIR = PROJECT_ROOT / "dashboard" / "dist"
 class ModelCard(BaseModel):
     description: str
     evaluation: str
+    metric_definitions: str
     training_parts: int
     training_cutoff_hour: float
     scorable_parts: int

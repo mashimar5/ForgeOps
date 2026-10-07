@@ -1,0 +1,14 @@
+{
+  "description": "Rule: state numbers as the tools give them; work one out only when asked and say so; no estimate when the tools can't answer",
+  "target": "system_prompt",
+  "fingerprint": {
+    "commit": "9360144",
+    "uncommitted_diff_sha256": "ce4e0750e683",
+    "uncommitted": "model card defines lift (factory_service.py, api.py); judge lists worked-out values (run_eval.py, review.py)",
+    "assistant_model": "claude-opus-5-5",
+    "judge_model": "claude-sonnet-5-5",
+    "effort": "medium",
+    "reps": 3,
+    "change": "v1/change.patch (src/assistant.py, first guideline bullet)"
+  }
+}

@@ -47,6 +47,7 @@ def main():
     rows.sort(key=lambda r: (order.index(r["prompt_id"]), r["rep"]))
 
     passed = sum(r["grade"]["pass"] for r in rows)
+    counted = [r for r in rows if "worked_out" in r["grade"]]
     app_cost = sum(cost_usd(r["model"], r["usage"], prices) or 0 for r in rows)
     judge_cost = sum(cost_usd(r["judge_model"], r["judge_usage"], prices) or 0 for r in rows)
 
@@ -56,6 +57,16 @@ def main():
         f"{len(rows)} graded answers, {passed} pass. Assistant {rows[0]['model']}, judge {rows[0]['judge_model']}. "
         f"Cost ${app_cost:.2f} assistant + ${judge_cost:.2f} judge.",
         "",
+        *(
+            [
+                f"Values worked out by the assistant, per answer: {sum(r['grade']['worked_out'] for r in counted) / len(counted):.2f} "
+                f"({sum(r['grade']['worked_out_unasked'] for r in counted) / len(counted):.2f} not asked for, "
+                f"{sum(r['grade']['worked_out_wrong'] for r in counted) / len(counted):.2f} wrong).",
+                "",
+            ]
+            if counted
+            else []
+        ),
         "| case | rep | pass | facts | no bad claims | exact values | grounded |",
         "|---|---|---|---|---|---|---|",
         *[
@@ -114,6 +125,14 @@ def main():
                 f"- {'✓ grounded' if v['grounded'] else '✗ UNGROUNDED'}: {plain(v['value'])} — {plain(v['reason'])}"
                 for v in verdict["values"]
             ] or ["- (none)"]
+            # Judged since the worked-out counts were added
+            if "derived" in verdict:
+                lines += ["", "**Values the assistant worked out itself:**", ""]
+                lines += [
+                    f"- {'asked' if d['asked'] else 'NOT asked'}, {'correct' if d['correct'] else '✗ WRONG'}: "
+                    f"{plain(d['value'])} — {plain(d['reason'])}"
+                    for d in verdict["derived"]
+                ] or ["- (none)"]
         else:
             lines += ["**Judge's notes:**", ""]
             lines += [f"- {metric}: {plain(r['explanation'][metric])}" for metric in METRICS[1:]]

@@ -341,6 +341,13 @@ class FactoryService:
                 "Forward in time: trained only on parts already through QC and tested on parts "
                 "produced later, over 4 test periods, counting each part once (its first test)."
             ),
+            "metric_definitions": (
+                "Lift: the model's average precision (PR-AUC) on a test period divided by that period's "
+                "QC failure rate, which is the average precision of a random ranking. A lift of "
+                f"{rounded(m['forward_lift_mean'], 1)}x means average precision {rounded(m['forward_lift_mean'], 1)} "
+                "times a random ranking's; it does not mean that many times as many failures found. "
+                "Top-1% recall: the share of a period's failures among its 1% highest-scored parts."
+            ),
             "training_parts": m["training_parts"],
             "training_cutoff_hour": m["training_cutoff_hour"],
             "scorable_parts": m["scorable_parts"],

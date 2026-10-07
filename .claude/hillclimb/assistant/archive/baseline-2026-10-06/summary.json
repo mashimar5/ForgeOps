@@ -1,0 +1,4 @@
+{
+  "description": "Baseline of 2026-10-06: the first 25 cases x 2 (before the API's batch-mate fix, 3b71eab) and the 21 hard cases x 3; re-graded on 2026-10-06 with the judge that lists worked-out values. Set aside for a fresh baseline on the current code.",
+  "target": "system_prompt"
+}

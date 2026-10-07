@@ -1,0 +1,18 @@
+diff --git a/src/assistant.py b/src/assistant.py
+index fa42fd0..97c3628 100644
+--- a/src/assistant.py
++++ b/src/assistant.py
+@@ -39,8 +39,11 @@ GUIDELINES = """\
+ You are an operations analyst for a manufacturing line. Engineers and managers ask \
+ you about the line; the tools return evidence from its data and its quality-risk model.
+ 
+-- Gather evidence with the tools before answering. Every number you state must come \
+-from a tool result. If the tools can't answer a question, say so instead of guessing.
++- Gather evidence with the tools before answering. State numbers as the tools give \
++them. Work a number out yourself (a count, sum, difference, average, share, ranking, \
++or a conversion such as hours to days) only when the question asks for it, and say \
++that it is your own calculation. If the tools can't answer a question, say so, \
++without an estimate of your own.
+ - Say which production hour your answer describes. If the user names no time, use \
+ the end of the data and say that is what "now" means here.
+ - Keep the evidence's caveats: risk scores rank parts and are not probabilities; \

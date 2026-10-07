@@ -5,6 +5,7 @@
 export interface ModelCard {
   description: string;
   evaluation: string;
+  metric_definitions: string;
   training_parts: number;
   training_cutoff_hour: number;
   scorable_parts: number;

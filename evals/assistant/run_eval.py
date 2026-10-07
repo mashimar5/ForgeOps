@@ -20,6 +20,11 @@ Grading (the judge prompt is GRADER_SYSTEM below):
                    answer comes from a tool result, a tool definition, the
                    system prompt or the question (judge)
 
+Counted per answer, not part of pass (judge): worked_out, the values the
+assistant worked out itself (counts, sums, differences, conversions,
+estimates); worked_out_unasked, those the question didn't ask for; and
+worked_out_wrong, those that don't follow from the tool results.
+
 The judge is Claude Sonnet 5.5, a different model from the assistant
 (Claude Opus 5.5). Both run on the Claude API and cost money.
 
@@ -66,6 +71,10 @@ DEFAULT_TIMEOUT_S = 900     # wall-clock ceiling per case, app + judge
 
 METRICS = ["pass", "facts", "no_bad_claims", "exact_values", "grounded"]
 
+# Values the assistant worked out itself, per answer (judge): all of them,
+# those the question didn't ask for, and those that are wrong. Not part of pass.
+COUNTS = ["worked_out", "worked_out_unasked", "worked_out_wrong"]
+
 
 # ============================================================
 # GRADER
@@ -105,6 +114,15 @@ and hedged inferences are not values; don't grade them here. In "values", list e
 about, with grounded = true or false. Values plainly present in a tool \
 result need not be listed. OPTIONAL statements are fine to make, but their \
 values are checked too.
+4. Worked-out values. In "derived", list every value in the final answer that \
+the assistant worked out itself instead of reading it from a tool result, a \
+tool definition, the system prompt or the question: anything it counted, \
+added, subtracted, averaged, divided, converted (hours to days or weeks, a \
+share to "about half"), ranked beyond a tool's own order, estimated or \
+forecast. Rounding or repeating a value that is there is not working it out. \
+List each value once. asked = true if the question asks for this value or for \
+a statement that needs it; correct = true if it follows from the tool results \
+(when marked approximate, within 10%). An empty list is fine.
 
 For every item, give the reason first, then the verdict that follows from it. \
 Don't reward length, tone or formatting. Keep each reason to one sentence.\
@@ -154,8 +172,22 @@ GRADE_SCHEMA = {
                 "additionalProperties": False,
             },
         },
+        "derived": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "value": {"type": "string"},
+                    "reason": {"type": "string"},
+                    "asked": {"type": "boolean"},
+                    "correct": {"type": "boolean"},
+                },
+                "required": ["value", "reason", "asked", "correct"],
+                "additionalProperties": False,
+            },
+        },
     },
-    "required": ["required", "forbidden", "values"],
+    "required": ["required", "forbidden", "values", "derived"],
     "additionalProperties": False,
 }
 
@@ -294,6 +326,11 @@ async def grade(client, case, system, tool_definitions, transcript, answer_text)
     }
     scores["pass"] = int(scores["facts"] == 1 and scores["no_bad_claims"] and scores["exact_values"] == 1 and scores["grounded"])
 
+    derived = verdict["derived"]
+    scores["worked_out"] = len(derived)
+    scores["worked_out_unasked"] = sum(not entry["asked"] for entry in derived)
+    scores["worked_out_wrong"] = sum(not entry["correct"] for entry in derived)
+
     explanation = {
         "facts": "; ".join(
             f"{'met' if e['met'] else 'NOT met'}: {case['must_say'][e['item'] - 1]} ({e['reason']})" for e in met
@@ -308,8 +345,14 @@ async def grade(client, case, system, tool_definitions, transcript, answer_text)
     explanation["pass"] = "pass" if scores["pass"] else "fails: " + ", ".join(
         metric for metric in ["facts", "no_bad_claims", "exact_values", "grounded"] if scores[metric] < 1
     )
+    worked = "; ".join(
+        f"{entry['value']} ({'asked' if entry['asked'] else 'NOT asked'}, {'correct' if entry['correct'] else 'WRONG'}: {entry['reason']})"
+        for entry in derived
+    ) or "none"
+    for metric in COUNTS:
+        explanation[metric] = worked
 
-    return {key: scores[key] for key in METRICS}, explanation, verdict, response.model, judge_usage
+    return {key: scores[key] for key in METRICS + COUNTS}, explanation, verdict, response.model, judge_usage
 
 
 # ============================================================
@@ -530,17 +573,25 @@ def summarize(vdir, prices):
         if "hard" in row["tags"]:
             hard.add(row["prompt_id"])
 
-    def line(label, metric, ids):
+    def line(label, metric, ids, count=False):
         values = [sum(g[metric] for g in by_case[i]) / len(by_case[i]) for i in ids]
         mean = sum(values) / len(values)
         sd = math.sqrt(sum((v - mean) ** 2 for v in values) / (len(values) - 1)) if len(values) > 1 else 0.0
         half = 1.96 * sd / math.sqrt(len(values))
         reps = sorted({len(by_case[i]) for i in ids})
         reps = f"{reps[0]}" if len(reps) == 1 else f"{reps[0]}-{reps[-1]}"
-        print(f"  {label:14} {mean:6.1%}  (95% CI {max(0, mean - half):.0%}-{min(1, mean + half):.0%}, {len(values)} cases x {reps} reps)")
+        if count:
+            print(f"  {label:18} {mean:6.2f} per answer  (95% CI {max(0, mean - half):.2f}-{mean + half:.2f}, {len(values)} cases x {reps} reps)")
+        else:
+            print(f"  {label:18} {mean:6.1%}  (95% CI {max(0, mean - half):.0%}-{min(1, mean + half):.0%}, {len(values)} cases x {reps} reps)")
 
     for metric in METRICS:
         line(metric, metric, list(by_case))
+
+    # Rows graded before the worked-out counts existed don't have them
+    for metric in COUNTS:
+        if all(metric in row["grade"] for row in ok):
+            line(metric, metric, list(by_case), count=True)
 
     # The hard cases (counting and arithmetic over long tool outputs) apart from the rest
     if hard and len(hard) < len(by_case):
@@ -572,7 +623,9 @@ async def check_grader(client, system, tool_definitions):
     Push a known-correct answer and four known-bad ones through the judge on
     one case, with the real tool result: the first must pass, the rest fail.
     "wrong_detail" is the correct answer with one plausible but wrong value,
-    so it can only fail on grounding.
+    so it can only fail on grounding. "unasked_value" is the correct answer
+    plus one correct share nobody asked for: it must pass, and the judge must
+    list it as an unasked worked-out value (and none for the correct answer).
     """
 
     from factory_service import FactoryService
@@ -606,15 +659,22 @@ async def check_grader(client, system, tool_definitions):
     real_hour = f"hour {items[0]['first_failure_known_hour']}"
     assert real_hour in answers["oracle"]
     answers["wrong_detail"] = answers["oracle"].replace(real_hour, f"hour {items[0]['first_failure_known_hour'] - 30:.1f}")
+    share = round(100 * alerts["flagged_parts"] / alerts["parts_in_production"])
+    answers["unasked_value"] = answers["oracle"] + f" That is about {share}% of the parts in production."
 
     print(f"Grader check on {case['id']} ({JUDGE_MODEL}):")
     passed = []
     for name, text in answers.items():
         scores, explanation, _, _, _ = await grade(client, case, system, tool_definitions, transcript, text)
-        expected = 1 if name == "oracle" else 0
-        passed.append(scores["pass"] == expected)
+        expected = 1 if name in ("oracle", "unasked_value") else 0
+        ok = scores["pass"] == expected
+        if name == "oracle":
+            ok = ok and scores["worked_out_unasked"] == 0
+        if name == "unasked_value":
+            ok = ok and scores["worked_out_unasked"] >= 1
+        passed.append(ok)
         print(f"  {name:15} pass={scores['pass']} (expected {expected})  {json.dumps(scores)}")
-        if scores["pass"] != expected:
+        if not ok:
             print(f"    {json.dumps(explanation, indent=2)}")
 
     print("grader check:", "OK" if all(passed) else "FAILED -- fix the grader before a real run")
