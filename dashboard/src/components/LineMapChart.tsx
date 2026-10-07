@@ -1,5 +1,6 @@
 import type { LineMap, MapStation } from "../api";
 import { formatCompact, formatInt } from "../format";
+import { useNames } from "../plant";
 import { COUNT_BINS, countStep, lineColor, useColors } from "../theme";
 import { Legend } from "./Legend";
 
@@ -15,7 +16,7 @@ const ROWS = [
 const QUEUE = { x: 430, y: 96, width: 470, height: 128 };
 const QC = { x: LEFT + 23 * (BOX.small + BOX.gap) + 14, y: 290, width: 120, height: 64 };
 const WIDTH = 1120;
-const HEIGHT = 380;
+const HEIGHT = 392;
 
 function stationNumberOf(station: MapStation): number {
   return Number(station.station.split("_S")[1]);
@@ -24,6 +25,7 @@ function stationNumberOf(station: MapStation): number {
 /** Where the parts in production are: a box per station, the queue for line 3, final QC */
 export function LineMapChart({ data, label }: { data: LineMap; label: string }) {
   const colors = useColors();
+  const names = useNames();
   const byNumber = new Map(data.stations.map((s) => [stationNumberOf(s), s]));
   const queue = data.waiting_for_line3;
   const serving = data.line3_serving;
@@ -49,6 +51,11 @@ export function LineMapChart({ data, label }: { data: LineMap; label: string }) 
           <text x={26} y={row.y + BOX.height / 2} dominantBaseline="central" fontSize={14} fontWeight={600} fill={colors.ink}>
             {row.line}
           </text>
+          {row.line !== "L3" && names.ready && (
+            <text x={LEFT} y={row.y - 7} fontSize={11.5} fontWeight={600} fill={colors.ink2}>
+              {names.lineName(row.line)}
+            </text>
+          )}
           {Array.from({ length: row.to - row.from + 1 }, (_, i) => {
             const station = byNumber.get(row.from + i);
             if (!station) return null;
@@ -58,12 +65,30 @@ export function LineMapChart({ data, label }: { data: LineMap; label: string }) 
         </g>
       ))}
 
-      {/* Line 3's status beside its row */}
+      {/* Line 3's name and status above its row, its two cells below */}
       <text x={LEFT + 40} y={286} fontSize={12} fill={colors.ink2}>
-        {serving === "off" ? "Line 3 is off shift" : `Line 3 is serving ${serving === "other" ? "L2/L3-entry" : serving} parts`}
+        <tspan fontWeight={600}>{names.ready ? `${names.lineName("L3")} · ` : ""}</tspan>
+        {serving === "off" ? "off shift" : `serving ${serving === "other" ? "L2/L3-entry" : serving} parts`}
         {" · "}
         {formatInt(Object.values(data.line3_started_last_hour).reduce((a, b) => a + b, 0))} started in the last hour
       </text>
+      {names.ready &&
+        [
+          { cell: "A", from: 0, to: 9 },
+          { cell: "B", from: 10, to: 22 },
+        ].map(({ cell, from, to }) => {
+          const x0 = LEFT + from * (BOX.small + BOX.gap);
+          const x1 = LEFT + to * (BOX.small + BOX.gap) + BOX.small;
+          const y = 296 + BOX.height + 22;
+          return (
+            <g key={cell}>
+              <path d={`M ${x0} ${y - 4} V ${y} H ${x1} V ${y - 4}`} fill="none" stroke={colors.axis} />
+              <text x={(x0 + x1) / 2} y={y + 13} textAnchor="middle" fontSize={11} fill={colors.ink2}>
+                Cell {cell}
+              </text>
+            </g>
+          );
+        })}
 
       <QueueBox queue={queue} />
 
@@ -71,7 +96,7 @@ export function LineMapChart({ data, label }: { data: LineMap; label: string }) 
       <g>
         <rect x={QC.x} y={QC.y} width={QC.width} height={QC.height} rx={6} fill="none" stroke={colors.axis} />
         <text x={QC.x + 10} y={QC.y + 18} fontSize={12} fontWeight={600} fill={colors.ink}>
-          Final QC
+          {names.ready ? "End-of-line test" : "Final QC"}
         </text>
         <text x={QC.x + 10} y={QC.y + 36} fontSize={11} fill={colors.ink2}>
           {formatInt(data.finished_last_hour)} done in last hour
@@ -86,14 +111,16 @@ export function LineMapChart({ data, label }: { data: LineMap; label: string }) 
 
 function StationBox({ station, x, y, width }: { station: MapStation; x: number; y: number; width: number }) {
   const colors = useColors();
+  const names = useNames();
   const step = countStep(station.parts);
   const fill = step < 0 ? colors.empty : colors.ramp[step];
-  const short = station.station.split("_")[1];
+  const info = names.station(station.station);
+  const short = names.ready ? info.op : station.station.split("_")[1];
   const text = station.parts === 0 ? "" : width > BOX.small ? formatInt(station.parts) : formatCompact(station.parts);
 
   return (
     <g>
-      <title>{`${station.station}: ${formatInt(station.parts)} part${station.parts === 1 ? "" : "s"}`}</title>
+      <title>{`${names.ready ? `${info.label} (${station.station})` : station.station}: ${formatInt(station.parts)} part${station.parts === 1 ? "" : "s"}`}</title>
       <rect x={x} y={y} width={width} height={BOX.height} rx={4} fill={fill} stroke={step < 0 ? colors.axis : "none"} strokeWidth={step < 0 ? 0.5 : 0} />
       {text && (
         <text x={x + width / 2} y={y + BOX.height / 2} textAnchor="middle" dominantBaseline="central" fontSize={10.5}
@@ -101,7 +128,7 @@ function StationBox({ station, x, y, width }: { station: MapStation; x: number; 
           {text}
         </text>
       )}
-      <text x={x + width / 2} y={y + BOX.height + 12} textAnchor="middle" fontSize={9.5} fill={colors.muted}>
+      <text x={x + width / 2} y={y + BOX.height + 12} textAnchor="middle" fontSize={names.ready ? 8.5 : 9.5} fill={colors.muted}>
         {short}
       </text>
     </g>
@@ -110,6 +137,7 @@ function StationBox({ station, x, y, width }: { station: MapStation; x: number; 
 
 function QueueBox({ queue }: { queue: LineMap["waiting_for_line3"] }) {
   const colors = useColors();
+  const names = useNames();
   const parts = [
     { key: "L0", label: "from L0", value: queue.L0, color: lineColor(colors, "L0") },
     { key: "L1", label: "from L1", value: queue.L1, color: lineColor(colors, "L1") },
@@ -124,7 +152,7 @@ function QueueBox({ queue }: { queue: LineMap["waiting_for_line3"] }) {
       <title>{`Waiting for line 3: ${formatInt(queue.total)} parts (L0 ${formatInt(queue.L0)}, L1 ${formatInt(queue.L1)})`}</title>
       <rect x={QUEUE.x} y={QUEUE.y} width={QUEUE.width} height={QUEUE.height} rx={8} fill="none" stroke={colors.axis} strokeWidth={1.5} />
       <text x={QUEUE.x + 16} y={QUEUE.y + 24} fontSize={13} fontWeight={600} fill={colors.ink}>
-        Waiting for line 3
+        {names.ready ? "Staging buffer: waiting for final assembly" : "Waiting for line 3"}
       </text>
       <text x={QUEUE.x + 16} y={QUEUE.y + 60} fontSize={30} fontWeight={600} fill={colors.ink}>
         {formatInt(queue.total)}

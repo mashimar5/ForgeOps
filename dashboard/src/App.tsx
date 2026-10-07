@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 
-import type { Summary } from "./api";
+import type { Plant, Summary } from "./api";
 import { AsOfBar } from "./components/AsOfBar";
 import { ApiDown } from "./components/Status";
 import { toHash, useApi, useRoute, useTheme, type Page, type ThemeChoice } from "./hooks";
@@ -8,6 +8,7 @@ import { LineMapPage } from "./pages/LineMapPage";
 import { Overview } from "./pages/Overview";
 import { PartTrace } from "./pages/PartTrace";
 import { StationsPage } from "./pages/Stations";
+import { PlantContext } from "./plant";
 import { ColorsContext, PALETTE } from "./theme";
 
 const TABS: { page: Page; label: string }[] = [
@@ -23,6 +24,7 @@ export default function App() {
 
   // As of the end of the data: the time range and the model's training cutoff
   const end = useApi<Summary>("/summary");
+  const plant = useApi<Plant>("/plant");
 
   const lastHour = end.data?.data_last_hour;
   const at = route.at !== null && lastHour !== undefined && route.at >= lastHour ? null : route.at;
@@ -31,6 +33,7 @@ export default function App() {
 
   return (
     <ColorsContext.Provider value={PALETTE[theme.mode]}>
+      <PlantContext.Provider value={plant.data}>
       <div className="app">
         <header className="topbar">
           <a className="brand" href={toHash({ page: "overview", partId: null, at })}>
@@ -93,8 +96,10 @@ export default function App() {
         <footer>
           Bosch Production Line Performance data (Kaggle), anonymized: times are production hours since the first
           timestamp, with no calendar dates. Every view shows only what was known at the selected hour.
+          {plant.data && ` The ECU plant, line, station and product names are illustrative: they fit how each line behaves in the data, not what it really makes.`}
         </footer>
       </div>
+      </PlantContext.Provider>
     </ColorsContext.Provider>
   );
 }

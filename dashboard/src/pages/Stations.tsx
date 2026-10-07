@@ -6,6 +6,7 @@ import { Placeholder } from "../components/Status";
 import { Table } from "../components/Table";
 import { formatHour, formatInt, formatPct } from "../format";
 import { useApi } from "../hooks";
+import { useNames } from "../plant";
 import { LINES, useColors } from "../theme";
 
 function hours(value: number | null): string {
@@ -14,6 +15,7 @@ function hours(value: number | null): string {
 
 export function StationsPage({ at }: { at: number | null }) {
   const colors = useColors();
+  const names = useNames();
   const params = { at_hour: at };
   const stations = useApi<Stations>("/stations", params);
   const summary = useApi<Summary>("/summary", params);
@@ -62,6 +64,11 @@ export function StationsPage({ at }: { at: number | null }) {
                 label: "Station",
                 render: (row) => <LineTag line={row.line}>{row.station}</LineTag>,
                 sortValue: (row) => row.station_number,
+              },
+              {
+                key: "where",
+                label: "Where (illustrative)",
+                render: (row) => (names.ready ? names.station(row.station).label : "–"),
               },
               {
                 key: "parts",

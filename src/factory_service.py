@@ -34,6 +34,7 @@ import shap
 from xgboost import XGBClassifier
 
 from line_map import snapshot
+from plant_names import PRODUCTS, plant, product_index
 from production_data import PROJECT_ROOT, line_of, station_number, station_of
 from qc_monitor import (
     NEVER,
@@ -223,6 +224,11 @@ class FactoryService:
         self._l3_first = np.where(l3_first == NOT_VISITED, NEVER, l3_first)
         self._map_start = np.where(self._is_part, self._start, NEVER)     # parts only
         del pre
+
+        # Illustrative product names (plant_names.py): route families
+        self._product = product_index(
+            self._entry_line, parts["through_l2"].to_numpy(), parts["l3_path"].to_numpy()
+        )
 
     # ============================================================
     # HELPERS
@@ -452,6 +458,43 @@ class FactoryService:
                 "The last week runs only up to the as-of hour."
             ),
         }
+
+    # ============================================================
+    # ILLUSTRATIVE NAMES (plant_names.py; the HTTP API and dashboard only)
+    # ============================================================
+
+    def plant(self):
+        return plant(self.stations)
+
+    def product_name(self, part_id):
+        return PRODUCTS[self._product[self._row_of.get_loc(part_id)]]["name"]
+
+    def products(self, at_hour=None):
+        """Parts and QC results by product (route family) so far."""
+
+        tick = self._tick(at_hour)
+        entered = self._is_part & (self._start <= tick)
+        finished = self._is_part & (self._end <= tick)
+        known = self._qc_known(tick)
+
+        rows = []
+        for i, product in enumerate(PRODUCTS):
+            mine = self._product == i
+            done = finished & mine
+            results = known & mine
+            rows.append({
+                "id": product["id"],
+                "name": product["name"],
+                "route": product["route"],
+                "parts_entered": int((entered & mine).sum()),
+                "parts_in_production": int((entered & ~finished & mine).sum()),
+                "parts_finished": int(done.sum()),
+                "qc_results_known": int(results.sum()),
+                "qc_failure_rate_pct": rounded(self._response[results].mean() * 100, 3) if results.any() else None,
+                "median_hours_in_production": rounded(np.median(self._end[done] - self._start[done]) / TICKS_PER_HOUR, 1) if done.any() else None,
+            })
+
+        return {"at_hour": self._hours(tick), "products": rows, "note": plant(self.stations)["note"]}
 
     def line_map(self, at_hour=None):
         """Where the parts in production are at this hour (line_map.py)."""

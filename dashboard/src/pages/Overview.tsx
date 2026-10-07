@@ -1,4 +1,4 @@
-import type { BatchAlerts, InspectionQueue, LineHistory, LineStatus, Summary } from "../api";
+import type { BatchAlerts, InspectionQueue, LineHistory, LineStatus, Products, Summary } from "../api";
 import { Badge } from "../components/Badge";
 import { Card } from "../components/Card";
 import { Legend, LineLegend, LineTag } from "../components/Legend";
@@ -23,6 +23,7 @@ export function Overview({ at, partLink }: OverviewProps) {
   const history = useApi<LineHistory>("/line/history", params);
   const queue = useApi<InspectionQueue>("/inspection-queue", { ...params, hours: 24, limit: 20 });
   const alerts = useApi<BatchAlerts>("/alerts/batch-mates", { ...params, limit: 20 });
+  const products = useApi<Products>("/products", params);
 
   const s = summary.data;
   const l = line.data;
@@ -96,6 +97,40 @@ export function Overview({ at, partLink }: OverviewProps) {
         </Card>
       </div>
 
+      <Card
+        title="Products so far"
+        subtitle="Route families, named as an illustrative ECU plant"
+        loading={products.loading}
+        note={products.data?.note}
+      >
+        {products.error ? (
+          <ErrorText error={products.error} />
+        ) : (
+          products.data && (
+            <Table
+              caption="Parts and QC results by product"
+              rows={products.data.products}
+              rowKey={(row) => row.id}
+              initialSort={{ key: "finished", descending: true }}
+              columns={[
+                { key: "name", label: "Product", render: (row) => <strong>{row.name}</strong>, sortValue: (row) => row.name },
+                { key: "route", label: "Route", render: (row) => <span className="muted">{row.route}</span> },
+                { key: "finished", label: "Finished", numeric: true, render: (row) => formatInt(row.parts_finished), sortValue: (row) => row.parts_finished },
+                { key: "wip", label: "In production", numeric: true, render: (row) => formatInt(row.parts_in_production), sortValue: (row) => row.parts_in_production },
+                { key: "rate", label: "QC failure rate", numeric: true, render: (row) => formatPct(row.qc_failure_rate_pct, 2), sortValue: (row) => row.qc_failure_rate_pct },
+                {
+                  key: "hours",
+                  label: "Median h in production",
+                  numeric: true,
+                  render: (row) => (row.median_hours_in_production === null ? "–" : formatHour(row.median_hours_in_production)),
+                  sortValue: (row) => row.median_hours_in_production,
+                },
+              ]}
+            />
+          )
+        )}
+      </Card>
+
       <div className="grid-2 align-start">
         <Card
           title="Inspection queue"
@@ -127,7 +162,7 @@ export function Overview({ at, partLink }: OverviewProps) {
                 }
                 columns={[
                   { key: "part", label: "Part", render: (item) => <a href={partLink(item.part_id)}>{item.part_id}</a> },
-                  { key: "line", label: "Entry line", render: (item) => <LineTag line={item.entry_line} /> },
+                  { key: "product", label: "Product", render: (item) => <LineTag line={item.entry_line}>{item.product}</LineTag> },
                   { key: "finished", label: "Finished (hour)", numeric: true, render: (item) => formatHour(item.finished_hour) },
                   { key: "score", label: "Risk score", numeric: true, render: (item) => formatScore(item.risk_score) },
                   {
@@ -164,7 +199,7 @@ export function Overview({ at, partLink }: OverviewProps) {
                 empty="No parts are flagged at this hour."
                 columns={[
                   { key: "part", label: "Part", render: (item) => <a href={partLink(item.part_id)}>{item.part_id}</a> },
-                  { key: "line", label: "Entry line", render: (item) => <LineTag line={item.entry_line} /> },
+                  { key: "product", label: "Product", render: (item) => <LineTag line={item.entry_line}>{item.product}</LineTag> },
                   { key: "flag", label: "Flagged (h ago)", numeric: true, render: (item) => formatHour(item.hours_since_flag) },
                   {
                     key: "waiting",

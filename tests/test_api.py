@@ -384,3 +384,34 @@ def test_all_stations(client):
 
 def test_rejects_negative_hours(client):
     assert client.get("/summary", params={"at_hour": -1}).status_code == 422
+
+
+# ============================================================
+# ILLUSTRATIVE NAMES (plant_names.py)
+# ============================================================
+
+def test_plant_names_cover_every_station_and_route(client):
+    plant = client.get("/plant").json()
+
+    assert len(plant["stations"]) == 52
+    assert {s["op"] for s in plant["stations"] if s["station"] == "L3_S32"} == {"OP40"}
+    assert "illustrative" in plant["note"].lower()
+
+
+def test_products_add_up_to_the_summary(client):
+    at = 16000
+    products = client.get("/products", params={"at_hour": at}).json()["products"]
+    summary = client.get("/summary", params={"at_hour": at}).json()
+
+    assert sum(p["parts_finished"] for p in products) == summary["parts_finished"]
+    assert sum(p["parts_in_production"] for p in products) == summary["parts_in_production"]
+    assert sum(p["qc_results_known"] for p in products) == summary["qc_results_known"]
+
+
+def test_parts_show_their_product_but_the_assistant_tools_dont(client, service):
+    part = client.get("/parts/272133").json()
+    queue = client.get("/inspection-queue", params={"limit": 5}).json()
+
+    assert part["product"] in {p["name"] for p in client.get("/plant").json()["products"]}
+    assert all("product" in item for item in queue["items"])
+    assert "product" not in service.part(272133)      # what the MCP tools return

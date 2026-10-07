@@ -86,6 +86,52 @@ class LineHistory(BaseModel):
     note: str
 
 
+class PlantLine(BaseModel):
+    code: str
+    name: str
+    behaviour: str
+
+
+class PlantStation(BaseModel):
+    station: str
+    line: str
+    cell: str | None
+    op: str
+    label: str
+
+
+class PlantProduct(BaseModel):
+    id: str
+    name: str
+    route: str
+
+
+class Plant(BaseModel):
+    theme: str
+    lines: list[PlantLine]
+    stations: list[PlantStation]
+    products: list[PlantProduct]
+    note: str
+
+
+class ProductMetrics(BaseModel):
+    id: str
+    name: str
+    route: str
+    parts_entered: int
+    parts_in_production: int
+    parts_finished: int
+    qc_results_known: int
+    qc_failure_rate_pct: float | None
+    median_hours_in_production: float | None
+
+
+class Products(BaseModel):
+    at_hour: float
+    products: list[ProductMetrics]
+    note: str
+
+
 class MapStation(BaseModel):
     station: str
     line: str
@@ -144,6 +190,7 @@ class RiskSummary(BaseModel):
 
 class Part(BaseModel):
     part_id: int
+    product: str
     at_hour: float
     status: Literal["in production", "finished"]
     entry_line: str
@@ -180,6 +227,7 @@ class PartRisk(RiskSummary):
 
 class QueueItem(BaseModel):
     part_id: int
+    product: str
     entry_line: str
     finished_hour: float
     risk_score: float
@@ -198,6 +246,7 @@ class InspectionQueue(BaseModel):
 
 class BatchAlert(BaseModel):
     part_id: int
+    product: str
     entry_line: str
     entered_hour: float
     hours_in_production: float
@@ -284,6 +333,12 @@ def not_found(error):
     return HTTPException(status_code=404, detail=str(error))
 
 
+def with_product(service, item):
+    """Add the illustrative product name (plant_names.py). The API only: the assistant's tools keep the codes."""
+
+    return {**item, "product": service.product_name(item["part_id"])}
+
+
 # ============================================================
 # ROUTES
 # ============================================================
@@ -306,6 +361,16 @@ def line_status(service: Service, at_hour: AtHour = None):
 @app.get("/line/history", response_model=LineHistory, summary="Week by week: QC results reported and parts entered")
 def line_history(service: Service, at_hour: AtHour = None):
     return service.line_history(at_hour)
+
+
+@app.get("/plant", response_model=Plant, summary="Illustrative names for the lines, stations and products")
+def plant(service: Service):
+    return service.plant()
+
+
+@app.get("/products", response_model=Products, summary="Parts and QC results by product (route family)")
+def products(service: Service, at_hour: AtHour = None):
+    return service.products(at_hour)
 
 
 @app.get("/line/map", response_model=LineMap, summary="Where the parts in production are: each station and the queue for line 3")
@@ -346,7 +411,7 @@ def twin_map(
 @app.get("/parts/{part_id}", response_model=Part, summary="A part's route, status and risk so far")
 def part(service: Service, part_id: PartId, at_hour: AtHour = None):
     try:
-        return service.part(part_id, at_hour)
+        return with_product(service, service.part(part_id, at_hour))
     except NotFound as error:
         raise not_found(error)
 
@@ -375,7 +440,9 @@ def inspection_queue(
     hours: Annotated[float, Query(gt=0, le=336, description="Look back this many hours")] = 24,
     limit: Annotated[int, Query(ge=1, le=500)] = 50,
 ):
-    return service.inspection_queue(at_hour, hours, limit)
+    queue = service.inspection_queue(at_hour, hours, limit)
+    queue["items"] = [with_product(service, item) for item in queue["items"]]
+    return queue
 
 
 @app.get(
@@ -388,7 +455,9 @@ def batch_alerts(
     at_hour: AtHour = None,
     limit: Annotated[int, Query(ge=1, le=1000)] = 100,
 ):
-    return service.batch_alerts(at_hour, limit)
+    alerts = service.batch_alerts(at_hour, limit)
+    alerts["items"] = [with_product(service, item) for item in alerts["items"]]
+    return alerts
 
 
 @app.get("/stations", response_model=Stations, summary="Metrics for every station")

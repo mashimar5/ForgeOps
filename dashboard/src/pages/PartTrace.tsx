@@ -10,6 +10,7 @@ import { ErrorText } from "../components/Status";
 import { Table } from "../components/Table";
 import { formatHour, formatScore, lineOf, weekAndDay } from "../format";
 import { useApi, type Loaded } from "../hooks";
+import { useNames } from "../plant";
 import { LINES, useColors } from "../theme";
 
 interface PartTraceProps {
@@ -118,6 +119,7 @@ function NotKnown({ error }: { error: Error }) {
 }
 
 function PartView({ part, risk, loading }: { part: Part; risk: Loaded<PartRisk>; loading: boolean }) {
+  const names = useNames();
   const lines = LINES.filter((line) => part.route_so_far.some((step) => lineOf(step.station) === line));
   const entered = weekAndDay(part.entered_hour);
 
@@ -125,6 +127,7 @@ function PartView({ part, risk, loading }: { part: Part; risk: Loaded<PartRisk>;
     <div className={loading ? "is-loading" : undefined}>
       <section className="part-head">
         <h1>Part {part.part_id}</h1>
+        <span className="product-name">{part.product}</span>
         <div className="badges">
           <Badge tone="neutral">{part.status === "finished" ? "Finished" : "In production"}</Badge>
           <QcBadge part={part} />
@@ -133,7 +136,7 @@ function PartView({ part, risk, loading }: { part: Part; risk: Loaded<PartRisk>;
       </section>
 
       <dl className="facts">
-        <Fact label="Entry line" value={<LineTag line={part.entry_line} />} />
+        <Fact label="Entry line" value={<LineTag line={part.entry_line}>{names.lineName(part.entry_line)}</LineTag>} detail={part.entry_line} />
         <Fact label="Entered" value={`Hour ${formatHour(part.entered_hour)}`} detail={`Week ${entered.week}, day ${entered.day}`} />
         <Fact label="Finished" value={part.finished_hour === null ? "Not yet" : `Hour ${formatHour(part.finished_hour)}`} />
         <Fact label="Hours in production" value={formatHour(part.hours_in_production)} />
@@ -182,6 +185,7 @@ function Fact({ label, value, detail }: { label: string; value: ReactNode; detai
 }
 
 function RouteTable({ route }: { route: RouteStep[] }) {
+  const names = useNames();
   return (
     <Table
       caption="Stations visited"
@@ -189,6 +193,7 @@ function RouteTable({ route }: { route: RouteStep[] }) {
       rowKey={(step) => step.station}
       columns={[
         { key: "station", label: "Station", render: (step) => <LineTag line={lineOf(step.station)}>{step.station}</LineTag> },
+        { key: "where", label: "Where", render: (step) => (names.ready ? names.station(step.station).label : "–") },
         { key: "hour", label: "Production hour", numeric: true, render: (step) => formatHour(step.hour) },
         { key: "after", label: "Hours after entry", numeric: true, render: (step) => formatHour(step.hours_after_entry) },
       ]}

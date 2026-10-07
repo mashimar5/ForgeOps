@@ -81,6 +81,7 @@ export interface RiskSummary {
 
 export interface Part {
   part_id: number;
+  product: string;
   at_hour: number;
   status: "in production" | "finished";
   entry_line: string;
@@ -117,6 +118,7 @@ export interface PartRisk extends RiskSummary {
 
 export interface QueueItem {
   part_id: number;
+  product: string;
   entry_line: string;
   finished_hour: number;
   risk_score: number;
@@ -135,6 +137,7 @@ export interface InspectionQueue {
 
 export interface BatchAlert {
   part_id: number;
+  product: string;
   entry_line: string;
   entered_hour: number;
   hours_in_production: number;
@@ -169,6 +172,33 @@ export interface StationMetrics {
 export interface Stations {
   at_hour: number;
   stations: StationMetrics[];
+}
+
+/** Illustrative names over the anonymized codes (src/plant_names.py) */
+export interface Plant {
+  theme: string;
+  lines: { code: string; name: string; behaviour: string }[];
+  stations: { station: string; line: string; cell: string | null; op: string; label: string }[];
+  products: { id: string; name: string; route: string }[];
+  note: string;
+}
+
+export interface ProductMetrics {
+  id: string;
+  name: string;
+  route: string;
+  parts_entered: number;
+  parts_in_production: number;
+  parts_finished: number;
+  qc_results_known: number;
+  qc_failure_rate_pct: number | null;
+  median_hours_in_production: number | null;
+}
+
+export interface Products {
+  at_hour: number;
+  products: ProductMetrics[];
+  note: string;
 }
 
 export interface MapStation {

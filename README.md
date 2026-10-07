@@ -127,6 +127,7 @@ A FastAPI service serves the evidence above. Every endpoint answers **as of** a 
 | `GET /line/history` | Week by week: QC results reported and their failure rate, and parts entered by entry line |
 | `GET /line/map` | Where the parts in production are: at each station, or waiting for line 3 |
 | `GET /twin/scenarios`, `GET /twin/map/{run}` | The digital twin's saved runs, and the same map for one of them |
+| `GET /plant`, `GET /products` | Illustrative names for the lines, stations and products (below), and parts and QC results by product |
 | `GET /parts/{id}` | A part's route so far, status, QC result once reported, batch-mate status, risk, and its twin records once the QC result is reported |
 | `GET /parts/{id}/risk` | Risk score, percentile and the top SHAP contributions |
 | `GET /inspection-queue` | Parts that just reached their last station, riskiest first, each listed once |
@@ -143,6 +144,8 @@ A FastAPI service serves the evidence above. Every endpoint answers **as of** a 
 - **Line map:** where the parts in production are, station by station and in the queue for line 3, for the real line or a run of the digital twin (below), with play controls.
 - **Stations:** the failure rate of the parts that visited each of the 52 stations, with risk lift and timing.
 - **Part trace:** a part's route by hours after entry, its status and QC result once reported, its batch-mates, and its risk score with the SHAP contributions behind it.
+
+**Illustrative names.** The data is anonymized, so to make the flow easier to follow the dashboard and the API ([`plant_names.py`](src/plant_names.py)) describe the plant as a factory for electronic control units, with names that fit how each line behaves in the data, not what it really does: L0, 24 stations cleared in about 20 minutes, is the *circuit-board line*; L1, whose sub-steps span days, the *potting & cure line*; L2, used by about 30% of parts, the *connector sub-assembly*; L3 is *final assembly* in two cells (S29–S38 and S39–S51). Stations are operation numbers in production order (L3_S32 is cell A, OP40). Products are route families: *Standard ECU* (circuit-board line, cell A: 64% of parts), *Potted ECU + connector* (20%), *ECU + connector* (9%), *Compact ECU* (cell B, 4%), *Potted ECU* (2%) and special variants (1%). The real codes stay next to every name, and the AI assistant's tools and its eval use the codes only.
 
 Risk scores are shown as ranks, never as failure probabilities, and station rates come labelled as associations. Every chart has a legend and a table view; colors follow a palette checked for color-vision deficiency in light and dark mode.
 

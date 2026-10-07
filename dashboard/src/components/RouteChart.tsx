@@ -2,6 +2,7 @@ import { CartesianGrid, Scatter, ScatterChart, Tooltip, XAxis, YAxis } from "rec
 
 import type { RouteStep } from "../api";
 import { formatHour, lineOf, stationNumber } from "../format";
+import { useNames } from "../plant";
 import { axisTick, lineColor, useColors } from "../theme";
 import { TooltipBox, tipPoint, type TipProps } from "./TooltipBox";
 
@@ -12,10 +13,12 @@ interface RoutePoint extends RouteStep {
 
 // Where each line starts, in production order (station numbers)
 const LINE_STARTS: Record<number, string> = { 0: "L0 · S0", 24: "L1 · S24", 26: "L2 · S26", 29: "L3 · S29", 51: "S51" };
+const LINE_START_CODE: Record<number, string> = { 0: "L0", 24: "L1", 26: "L2", 29: "L3" };
 
 /** A part's journey: each station it visited, by hours after it entered */
 export function RouteChart({ route }: { route: RouteStep[] }) {
   const colors = useColors();
+  const names = useNames();
   const points: RoutePoint[] = route.map((step) => ({ ...step, number: stationNumber(step.station), line: lineOf(step.station) }));
 
   return (
@@ -39,8 +42,10 @@ export function RouteChart({ route }: { route: RouteStep[] }) {
         tick={axisTick(colors)}
         tickLine={false}
         axisLine={false}
-        width={72}
-        tickFormatter={(number: number) => LINE_STARTS[number] ?? `S${number}`}
+        width={names.ready ? 128 : 72}
+        tickFormatter={(number: number) =>
+          names.ready && number in LINE_START_CODE ? names.lineName(LINE_START_CODE[number]) : LINE_STARTS[number] ?? `S${number}`
+        }
       />
       <Tooltip
         isAnimationActive={false}
@@ -72,12 +77,13 @@ export function RouteChart({ route }: { route: RouteStep[] }) {
 
 function StepTip(props: TipProps) {
   const colors = useColors();
+  const names = useNames();
   const step = tipPoint<RoutePoint>(props);
   if (!step) return null;
 
   return (
     <TooltipBox
-      title={step.station}
+      title={names.ready ? `${names.station(step.station).label} (${step.station})` : step.station}
       rows={[
         { label: "hours after entry", value: formatHour(step.hours_after_entry), color: lineColor(colors, step.line) },
         { label: "production hour", value: formatHour(step.hour) },
