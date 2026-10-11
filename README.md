@@ -16,6 +16,7 @@ Every result below is measured **forward in time**: models train only on parts w
 | **Final-QC triage** | XGBoost on the full measurement record, trained on up to 944k records, reaches **6.3× PR-AUC lift** over random ranking on average (4.3–10.5× across four test periods), counting each part once. Inspecting the 1% highest-risk parts catches **13% of failures** (10–17%). |
 | **Early warning from measurements** | **None.** Measurements taken before the final line (L3) predict nothing about future parts. The usable signal arrives at L3, in a part's last ~18 minutes on the line. |
 | **Batch-mate alert** | When a part fails final QC, the parts that entered production with it and are still on the line fail more often. Flagging them marks **1.7% of production at 2.6× the average failure rate** and catches 4.4% of failures about **4 days** before final QC, counting each part once. Late flags are stronger while entry line L1 is running, but a cutoff tuned only on past data raises this to just 2.9× (the 4.0× seen in hindsight doesn't hold up). |
+| **Station drift** | **No signal.** A station's measurements shifting against its own past 28 days doesn't mark parts that later fail, or follow the line's failure rate, forward in time: stations and measurements that look strong on weeks 0–61 don't on weeks 62 and later. |
 | **Production campaigns** | The factory alternates between two entry lines, L0 and L1. Failure rates on both rise and fall together (r = 0.64), and the model ranks L1-entry parts about twice as well (14× vs 6× lift). |
 | **A leak that passes a forward split** | About 4% of train records share every measurement and timestamp with another record. "Has a twin" raises lift from 7.4× to 9.2× in every test period, but it leaks the QC result: twins are most likely repeat tests of one part, made after a failed test, and twins hidden in Kaggle's test file confirm it. Not used (see [Evaluation](#evaluation)). |
 
@@ -85,6 +86,7 @@ Run from the project root, for example `.venv/bin/python src/train_xgboost.py`. 
 | [`twin_validate.py`](src/twin_validate.py) | Digital twin: calibrates [`digital_twin.py`](src/digital_twin.py) on weeks 1–61 and compares its run over the later weeks with the real line | ~40 s |
 | [`twin_scenarios.py`](src/twin_scenarios.py) | Digital twin: what-if scenarios and monitor stress tests; saves the line map's twin runs | ~70 s |
 | [`twin_scale_data.py`](src/twin_scale_data.py) | Digital twin: the dataset at N times its volume in the Kaggle CSV format, for the Spark ETL | ~2 min at 10x |
+| [`station_drift.py`](src/station_drift.py) | Station drift: daily measurement shifts per station against the previous 28 days, and whether they mark failures, checked forward in time | ~30 s (first run), then ~5 s |
 | [`eda.py`](src/eda.py) | First exploration on a 10k-row sample; reads `train_numeric.csv` from the current directory | — |
 
 Runtimes are from a Mac with 18 CPU cores and 64 GB of RAM. `train_xgboost.py`, `twin_feature.py` and `one_record_per_part.py` use all 1.18M parts and peak at about 26 GB of RAM (set `NUM_ROWS = 500_000` in `train_xgboost.py` to use less); `kaggle_split_repeats.py` reads both Kaggle files (2.37M records, ~25 GB). The other model scripts use the first 500k rows; analyses that only need timestamps use all 1.18M.
@@ -272,8 +274,22 @@ Baseline (Claude Opus 5.5; the first 25 questions × 2 runs, the hard 21 × 3): 
 
 The runner needs Claude API credentials, writes to `.claude/hillclimb/assistant/`, and refuses to run after its own code changes until a person approves it again with `--approve-harness`.
 
+## Station drift (checked, no signal)
+
+Failure rates rise and fall line-wide, so a natural suspect is a station whose process shifts in those stretches. [`station_drift.py`](src/station_drift.py) gives every station a daily drift score: each measurement's mean that day against the previous 28 days, within each product (so a change in product mix isn't drift), combined over the station's measurements. The score only uses measurements recorded by the end of the day. Stations were picked and thresholds set on weeks 0–61, then checked on weeks 62 and later, counting each part once.
+
+| Check (22 stations with enough days) | Weeks 0–61 vs 62+ |
+|---|---|
+| Parts passing a station on its top-10% drift days: failure rate vs the station's average | Stations' lifts don't carry over (rank agreement +0.08; shuffled data gives anywhere from −0.43 to +0.43). Median lift in the later weeks 0.82; the top discovery station, L3_S38, goes from 1.41× to 0.65× |
+| A station's weekly drift vs the line's weekly failure rate | No agreement (+0.12); the main final-assembly stations sit near zero or below in both periods |
+| Each of 274 measurements: weekly change in its mean vs change in the failure rate (Standard ECU) | The measurements that move with failures early on don't later (−0.11; shuffled −0.11 to +0.12); 4 of the 20 strongest keep their sign |
+
+The same holds for a station's single most-shifted measurement instead of the average over its measurements, for drift in which measurements are recorded at all, and for drift computed only from parts that later passed QC (so it isn't the failing parts' own values). One station, L3_S33, kept a lift of 1.2–1.3× in two of the scores, about what chance gives among 22 stations; its interval runs from about 0.9 to 1.5. So no drift monitor was built.
+
+![Station drift, discovery vs validation](results/plots/station_drift.png)
+
 ## Status
 
 Done: decoding the data, forward-in-time evaluation, the final-QC model with SHAP explanations, the early-warning, burst-monitoring and campaign analyses, first versions of the API, the AI-assistant tools and an operations dashboard with an AI Analyst page, an eval for the assistant, and a PySpark version of the per-part ETL.
 
-Also built: a flow simulation ("digital twin") of the four lines, checked forward in time, with what-ifs, monitor stress tests, a line map and data at scale for Spark. Planned, not built yet: a station-drift monitor.
+Also built: a flow simulation ("digital twin") of the four lines, checked forward in time, with what-ifs, monitor stress tests, a line map and data at scale for Spark. Checked and not built: a station-drift monitor, since no station's drift marks failures forward in time (see [Station drift](#station-drift-checked-no-signal)).

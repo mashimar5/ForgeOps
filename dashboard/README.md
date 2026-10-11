@@ -14,7 +14,7 @@ A React + TypeScript app (Vite, Recharts) on the ForgeOps API ([`src/api.py`](..
 
 Lines, stations and products carry illustrative names from `GET /plant` (an ECU plant whose lines behave like the real ones; see the main README), always next to the real codes; the footer says they are illustrative. The twin runs on the line map are simulated parts from `src/twin_scenarios.py` (saved to `serving/twin/`); the page says so and shows each run's description.
 
-Left out on purpose: "predicted failures" (risk scores rank parts; they aren't probabilities), and measurement distributions or anomaly flags (the station-drift monitor isn't built yet).
+Left out on purpose: "predicted failures" (risk scores rank parts; they aren't probabilities), and measurement drift or anomaly flags (a station-drift check found no signal that holds forward in time; see the main README).
 
 ## Run
 
